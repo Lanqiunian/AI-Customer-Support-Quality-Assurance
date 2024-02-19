@@ -2,12 +2,14 @@
 
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtGui import QStandardItemModel
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextEdit
 
 from ui.dataset_logic import DataSetManager
 from ui.main_window import Ui_MainWindow
 from ui.rule_logic import RuleManager
 from ui.scheme_logic import SchemeManager
 from ui.task_logic import TaskManager
+from utils.data_utils import generate_html
 
 
 class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -43,8 +45,30 @@ class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Scheme_Manager.setup_scheme_table_view()
 
         # 初始化 TaskManager任务管理
-        self.Task_Manager = TaskManager(self)
+        self.Task_Manager = TaskManager(self, self.rule_manager)
         self.Task_Manager.setup_task_table_view()
+        self.back_to_dialogue_detail_pushButton.hide()
+
+    def setupDialogueDisplay(self, dialogue_df):
+        """
+        设置对话显示区域的内容。
+        :param dialogue_df: 对话的df
+        :return:
+        """
+        self.scrollArea = self.dialogue_scrollArea  # 假设dialogue_scrollArea是你的QScrollArea实例
+        self.scrollArea.setWidgetResizable(True)
+
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+
+        layout = QVBoxLayout(self.scrollAreaWidgetContents)
+        self.textEdit = QTextEdit()
+        self.textEdit.setReadOnly(True)
+        layout.addWidget(self.textEdit)
+
+        # 根据DataFrame生成对话HTML内容
+        dialogue_html = generate_html(dialogue_df)
+        self.textEdit.setHtml(dialogue_html)
 
     def setupTreeWidgetPageMapping(self):
         # 映射项到StackedWidget的索引

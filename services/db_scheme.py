@@ -1,5 +1,6 @@
 import sqlite3
 
+from services.db_dialogue_data import load_data_from_db
 from services.db_rule import query_rule
 from utils.data_utils import list_to_text
 from utils.file_utils import SCHEME_DB_PATH, TASK_DB_PATH
@@ -63,33 +64,51 @@ class Scheme:
 
         print(f"方案 '{self.scheme_name}' 已更新。")
 
-    def scheme_evaluate(self, dialogue_id, dialogue_df):
+    def scheme_evaluate(self, task_id, dialogue_id, dialogue_df):
         conn = sqlite3.connect(TASK_DB_PATH)
-        cursor_record_result = conn.cursor()
+        cursor = conn.cursor()
+
         base_score = 100  # 基础分
+        hit_rules = []  # 用于存储命中的规则及其影响
+
         for rule in self.rules:
-            # 对每个规则进行评估，并将结果保存到变量中
             evaluation_result = query_rule(rule).evaluate(dialogue_df)
 
-            # 检查评估结果是否为元组，如果不是（即规则未命中），继续下一个规则
             if not evaluation_result:
-                continue  # 规则未命中，继续评估下一个规则,下面的代码跳过
+                continue  # 规则未命中
 
-            # 如果规则命中，处理评分逻辑
             if isinstance(evaluation_result, tuple):
                 score_type, score_value = evaluation_result
-                print(score_type, score_value)
+
+                # 记录命中的规则及其影响
+                hit_rules.append((rule, score_value))
+
                 if score_type == "0":
-                    print(f"一次性评分,命中规则：", rule)
-                    # 如果评分类型为一次性得分，直接返回该得分
-                    return score_value
+                    # 一次性评分, 直接返回该得分并结束评估
+                    base_score = score_value
+                    break
                 elif score_type == "1":
-                    print(f"加减分,命中规则：", rule)
-                    # 如果是加减分，则在基础分上进行加减
+                    # 加减分
                     base_score += score_value
-            else:
-                # 如果返回结果既不是 False 也不是元组，则打印错误或进行其他处理
-                print("Unexpected return value from rule evaluation:", evaluation_result)
+
+        # 将评分结果保存到数据库
+        cursor.execute('''
+            INSERT INTO evaluation_results (task_id, dialogue_id, score)
+            VALUES (?, ?, ?)
+        ''', (task_id, dialogue_id, base_score))
+
+        # 获取最新插入评分结果的ID
+        result_id = cursor.lastrowid
+        load_data_from_db("测试数据1")
+        # 将命中的规则详情保存到数据库
+        for rule, impact in hit_rules:
+            cursor.execute('''
+                INSERT INTO hit_rules_details (task_id, dialogue_id, rule_name, impact)
+                VALUES (?, ?, ?, ?)
+            ''', (task_id, dialogue_id, rule, impact))
+
+        conn.commit()
+        conn.close()
 
         return base_score
 
@@ -104,13 +123,10 @@ def query_scheme(scheme_name):
     rule_data = cursor.fetchall()
 
     conn.close()
-    print(f"scheme_data", scheme_data)
     if scheme_data:
         scheme = Scheme(scheme_name, scheme_data[0])
         for rule in rule_data:
             scheme.append(rule[0])
-            print(f"添加了规则", rule[0])
-
         return scheme
 
     else:

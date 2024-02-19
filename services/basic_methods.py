@@ -63,6 +63,7 @@ def Keywords_Matching(service_replies, keywords, check_type, n=None):
         jieba.add_word(keyword)
     for message in service_replies:  # 直接处理Series中的每个元素
         message_words = set(jieba.cut(message))
+        print(f"分词结果", message_words)
         # print(message_words) 如果第一句话就满足了关键词匹配，那么就不会验证第二句话
         if check_type == 'any' and any(keyword in message_words for keyword in keywords):
             return True

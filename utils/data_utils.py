@@ -1,13 +1,11 @@
-import os
+import re
 import sqlite3
 from datetime import datetime
 
+import jieba
 import pandas as pd
 
-import jieba
-import re
-
-from utils.file_utils import REPOSITORY_PATH
+from utils.file_utils import RULE_DB_PATH
 
 
 def load_stopwords(file_path):
@@ -42,6 +40,36 @@ def chinese_tokenization(dataframe, column_name='消息内容', stopwords_path='
     )
 
     return tokenized_messages
+
+
+df = pd.DataFrame({
+    '发送方': [0, 1, 0, 1, 0],
+    '消息内容': [
+        "您好！请问有什么可以帮助您的吗？",
+        "我想咨询一下我的订单状态。",
+        "请问您的订单号是多少呢？",
+        "我的订单号是123456。",
+        "好的，我帮您查一下。"
+    ]
+})
+
+
+# df0 = load_data_from_db("测试数据1")
+# df['发送方'] = df0['发送方', '消息内容']
+
+
+def generate_html(dialogue_df):
+    dialogue_html = []
+    for index, row in dialogue_df.iterrows():
+        sender = "客服" if row['发送方'] == 0 else "客户"
+        background_color = "#e7f3fe" if sender == "客服" else "#f0f0f0"
+        message_html = f"""
+        <div style='margin: 10px; padding: 10px; background-color: {background_color}; border-radius: 10px; box-shadow: 2px 2px 2px #b0b0b0;'>
+            <p><b>{sender}:</b> {row['消息内容']}</p>
+        </div>
+        """
+        dialogue_html.append(message_html)
+    return "".join(dialogue_html)
 
 
 def calculate_time_difference(time1, time2):
@@ -185,6 +213,16 @@ def list_to_text(scripts):
     return text
 
 
+def get_score_info_by_name(rule_name):
+    conn = sqlite3.connect(RULE_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT score_type, score_value FROM score_rules WHERE rule_name=?', (rule_name,))
+    scores_info = cursor.fetchall()
+    print(f"scores_info", scores_info)
+
+    return format_score(scores_info[0])
+
+
 def format_score(score_tuple):
     """
     根据评分类型和评分值返回格式化的字符串。
@@ -203,6 +241,3 @@ def format_score(score_tuple):
             return f"+{score_value}分"
     else:
         return "未知评分类型"
-
-
-

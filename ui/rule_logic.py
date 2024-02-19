@@ -5,7 +5,8 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QColor, QFont
 from PyQt6.QtWidgets import QApplication, QMessageBox
 
-from services.db_rule import delete_rule, add_rule, get_regex_by_name, get_keyword_by_name, get_script_by_name
+from services.db_rule import delete_rule, add_rule, get_script_by_name, \
+    query_rule
 from services.db_rule import rule_exists, \
     get_score_by_name
 from services.db_scheme import get_scheme_by_rule_name
@@ -133,7 +134,10 @@ class RuleManager:
                 # print("关键词匹配类型开始填写")
                 # print("additional_info", additional_info)
                 if additional_info:
-                    check_type.setCurrentText(str(additional_info))
+                    check_type.setCurrentText(str(additional_info[0]))
+                    if additional_info[1] is not None:
+                        check_n.show()
+                        check_n.setText(str(additional_info[1]))
                 # print("关键词匹配类型填写")
                 check_type.show()
                 textEdit_similarity_threshold.hide()
@@ -282,7 +286,7 @@ class RuleManager:
 
     def AddRule(self):
         self.rule_editing_clear()
-
+        self.main_window.RuleNameEditText.setReadOnly(False)
         self.main_window.stackedWidget.setCurrentIndex(7)
 
     def rule_editing_clear(self):
@@ -343,9 +347,9 @@ class RuleManager:
         # 查询所有规则名称及其对应的 ID
         cursor.execute('SELECT id, rule_name FROM rule_index')
         rules = cursor.fetchall()
-        cursor.execute('SELECT score_type, score_value FROM score_rules')
+        cursor.execute('SELECT score_type, score_value FROM score_rules ')
         scores = cursor.fetchall()
-        print(scores)
+        print(f"获取的评分信息", scores)
 
         # 为每个规则加载相关的数据
         for rule_id, rule_name in rules:
@@ -360,8 +364,10 @@ class RuleManager:
             font.setUnderline(True)  # 设置字体为下划线，模仿链接的外观
             name_item.setFont(font)
             name_item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)  # 设置为不可编辑但可选
-
-            score_item = QStandardItem(format_score(scores[rule_id - 1]))
+            cursor.execute('SELECT score_type, score_value FROM score_rules WHERE rule_name=?', (rule_name,))
+            scores_info = cursor.fetchall()
+            print(f"获取了评分信息", scores_info)
+            score_item = QStandardItem(format_score(scores_info[0]))
 
             scheme_item = QStandardItem(get_scheme_by_rule_name(rule_name))
             # 将行添加到模型
@@ -378,48 +384,99 @@ class RuleManager:
         rule_name = self.model.item(index.row(), 1).text()
         # print(f"规则名称为 {rule_name}")
 
-        score_type = int(str(get_score_by_name(rule_name, 0)))
-        score_value = str(get_score_by_name(rule_name, 1))
-        try:
-            self.main_window.score_type_comboBox.setCurrentIndex(score_type)
-            self.main_window.score_value_line_edit.setText(score_value)
-        except Exception as e:
-            print(f"发生异常：{e}")
-
         self.loadRuleDetails(rule_name)
 
     def loadRuleDetails(self, rule_name):
         # 先清空现有条件布局
         self.rule_editing_clear()
+        score_type = int(str(get_score_by_name(rule_name, 0)))
+        score_value = str(get_score_by_name(rule_name, 1))
+        try:
+            self.main_window.score_type_comboBox.setCurrentIndex(score_type)
+            self.main_window.score_value_line_edit.setText(score_value)
+            print(f"设置了评分类型和评分值", score_type, score_value)
+        except Exception as e:
+            print(f"发生异常：{e}")
         # 切换到规则编辑界面并加载规则详情
         self.main_window.stackedWidget.setCurrentIndex(7)  # 确保这是正确的页面索引
         self.main_window.RuleNameEditText.setText(rule_name)
+        self.main_window.RuleNameEditText.setReadOnly(True)  # 设置规则名称不可编辑
 
         # print(f"数据库绝对路径", RULE_DB_PATH)
         # print(f"规则名称", rule_name)
-
+        selected_rule = query_rule(rule_name)
         # 查询并加载规则的各项条件数据
-        regex = get_regex_by_name(rule_name)
+        regex = selected_rule.regex_rules
         print(f"获取了正则表达式匹配条件", regex)
-        keyword = get_keyword_by_name(rule_name, 0)
+        keyword = selected_rule.keyword_rules
         print(f"获取了关键词匹配条件", keyword)
-        keyword_match_type = get_keyword_by_name(rule_name, 1)
-        print(f"获取了关键词匹配类型", keyword_match_type)
-        script = get_script_by_name(rule_name, 0)
+
+        script = selected_rule.script_rules
         threshold = get_script_by_name(rule_name, 1)
         print(f"获取了话术匹配条件", script, threshold)
         if regex:
             print("添加正则表达式匹配条件")
-            self.add_condition_layout("正则表达式匹配", regex)
+            for regex_condition in regex:
+                self.add_condition_layout("正则表达式匹配", regex_condition['pattern'])
         # 对于关键词匹配，我们可能同时需要关键词和匹配类型
         if keyword:
             print("添加关键词匹配条件")
-            self.add_condition_layout("关键词匹配", keyword, additional_info=keyword_match_type)
+            for keyword_condition in keyword:
+                keyword_match_type = keyword_condition['check_type']
+                keyword_n = keyword_condition['n']
+                additional_information = [keyword_match_type, keyword_n]
+                print(f"传递了检测类型：", additional_information)
+                self.add_condition_layout("关键词匹配", keyword_condition['keywords'],
+                                          additional_info=additional_information)
+
         # 话术匹配可能包括话术本身和相应的阈值
 
         if script:
             print("添加话术匹配条件")
-            self.add_condition_layout("话术匹配", script, additional_info=threshold)
+            for script_condition in script:
+                self.add_condition_layout("话术匹配", script_condition['scripts'],
+                                          additional_info=threshold)
+
+    # def loadRuleDetails(self, rule_name):
+    #     # 先清空现有条件布局
+    #     self.rule_editing_clear()
+    #     score_type = int(str(get_score_by_name(rule_name, 0)))
+    #     score_value = str(get_score_by_name(rule_name, 1))
+    #     try:
+    #         self.main_window.score_type_comboBox.setCurrentIndex(score_type)
+    #         self.main_window.score_value_line_edit.setText(score_value)
+    #         print(f"设置了评分类型和评分值", score_type, score_value)
+    #     except Exception as e:
+    #         print(f"发生异常：{e}")
+    #     # 切换到规则编辑界面并加载规则详情
+    #     self.main_window.stackedWidget.setCurrentIndex(7)  # 确保这是正确的页面索引
+    #     self.main_window.RuleNameEditText.setText(rule_name)
+    #
+    #     # print(f"数据库绝对路径", RULE_DB_PATH)
+    #     # print(f"规则名称", rule_name)
+    #     selected_rule = query_rule(rule_name)
+    #     # 查询并加载规则的各项条件数据
+    #     regex = get_regex_by_name(rule_name)
+    #     print(f"获取了正则表达式匹配条件", regex)
+    #     keyword = get_keyword_by_name(rule_name, 0)
+    #     print(f"获取了关键词匹配条件", keyword)
+    #     keyword_match_type = get_keyword_by_name(rule_name, 1)
+    #     print(f"获取了关键词匹配类型", keyword_match_type)
+    #     script = get_script_by_name(rule_name, 0)
+    #     threshold = get_script_by_name(rule_name, 1)
+    #     print(f"获取了话术匹配条件", script, threshold)
+    #     if regex:
+    #         print("添加正则表达式匹配条件")
+    #         self.add_condition_layout("正则表达式匹配", regex)
+    #     # 对于关键词匹配，我们可能同时需要关键词和匹配类型
+    #     if keyword:
+    #         print("添加关键词匹配条件")
+    #         self.add_condition_layout("关键词匹配", keyword, additional_info=keyword_match_type)
+    #     # 话术匹配可能包括话术本身和相应的阈值
+    #
+    #     if script:
+    #         print("添加话术匹配条件")
+    #         self.add_condition_layout("话术匹配", script, additional_info=threshold)
 
     def save_rule(self):
         """
@@ -454,24 +511,25 @@ class RuleManager:
                 if condition_type == "正则表达式匹配":
                     regex_pattern = self.main_window.findChild(QtWidgets.QTextEdit,
                                                                f"textEdit_content_{i}").toPlainText()
-                    new_rule.add_regex_rule(regex_pattern)
+                    new_rule.add_regex_rule(regex_pattern, i)
 
                 elif condition_type == "关键词匹配":
                     keywords = self.main_window.findChild(QtWidgets.QTextEdit,
                                                           f"textEdit_content_{i}").toPlainText().split(' ')
+                    print(f"从规则设置中添加的关键词为：{keywords}")
                     check_type = self.main_window.findChild(QtWidgets.QComboBox, f"check_type_{i}").currentText()
                     if check_type == "any_n":
                         n = int(self.main_window.findChild(QtWidgets.QLineEdit, f"check_n_{i}").text())
-                        new_rule.add_keyword_rule(keywords, check_type, n)
+                        new_rule.add_keyword_rule(keywords, check_type, i, n)
                     else:
-                        new_rule.add_keyword_rule(keywords, check_type)
+                        new_rule.add_keyword_rule(keywords, check_type, i)
 
                 elif condition_type == "话术匹配":
                     scripts = self.main_window.findChild(QtWidgets.QTextEdit,
                                                          f"textEdit_content_{i}").toPlainText().split(' ')
                     similarity_threshold = float(
                         self.main_window.findChild(QtWidgets.QLineEdit, f"textEdit_similarity_threshold_{i}").text())
-                    new_rule.add_script_rule(scripts, similarity_threshold)
+                    new_rule.add_script_rule(scripts, similarity_threshold, i)
 
             add_rule(new_rule)
             print("规则保存成功")

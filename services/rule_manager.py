@@ -38,22 +38,25 @@ class Rule:
         self.score_type = score_type
         self.score_value = score_value
 
-    def add_script_rule(self, scripts, similarity_threshold):
+    def add_script_rule(self, scripts, similarity_threshold, condition_id=None):
         """
         添加一条话术匹配
 
+        :param condition_id:
         :param scripts: 话术列表
         :param similarity_threshold: 判决阈限，达到则代表匹配上了
         """
         self.script_rules.append({
             'scripts': scripts,
-            'similarity_threshold': similarity_threshold
+            'similarity_threshold': similarity_threshold,
+            'condition_id': condition_id
         })
 
-    def add_keyword_rule(self, keywords, check_type, n=None):
+    def add_keyword_rule(self, keywords, check_type, condition_id=None, n=None):
         """
         添加一个关键词检测.
 
+        :param condition_id:
         :param keywords: 用于匹配的关键词列表.
         :param check_type: 检测类型: 'any', 'all', 'any_n', or 'none'.具体看定义
         :param n: 当检测类型是 'any_n'时的n
@@ -61,17 +64,20 @@ class Rule:
         self.keyword_rules.append({
             'keywords': keywords,
             'check_type': check_type,
-            'n': n
+            'n': n,
+            'condition_id': condition_id
         })
 
-    def add_regex_rule(self, pattern):
+    def add_regex_rule(self, pattern, condition_id=None):
         """
         添加一个正则表达式检测.
 
+        :param condition_id:
         :param pattern: 正则表达式.
         """
         self.regex_rules.append({
-            'pattern': pattern
+            'pattern': pattern,
+            'condition_id': condition_id
         })
 
     def evaluate(self, material_to_evaluate):
@@ -90,19 +96,26 @@ class Rule:
             if not scripts:
                 continue
 
-            matched = any(Script_Matching(scripts, material_to_evaluate_series, threshold) for reply in material_to_evaluate)
+            matched = any(
+                Script_Matching(scripts, material_to_evaluate_series, threshold) for reply in material_to_evaluate)
             if not matched:
                 print("话术匹配中断")
                 return False
 
         # 查关键词
+        print(f"关键词规则为", self.keyword_rules)
         for rule in self.keyword_rules:
             keywords = rule['keywords']
             check_type = rule['check_type']
+            print(check_type)
             n = rule.get('n')
             if not keywords:
                 continue
             matched = Keywords_Matching(material_to_evaluate_series, keywords, check_type, n)
+
+            print(f"待查关键词有", check_type, keywords)
+            print(f"关键词匹配结果为", matched)
+
             if not matched:
                 print("关键词匹配中断")
                 return False

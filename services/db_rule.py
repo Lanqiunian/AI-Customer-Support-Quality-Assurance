@@ -19,17 +19,20 @@ def init_db():
     cursor_rule.execute('''CREATE TABLE IF NOT EXISTS script_rules (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             rule_name TEXT,
+                            condition_id INTEGER,
                             scripts TEXT,
                             similarity_threshold REAL)''')
     cursor_rule.execute('''CREATE TABLE IF NOT EXISTS keyword_rules (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             rule_name TEXT,
+                            condition_id INTEGER,
                             keywords TEXT,
                             check_type TEXT,
                             n INTEGER)''')
     cursor_rule.execute('''CREATE TABLE IF NOT EXISTS regex_rules (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             rule_name TEXT,
+                            condition_id INTEGER,
                             pattern TEXT)''')
     cursor_rule.execute('''CREATE TABLE IF NOT EXISTS score_rules (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,7 +86,7 @@ def init_db():
 
     cursor_task.execute('''CREATE TABLE IF NOT EXISTS evaluation_results (
                             task_id INTEGER,
-                            dialogue_id TEXT PRIMARY KEY,
+                            dialogue_id TEXT,
                             score INTEGER,
                             evaluation_time DATETIME DEFAULT CURRENT_TIMESTAMP,
                             FOREIGN KEY (task_id) REFERENCES tasks(id))''')  # 评估结果表
@@ -200,21 +203,25 @@ def add_rule(rule):
     # 添加脚本规则
     for script_rule in rule.script_rules:
         for script in script_rule['scripts']:
-            cursor.execute('INSERT INTO script_rules (rule_name, scripts, similarity_threshold) VALUES (?, ?, ?)',
-                           (rule.rule_name, script, script_rule['similarity_threshold']))
+            cursor.execute('INSERT INTO script_rules (rule_name, condition_id,scripts, similarity_threshold) VALUES ('
+                           '?, ?, ?, ?)',
+                           (rule.rule_name, script_rule['condition_id'], script, script_rule['similarity_threshold']))
 
     # 添加关键词规则
     for keyword_rule in rule.keyword_rules:
         for keyword in keyword_rule['keywords']:
-            cursor.execute('INSERT INTO keyword_rules (rule_name, keywords, check_type, n) VALUES (?, ?, ?, ?)',
-                           (rule.rule_name, keyword, keyword_rule['check_type'], keyword_rule.get('n')))
+            cursor.execute('INSERT INTO keyword_rules (rule_name, condition_id, keywords, check_type, n) VALUES (?, '
+                           '?,?, ?, ?)',
+                           (rule.rule_name, keyword_rule['condition_id'], keyword, keyword_rule['check_type'],
+                            keyword_rule.get('n')))
 
     # 添加正则表达式规则
     for regex_rule in rule.regex_rules:
-        cursor.execute('INSERT INTO regex_rules (rule_name, pattern) VALUES (?, ?)',
-                       (rule.rule_name, regex_rule['pattern'],))
+        cursor.execute('INSERT INTO regex_rules (rule_name,condition_id, pattern) VALUES (?, ?, ?)',
+                       (rule.rule_name, regex_rule['condition_id'], regex_rule['pattern'],))
 
     # 添加评分规则
+    cursor.execute('DELETE FROM score_rules WHERE rule_name = ?', (rule.rule_name,))  # 先删除原有的评分规则
     cursor.execute('INSERT INTO score_rules (rule_name, score_type, score_value) VALUES (?, ?, ?)',
                    (rule.rule_name, rule.score_type, rule.score_value))
 
@@ -252,50 +259,58 @@ def update_rule(existing_rule_name, new_rule):
     add_rule(new_rule)
 
 
-# 查询规则
 def query_rule(rule_name):
     conn = sqlite3.connect(RULE_DB_PATH)
     cursor = conn.cursor()
 
-    # 查询脚本规则
-    cursor.execute('SELECT scripts, similarity_threshold FROM script_rules WHERE rule_name = ?', (rule_name,))
+    # 查询脚本规则，并根据condition_id分组
+    cursor.execute('SELECT condition_id, scripts, similarity_threshold FROM script_rules WHERE rule_name = ?',
+                   (rule_name,))
     script_rules_data = cursor.fetchall()
 
-    # 查询关键词规则
-    cursor.execute('SELECT keywords, check_type, n FROM keyword_rules WHERE rule_name = ?', (rule_name,))
+    # 查询关键词规则，并根据condition_id分组
+    cursor.execute('SELECT condition_id, keywords, check_type, n FROM keyword_rules WHERE rule_name = ?', (rule_name,))
     keyword_rules_data = cursor.fetchall()
 
     # 查询正则表达式规则
-    cursor.execute('SELECT pattern FROM regex_rules WHERE rule_name = ?', (rule_name,))
-    regex_rules = cursor.fetchall()
+    cursor.execute('SELECT condition_id, pattern FROM regex_rules WHERE rule_name = ?', (rule_name,))
+    regex_rules_data = cursor.fetchall()
 
+    # 查询评分规则
     cursor.execute('SELECT score_type, score_value FROM score_rules WHERE rule_name = ?', (rule_name,))
-    score_type, score_value = cursor.fetchone()
+    score_data = cursor.fetchone()
+    score_type, score_value = score_data if score_data else (None, None)
 
     conn.close()
 
     # 构建 Rule 对象
-    rule = Rule(rule_name)
+    rule = Rule(rule_name, score_type, score_value)
 
-    # 处理脚本规则
-    script_rules = []
-    similarity_threshold = None
-    for script, threshold in script_rules_data:
-        script_rules.append(script)
-        similarity_threshold = threshold  # 假设所有脚本规则有相同的阈值
-    if script_rules:
-        rule.add_script_rule(script_rules, similarity_threshold)
+    # 处理脚本规则，先按condition_id分组
+    script_rules_by_condition = {}
+    for condition_id, scripts, similarity_threshold in script_rules_data:
+        if condition_id not in script_rules_by_condition:
+            script_rules_by_condition[condition_id] = {'scripts': [], 'similarity_threshold': similarity_threshold}
+        script_rules_by_condition[condition_id]['scripts'].append(scripts)
 
-    # 处理关键词规则
-    for keywords, check_type, n in keyword_rules_data:
-        rule.add_keyword_rule([keywords], check_type, n)  # 将关键词放入列表中
+    # 将分组后的脚本规则添加到Rule对象
+    for condition_id, rule_data in script_rules_by_condition.items():
+        rule.add_script_rule(rule_data['scripts'], rule_data['similarity_threshold'], condition_id)
+
+    # 处理关键词规则，先按condition_id分组
+    keyword_rules_by_condition = {}
+    for condition_id, keywords, check_type, n in keyword_rules_data:
+        if condition_id not in keyword_rules_by_condition:
+            keyword_rules_by_condition[condition_id] = {'keywords': [], 'check_type': check_type, 'n': n}
+        keyword_rules_by_condition[condition_id]['keywords'].append(keywords)
+
+    # 将分组后的关键词规则添加到Rule对象
+    for condition_id, rule_data in keyword_rules_by_condition.items():
+        rule.add_keyword_rule(rule_data['keywords'], rule_data['check_type'], condition_id, rule_data['n'])
 
     # 处理正则表达式规则
-    for pattern, in regex_rules:
-        rule.add_regex_rule(pattern)
-
-    # 处理评分规则
-    rule.change_score_setting(score_type, score_value)
+    for condition_id, pattern in regex_rules_data:
+        rule.add_regex_rule(pattern, condition_id)
 
     return rule
 

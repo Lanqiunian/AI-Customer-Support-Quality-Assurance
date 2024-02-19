@@ -35,7 +35,7 @@ def import_dialogue_data(dataName, dataPath, use_existing_db=False):
         table_name = "dialogue_" + current_time_str
 
         try:
-            dialogue_data = pd.read_csv(dataPath, encoding='gb18030')
+            dialogue_data = pd.read_csv(dataPath, encoding='utf-8')
             dialogue_data.to_sql(table_name, conn, if_exists='replace', index=False)
             cursor.execute('INSERT INTO meta_table (data_name, table_name, import_time) VALUES (?, ?, ?)',
                            (dataName, table_name, current_time_str))
@@ -71,6 +71,20 @@ def load_data_from_db(data_name):
         table_name = result[0]
         # 注意表名要用双引号括起来,这可以确保即便表名中包含了-这样的特殊字符，SQL查询也能够正确执行，不会引发语法错误。
         query = f'SELECT * FROM "{table_name}"'
+        df = pd.read_sql_query(query, conn)
+    else:
+        df = None
+    return df
+
+
+def get_dialogue_by_datasetname_and_dialogueid(dataset_name, dialogue_id):
+    conn = sqlite3.connect(DIALOGUE_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT table_name FROM meta_table WHERE data_name = ?', (dataset_name,))
+    result = cursor.fetchone()
+    if result:
+        table_name = result[0]
+        query = f"SELECT * FROM '{table_name}' WHERE 对话ID = '{dialogue_id}'"
         df = pd.read_sql_query(query, conn)
     else:
         df = None

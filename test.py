@@ -1,6 +1,6 @@
 import pandas as pd
 
-from services.db_dialogue_data import load_data_from_db, count_unique_dialogues
+from services.db_task import get_average_score_by_task_id, get_hit_times_by_task_id, get_dialogue_count_by_task_id
 from utils.data_utils import Dialogue, extract_service_messages
 from utils.file_utils import DIALOGUE_DATA_PATH
 
@@ -12,32 +12,45 @@ def function_test():
     data = {
         '客户ID': ['123', '123'],
         '客服ID': ['456', '456'],
-        '消息内容': ['傻逼东西', '智障玩意儿'],
+        '消息内容': ['傻逼东西', '废物玩意儿'],
         '发送方': [0, 0],
         '发送时间': ['2023/8/20 16:05:00', '2023/8/21 16:05:00']
     }
-    df = load_data_from_db("电信客服")
-    print(load_data_from_db("电信客服"))
-    print(count_unique_dialogues(load_data_from_db("电信客服")))
-
-    dialogue_groups = df.groupby("对话ID")
-
-    for dialogue_id, dialogue_df in dialogue_groups:
-        # 评估每个对话
-        print(f"对话ID: {dialogue_id}")
-        print(f"对话内容:\n{extract_service_messages(dialogue_df)}")
+    # df = load_data_from_db("电信客服")
+    # print(load_data_from_db("电信客服"))
+    # print(count_unique_dialogues(load_data_from_db("电信客服")))
 
     service_replies = extract_service_messages(pd.DataFrame(data))
 
     # print(service_replies)
     # # 话术检测
-    # scripts = ["您好，我们现在有试听课，您方便参加吗", "您可以先听一下试听课，感受一下", "我帮您预约时间，您什么时间方便呢"]
-    # scripts_result = Script_Matching(scripts, service_replies, 0.7)
-    # print(f"话术检测结果：{scripts_result}")
-    # # 关键词检测
-    # keywords = ['您', '可以', '试听课', '报名', '孩子']
-    # keyword_result = Keywords_Matching(service_replies, keywords, 'all')
-    # print(f"关键词检测结果：{keyword_result}")
+
+    # scripts_1 = ["您好，我们现在有试听课，您方便参加吗", "您可以先听一下试听课，感受一下",
+    #              "我帮您预约时间，您什么时间方便呢"]
+    # scripts_2 = ["您好，我爱你", "我喜欢你"]
+    # # scripts_result = Script_Matching(scripts, service_replies, 0.7)
+    # # print(f"话术检测结果：{scripts_result}")
+    # # # 关键词检测
+    # keywords_1 = ['傻逼', '废物']
+    # keywords_2 = ['畜生', '傻狗', '幽默']
+    #
+    # test_rule = Rule("测试规则0")
+    # test_rule.add_keyword_rule(keywords_1, 'any', 1)
+    # test_rule.add_keyword_rule(keywords_2, 'any', 2)
+    # test_rule.add_script_rule(scripts_1, 0.7, 1)
+    # test_rule.add_script_rule(scripts_2, 0.7, 2)
+    # print(test_rule.keyword_rules)
+    # print(test_rule.script_rules)
+    # # add_rule(test_rule)
+    # queried_rule = query_rule("测试规则0")
+    # keywords = queried_rule.keyword_rules
+    # print(f"get方法", get_keyword_by_name("幽默", 1))
+    # for keyword in keywords:
+    #     print(keyword['keywords'])
+    print(get_dialogue_count_by_task_id(16))
+    print(get_average_score_by_task_id(16))
+    print(get_hit_times_by_task_id(16))
+    # print(get_score_info_by_name("客服骂人"))
     # # 正则表达式检测
     # # Assume material_to_evaluate is a Pandas Series containing service replies
     # pattern = "(孩子|娃|姑娘).{0,4}(多大|几岁)|(孩子|娃|姑娘|上).{0,3}(几年级|初几|高几)|您.{0,3}做什么|什么工作|报过.{0,3}(其他|别的).{0,3}辅导班"
