@@ -75,7 +75,7 @@ def init_db():
                             task_name TEXT,
                             task_description TEXT,
                             scheme TEXT,
-                            manual_check INTEGER)''')  # 任务表
+                            manually_check INTEGER)''')  # 任务表
 
     cursor_task.execute('''CREATE TABLE IF NOT EXISTS datasets (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -89,6 +89,7 @@ def init_db():
                             dialogue_id TEXT,
                             score INTEGER,
                             evaluation_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+                            manually_check INTEGER DEFAULT 0,
                             FOREIGN KEY (task_id) REFERENCES tasks(id))''')  # 评估结果表
 
     cursor_task.execute('''CREATE TABLE IF NOT EXISTS hit_rules_details (

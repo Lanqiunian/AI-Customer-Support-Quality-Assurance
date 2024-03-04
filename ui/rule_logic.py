@@ -366,7 +366,7 @@ class RuleManager:
             name_item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)  # 设置为不可编辑但可选
             cursor.execute('SELECT score_type, score_value FROM score_rules WHERE rule_name=?', (rule_name,))
             scores_info = cursor.fetchall()
-            print(f"获取了评分信息", scores_info)
+            # print(f"获取了评分信息", scores_info)
             score_item = QStandardItem(format_score(scores_info[0]))
 
             scheme_item = QStandardItem(get_scheme_by_rule_name(rule_name))

@@ -1,18 +1,18 @@
 import sqlite3
 
 from services.db_dialogue_data import load_data_from_db
-from services.db_scheme import query_scheme
+from services.db_scheme import query_scheme, update_score_by_HitRulesList
 from utils.data_utils import extract_service_messages
 from utils.file_utils import TASK_DB_PATH
 
 
 class Task:
-    def __init__(self, task_name, description, scheme_name, manual_check):
+    def __init__(self, task_name, description, scheme_name, manually_check):
         self.task_name = task_name
         self.description = description
         self.scheme = query_scheme(scheme_name)
         self.dataset_list = []
-        self.manual_check = manual_check
+        self.manually_check = manually_check
         self.task_id = None
 
     def get_task_id(self):
@@ -38,7 +38,8 @@ class Task:
                 # 评估每个对话
                 print(f"对话ID: {dialogue_id}")
 
-                self.scheme.scheme_evaluate(self.task_id, dialogue_id, extract_service_messages(dialogue_df))
+                self.scheme.scheme_evaluate(self.task_id, dialogue_id, extract_service_messages(dialogue_df),
+                                            self.manually_check)
                 print(f"对话内容:\n{extract_service_messages(dialogue_df)}")
             print(f"数据集 '{dataset}' 处理完成。")
 
@@ -52,9 +53,9 @@ class Task:
         cursor = conn.cursor()
 
         # 首先保存任务信息
-        cursor.execute('''INSERT INTO tasks (task_name, task_description, scheme, manual_check)
+        cursor.execute('''INSERT INTO tasks (task_name, task_description, scheme, manually_check)
                           VALUES (?, ?, ?, ?)''',
-                       (self.task_name, self.description, self.scheme.scheme_name, self.manual_check))
+                       (self.task_name, self.description, self.scheme.scheme_name, self.manually_check))
 
         # 获取刚刚插入的任务的ID
         task_id = cursor.lastrowid
@@ -154,4 +155,85 @@ def get_hit_rate_by_task_id(task_id):
     hit_rate = str(round(hit_rate * 100, 2)) + '%'
     return hit_rate
 
-# 用法示例
+
+def remove_hit_rule(task_id, dialogue_id, rule_name):
+    print(f"正在删除任务ID为{task_id}，对话ID为{dialogue_id}，规则名为{rule_name}的命中规则...")
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM hit_rules_details WHERE task_id=? AND dialogue_id=? AND rule_name=?",
+                   (task_id, dialogue_id, rule_name))
+    conn.commit()
+    # 获取一个hit_rules的List
+    cursor.execute("SELECT rule_name FROM hit_rules_details WHERE task_id=? AND dialogue_id=?", (task_id, dialogue_id))
+    original_list = cursor.fetchall()
+
+    hit_rules = [item[0] for item in original_list]
+    print(f"hit_rules: {hit_rules}")
+    update_score_by_HitRulesList(task_id, dialogue_id, hit_rules)
+    conn.commit()
+    conn.close()
+
+
+def add_hit_rule(task_id, dialogue_id, rule_name):
+    print(f"正在添加任务ID为{task_id}，对话ID为{dialogue_id}，规则名为{rule_name}的命中规则...")
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO hit_rules_details (task_id, dialogue_id, rule_name) VALUES (?, ?, ?)",
+                   (task_id, dialogue_id, rule_name))
+    conn.commit()
+    # 获取一个hit_rules的List
+    cursor.execute("SELECT rule_name FROM hit_rules_details WHERE task_id=? AND dialogue_id=?", (task_id, dialogue_id))
+    original_list = cursor.fetchall()
+
+    hit_rules = [item[0] for item in original_list]
+    print(f"hit_rules: {hit_rules}")
+    update_score_by_HitRulesList(task_id, dialogue_id, hit_rules)
+    conn.commit()
+    conn.close()
+
+
+def get_task_id_by_task_name(task_name):
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM tasks WHERE task_name=?", (task_name,))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        return result[0]
+    else:
+        return None
+
+
+def get_score_by_task_id_and_dialogue_id(task_id, dialogue_id):
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT score FROM evaluation_results WHERE task_id=? AND dialogue_id=?", (task_id, dialogue_id))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        return result[0]
+    else:
+        return None
+
+
+def change_manual_check(task_id, dialogue_id, manually_check):
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE evaluation_results SET manually_check=? WHERE task_id=? AND dialogue_id=?",
+                   (manually_check, task_id, dialogue_id))
+    conn.commit()
+    conn.close()
+    print(f"任务ID为{task_id}，对话ID为{dialogue_id}的人工审核状态已更新为{manually_check}。")
+
+
+def get_manully_check_by_task_id_and_dialogue_id(task_id, dialogue_id):
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT manually_check FROM evaluation_results WHERE task_id=? AND dialogue_id=?",
+                   (task_id, dialogue_id))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        return str(result[0])
+    else:
+        return None

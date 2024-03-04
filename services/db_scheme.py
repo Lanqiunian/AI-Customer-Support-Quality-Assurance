@@ -3,7 +3,7 @@ import sqlite3
 from services.db_dialogue_data import load_data_from_db
 from services.db_rule import query_rule
 from utils.data_utils import list_to_text
-from utils.file_utils import SCHEME_DB_PATH, TASK_DB_PATH
+from utils.file_utils import SCHEME_DB_PATH, TASK_DB_PATH, RULE_DB_PATH
 
 
 # scheme类，多个rule组成一个scheme
@@ -64,7 +64,7 @@ class Scheme:
 
         print(f"方案 '{self.scheme_name}' 已更新。")
 
-    def scheme_evaluate(self, task_id, dialogue_id, dialogue_df):
+    def scheme_evaluate(self, task_id, dialogue_id, dialogue_df, manually_check):
         conn = sqlite3.connect(TASK_DB_PATH)
         cursor = conn.cursor()
 
@@ -93,9 +93,9 @@ class Scheme:
 
         # 将评分结果保存到数据库
         cursor.execute('''
-            INSERT INTO evaluation_results (task_id, dialogue_id, score)
-            VALUES (?, ?, ?)
-        ''', (task_id, dialogue_id, base_score))
+            INSERT INTO evaluation_results (task_id, dialogue_id, score,manually_check)
+            VALUES (?, ?, ?, ?)
+        ''', (task_id, dialogue_id, base_score, manually_check))
 
         # 获取最新插入评分结果的ID
         result_id = cursor.lastrowid
@@ -111,6 +111,56 @@ class Scheme:
         conn.close()
 
         return base_score
+
+
+def update_score_by_HitRulesList(task_id, dialogue_id, hit_rules):
+    """
+    更新数据库中的评分记录
+    :param task_id: 任务ID
+    :param dialogue_id: 对话ID
+    :param hit_rules: 命中的规则列表,储存名称
+    :return: base_score
+    """
+    # 基础分数设置为 100，或者你可以从数据库读取初始分数
+    base_score = 100
+    conn_rule = sqlite3.connect(RULE_DB_PATH)
+    cursor_rule = conn_rule.cursor()
+
+    # 遍历每个命中的规则名称
+    for rule_name in hit_rules:
+        # 从 score_rules 表中获取评分类型和影响分值
+        cursor_rule.execute('''
+            SELECT score_type, score_value FROM score_rules
+            WHERE rule_name = ?
+        ''', (rule_name,))
+        rule_info = cursor_rule.fetchone()
+        if rule_info:
+            score_type, score_value = rule_info
+            if score_type == "0":
+                # 一次性评分, 直接设置分数并结束循环
+                base_score = int(score_value)
+                break
+            elif score_type == "1":
+                # 加减分, 在基础分上进行加减
+                base_score += int(score_value)
+
+    conn_rule.close()  # 关闭规则数据库连接
+
+    conn_task = sqlite3.connect(TASK_DB_PATH)
+    cursor_task = conn_task.cursor()
+
+    # 更新数据库中的评分记录
+    cursor_task.execute('''
+        UPDATE evaluation_results
+        SET score = ?
+        WHERE task_id = ? AND dialogue_id = ?
+    ''', (base_score, task_id, dialogue_id))
+
+    conn_task.commit()
+    conn_task.close()  # 关闭任务数据库连接
+
+    print(f"Task ID: {task_id}, Dialogue ID: {dialogue_id} score has been updated to {base_score}.")
+    return base_score
 
 
 def query_scheme(scheme_name):

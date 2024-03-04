@@ -1,5 +1,6 @@
 import pandas as pd
 
+from services.db_scheme import update_score_by_HitRulesList
 from services.db_task import get_average_score_by_task_id, get_hit_times_by_task_id, get_dialogue_count_by_task_id
 from utils.data_utils import Dialogue, extract_service_messages
 from utils.file_utils import DIALOGUE_DATA_PATH
@@ -16,6 +17,8 @@ def function_test():
         '发送方': [0, 0],
         '发送时间': ['2023/8/20 16:05:00', '2023/8/21 16:05:00']
     }
+
+    update_score_by_HitRulesList(18, 2, ["客服幽默风趣"])
     # df = load_data_from_db("电信客服")
     # print(load_data_from_db("电信客服"))
     # print(count_unique_dialogues(load_data_from_db("电信客服")))
@@ -47,9 +50,9 @@ def function_test():
     # print(f"get方法", get_keyword_by_name("幽默", 1))
     # for keyword in keywords:
     #     print(keyword['keywords'])
-    print(get_dialogue_count_by_task_id(16))
-    print(get_average_score_by_task_id(16))
-    print(get_hit_times_by_task_id(16))
+    # print(get_dialogue_count_by_task_id(16))
+    # print(get_average_score_by_task_id(16))
+    # print(get_hit_times_by_task_id(16))
     # print(get_score_info_by_name("客服骂人"))
     # # 正则表达式检测
     # # Assume material_to_evaluate is a Pandas Series containing service replies

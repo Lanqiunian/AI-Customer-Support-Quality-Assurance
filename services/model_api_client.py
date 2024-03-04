@@ -72,7 +72,7 @@ def get_ai_analysis_chatglm6b(df):
 
 
 def get_ai_analysis_chatgpt(dialogue):
-    openai.api_key = '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'
+    openai.api_key = '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'
 
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -87,8 +87,10 @@ def get_ai_analysis_chatgpt(dialogue):
     return analysis
 
 
+# AIAnalysisWorker类中添加finished信号
 class AIAnalysisWorker(QObject):
     analysisCompleted = pyqtSignal(str)
+    finished = pyqtSignal()
 
     def __init__(self, dialogue_data):
         super().__init__()
@@ -96,9 +98,10 @@ class AIAnalysisWorker(QObject):
 
     def process(self):
         dialogue_str = convert_dataframe_to_single_string_dialog(self.dialogue_data)
-        ai_response = get_ai_analysis_chatgpt(dialogue_str)  # 假设这是调用AI分析的函数
-        print("分析与建议：", ai_response)
+        ai_response = get_ai_analysis_chatgpt(dialogue_str)
+        print(ai_response)
         self.analysisCompleted.emit(ai_response)
+        self.finished.emit()
 
 
 if __name__ == "__main__":
