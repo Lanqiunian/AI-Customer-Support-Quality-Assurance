@@ -72,7 +72,7 @@ def get_ai_analysis_chatglm6b(df):
 
 
 def get_ai_analysis_chatgpt(dialogue):
-    openai.api_key = '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'
+    openai.api_key = ''
 
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
