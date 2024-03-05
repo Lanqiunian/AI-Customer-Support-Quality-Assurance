@@ -2,6 +2,8 @@ import openai
 from PyQt6.QtCore import pyqtSignal, QObject
 from bs4 import BeautifulSoup
 from gradio_client import Client
+from dotenv import load_dotenv
+import os
 
 
 def convert_dataframe_to_single_string_dialog(df):
@@ -72,7 +74,8 @@ def get_ai_analysis_chatglm6b(df):
 
 
 def get_ai_analysis_chatgpt(dialogue):
-    openai.api_key = ''
+    load_dotenv()  # 加载.env文件中的变量
+    openai.api_key = os.getenv('OPENAI_API_KEY')
 
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
