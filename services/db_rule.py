@@ -90,6 +90,8 @@ def init_db():
                             score INTEGER,
                             evaluation_time DATETIME DEFAULT CURRENT_TIMESTAMP,
                             manually_check INTEGER DEFAULT 0,
+                            manual_review_completed INTEGER DEFAULT 0,
+                            manual_review_corrected_errors INTEGER DEFAULT 0,
                             FOREIGN KEY (task_id) REFERENCES tasks(id))''')  # 评估结果表
 
     cursor_task.execute('''CREATE TABLE IF NOT EXISTS hit_rules_details (

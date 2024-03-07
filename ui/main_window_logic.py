@@ -1,14 +1,17 @@
 # 导入PyQt和自动生成的UI类
 
-from PyQt6 import QtWidgets, QtCore
-from PyQt6.QtGui import QStandardItemModel
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextEdit
+from PyQt6 import QtWidgets, QtCore, uic
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtGui import QStandardItemModel, QPixmap
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextEdit, QLabel, QFrame
 
 from ui.dataset_logic import DataSetManager
 from ui.main_window import Ui_MainWindow
 from ui.rule_logic import RuleManager
 from ui.scheme_logic import SchemeManager
+from ui.summary_logic import SummaryManager
 from ui.task_logic import TaskManager
+from ui.undo_check_logic import UndoCheckManager
 from utils.data_utils import generate_html
 
 
@@ -16,6 +19,21 @@ class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.FramelessWindowHint)
+        self._drag_pos = None
+
+        # 将close_button_label转换为可点击的
+        uic.loadUi("ui/main_window.ui", self)
+        # 获取当前窗口的初始尺寸
+        initialSize = self.size()
+
+        # 设置窗口的最小和最大尺寸为当前尺寸，从而禁用尺寸调整
+        self.setMinimumSize(initialSize)
+        self.setMaximumSize(initialSize)
+
+        # 连接点击事件
+        self.minimize_button_label.mousePressEvent = self.minimize_window
+        self.close_button_label.mousePressEvent = self.close_window
 
         # 设置 TreeWidget 项与 StackedWidget 页面的映射
         self.setupTreeWidgetPageMapping()
@@ -25,6 +43,12 @@ class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # 连接 TreeWidget 的项点击事件
         self.treeWidget_3.itemClicked.connect(self.onTreeItemClicked)
+        # 初始化 UndoCheckManager
+        self.undo_check_manager = UndoCheckManager(self)
+        self.undo_check_manager.setup_undo_check_tableView()
+        # 初始化SummaryManager
+        self.summary_manager = SummaryManager(self)
+        self.summary_manager.reset_summary()
 
         # 初始化 RuleManager
         self.rule_manager = RuleManager(self)
@@ -48,6 +72,41 @@ class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Task_Manager = TaskManager(self, self.rule_manager)
         self.Task_Manager.setup_task_table_view()
         self.back_to_dialogue_detail_pushButton.hide()
+
+        # 设置 objectName，如果在 Ui 文件中定义了 QLabel
+        self.minimize_button_label.setObjectName("minimize_button_label")
+        self.close_button_label.setObjectName("close_button_label")
+
+        # 为已定义的 QLabel 添加点击功能
+        self._makeLabelClickable(self.close_button_label, self.close_window)
+        self._makeLabelClickable(self.minimize_button_label, self.minimize_window)
+
+    def _makeLabelClickable(self, label, function):
+        # 动态添加点击功能
+        def mousePressEvent(event):
+            function()
+
+        label.mousePressEvent = mousePressEvent
+
+    def close_window(self):
+        print("关闭窗口")
+        self.close()
+
+    def minimize_window(self):
+        print("最小化窗口")
+        self.showMinimized()
+
+    # 重写鼠标事件，实现窗口拖动
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._drag_pos = event.position()
+
+    def mouseMoveEvent(self, event):
+        if event.buttons() & Qt.MouseButton.LeftButton and self._drag_pos:
+            self.move(self.pos() + (event.position() - self._drag_pos).toPoint())
+
+    def mouseReleaseEvent(self, event):
+        self._drag_pos = None
 
     def setupDialogueDisplay(self, dialogue_df):
         """
@@ -102,3 +161,10 @@ class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 # 切换到相应的StackedWidget页面
             self.stackedWidget.setCurrentIndex(index)
+
+
+class ClickableLabel(QLabel):
+    clicked = pyqtSignal()  # 定义信号
+
+    def mousePressEvent(self, event):
+        self.clicked.emit()  # 发射信号

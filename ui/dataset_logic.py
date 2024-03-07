@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from datetime import datetime
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QColor, QFont
@@ -21,6 +22,8 @@ class DataSetManager:
     def show_file_dialog(self):
         try:
             dialog = FileDialog(self.parent)
+            default_name = "新数据集" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            dialog.ui.new_dataset_name_lineEdit.setText(default_name)
             if dialog.exec() == QDialog.DialogCode.Accepted:
                 # 在这里处理对话框的结果，比如获取文件名
                 fileName = dialog.ui.new_dataset_name_lineEdit.text()  # 用户填写的数据集名称

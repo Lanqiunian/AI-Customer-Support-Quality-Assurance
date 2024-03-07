@@ -29,6 +29,7 @@ class Task:
 
     def process_task(self):
         self.get_task_id()
+
         for dataset in self.dataset_list:
             print(f"正在处理数据集 '{dataset}'...")
             # 在这里添加处理数据集的代码
@@ -86,7 +87,7 @@ def delete_task(task_id):
 
     # 删除任务本身
     cursor.execute("DELETE FROM tasks WHERE id=?", (task_id,))
-
+    # 复检信息
     conn.commit()
     conn.close()
 
@@ -219,14 +220,14 @@ def get_score_by_task_id_and_dialogue_id(task_id, dialogue_id):
 def change_manual_check(task_id, dialogue_id, manually_check):
     conn = sqlite3.connect(TASK_DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("UPDATE evaluation_results SET manually_check=? WHERE task_id=? AND dialogue_id=?",
+    cursor.execute("UPDATE evaluation_results SET manual_review_completed=? WHERE task_id=? AND dialogue_id=?",
                    (manually_check, task_id, dialogue_id))
     conn.commit()
     conn.close()
     print(f"任务ID为{task_id}，对话ID为{dialogue_id}的人工审核状态已更新为{manually_check}。")
 
 
-def get_manully_check_by_task_id_and_dialogue_id(task_id, dialogue_id):
+def get_manually_check_by_task_id_and_dialogue_id(task_id, dialogue_id):
     conn = sqlite3.connect(TASK_DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT manually_check FROM evaluation_results WHERE task_id=? AND dialogue_id=?",
@@ -237,3 +238,71 @@ def get_manully_check_by_task_id_and_dialogue_id(task_id, dialogue_id):
         return str(result[0])
     else:
         return None
+
+
+def get_overall_info():
+    """
+    获取已进行的全部任务的总体信息
+        total_dialogue_count
+        average_score
+        hit_times
+        hit_rate
+    """
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM (SELECT DISTINCT task_id, dialogue_id FROM evaluation_results)")
+    total_dialogue_count = cursor.fetchone()[0]
+    cursor.execute("SELECT AVG(score) FROM evaluation_results")
+    try:
+        average_score = round(cursor.fetchone()[0], 1)
+    except TypeError:
+        average_score = 0
+    # average_score = round(cursor.fetchone()[0], 1)
+    cursor.execute("SELECT COUNT(*) FROM hit_rules_details")
+    hit_times = cursor.fetchone()[0]
+    if total_dialogue_count == 0:
+        hit_rate = '0%'
+    else:
+        hit_rate = str(round(hit_times / total_dialogue_count * 100, 2)) + '%'
+    conn.close()
+    return total_dialogue_count, average_score, hit_times, hit_rate
+
+
+def add_review_count(num):
+    pass
+
+
+def change_manual_review_corrected_errors(task_id, dialogue_id):
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE evaluation_results SET manual_review_corrected_errors WHERE task_id=? AND dialogue_id=?",
+                   (task_id, dialogue_id))
+    conn.commit()
+    conn.close()
+    print(f"任务ID为{task_id}，对话ID为{dialogue_id}的人工审核状态已更新为1。")
+
+
+def get_review_statistics():
+    """获取review_count, review_completion_count, review_mistake_count, 以字典的形式返回"""
+    # 连接到数据库
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+
+    # 查询要求人工复检的总数
+    cursor.execute("SELECT COUNT(*) FROM evaluation_results WHERE manually_check = 1")
+    review_count = cursor.fetchone()[0]
+
+    # 查询已完成人工复检的总数
+    cursor.execute("SELECT COUNT(*) FROM evaluation_results WHERE manual_review_completed = 1")
+    review_completion_count = cursor.fetchone()[0]
+
+    # 查询通过人工复检纠正的错误总数
+    cursor.execute("SELECT COUNT(*) FROM evaluation_results WHERE manual_review_corrected_errors = 1")
+    review_mistake_count = cursor.fetchone()[0]
+
+    # 关闭数据库连接
+    conn.close()
+    print(
+        f"review_count: {review_count}, review_completion_count: {review_completion_count}, review_mistake_count: {review_mistake_count}")
+    # 返回结果
+    return review_count, review_completion_count, review_mistake_count

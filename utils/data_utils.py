@@ -5,7 +5,8 @@ from datetime import datetime
 import jieba
 import pandas as pd
 
-from utils.file_utils import RULE_DB_PATH
+from services.db_dialogue_data import get_service_id_by_dialogue_id_and_task_id
+from utils.file_utils import RULE_DB_PATH, TASK_DB_PATH, DIALOGUE_DB_PATH
 
 
 def load_stopwords(file_path):
@@ -241,3 +242,98 @@ def format_score(score_tuple):
             return f"+{score_value}分"
     else:
         return "未知评分类型"
+
+
+def create_service_id_avg_score_table():
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+
+    # 查询所有对话的客服ID、对话ID、任务ID和相应得分
+    cursor.execute('''
+        SELECT e.dialogue_id, e.task_id, e.score
+        FROM evaluation_results AS e
+    ''')
+
+    # 用于存储客服ID和其对应的得分列表
+    service_scores = {}
+
+    for dialogue_id, task_id, score in cursor.fetchall():
+        # 使用 get_service_id_by_dialogue_id_and_task_id 方法获取客服ID
+        task_id = int(task_id)
+        dialogue_id = int(dialogue_id)
+        service_id = get_service_id_by_dialogue_id_and_task_id(task_id, dialogue_id)
+
+        if service_id not in service_scores:
+            service_scores[service_id] = []
+
+        service_scores[service_id].append(score)
+
+    # 用于存储客服ID和其对应的平均得分
+    service_avg_scores = {}
+
+    for service_id, scores in service_scores.items():
+        # 计算每个客服的平均得分
+        avg_score = sum(scores) / len(scores) if scores else 0
+        service_avg_scores[service_id] = avg_score
+
+    # 假设我们需要输出这个对照表以供后续使用
+    for service_id, avg_score in service_avg_scores.items():
+        print(f"Service ID: {service_id}, Average Score: {avg_score}")
+
+    conn.close()
+
+    # 返回客服ID和其平均得分的字典
+    return service_avg_scores
+
+
+def analyzeResponseTime(service_id=None):
+    conn_dialogue = sqlite3.connect(DIALOGUE_DB_PATH)
+    cursor_dialogue = conn_dialogue.cursor()
+
+    # 查询meta_table获取所有对话表名称
+    cursor_dialogue.execute("SELECT table_name FROM meta_table")
+    tables = cursor_dialogue.fetchall()
+
+    response_times = []
+
+    for table in tables:
+        table_name = table[0]
+
+        # 从每个对话表中读取数据
+        dialogue_query = f'SELECT * FROM "{table_name}"'
+        dialogues = pd.read_sql_query(dialogue_query, conn_dialogue)
+
+        for _, group in dialogues.groupby('对话ID'):
+            if group['发送方'].nunique() == 2:
+                last_sender = None
+                last_time = None
+                for _, row in group.iterrows():
+                    current_sender = row['发送方']
+                    current_time = row['发送时间']
+                    if service_id is not None and current_sender == 0 and row['客服ID'] != service_id:
+                        continue
+                    if last_sender is not None and current_sender != last_sender:
+                        if current_sender == 0:
+                            response_time = calculate_time_difference(last_time, current_time)
+                            response_times.append(response_time)
+                    last_sender = current_sender
+                    last_time = current_time
+
+    if response_times:
+        average_response_time = sum(response_times) / len(response_times)
+        if service_id is not None:
+            print(f"客服{service_id}的平均回复时间（分钟）: {average_response_time}")
+        else:
+            print(f"全体平均回复时间（分钟）: {average_response_time}")
+    else:
+        print("没有足够的数据来计算平均回复时间。")
+        average_response_time = None
+
+    conn_dialogue.close()
+
+    return average_response_time
+
+
+if __name__ == "__main__":
+    print(create_service_id_avg_score_table())
+    analyzeResponseTime("吴玉涵")

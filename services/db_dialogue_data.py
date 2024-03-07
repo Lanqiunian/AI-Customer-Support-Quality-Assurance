@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from utils.file_utils import DIALOGUE_DB_PATH
+from utils.file_utils import DIALOGUE_DB_PATH, TASK_DB_PATH
 
 
 # 数据库总览:
@@ -171,3 +171,44 @@ def count_unique_dialogues(df):
     else:
         print("DataFrame中没有找到'对话ID'列。")
         return 0
+
+
+def get_service_id_by_dialogue_id_and_task_id(task_id, dialogue_id):
+    dataset_id = get_dataset_by_task_id(task_id)[0]
+
+    conn = sqlite3.connect(DIALOGUE_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT table_name FROM meta_table WHERE data_name = ?', (dataset_id,))
+
+    dataset_name = cursor.fetchone()[0]
+    df = load_data_from_db(dataset_id)
+    if df is not None:
+        if '对话ID' in df.columns and '客服ID' in df.columns:
+            service_id = df[df['对话ID'] == dialogue_id]['客服ID'].iloc[0]
+
+            return service_id
+        else:
+            print("DataFrame中没有找到'对话ID'或'客服ID'列。")
+            return None
+    else:
+        print(f"数据集 {dataset_name} 不存在。")
+        return None
+
+
+def get_dataset_by_task_id(task_id):
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT data_name FROM datasets WHERE task_id=?", (task_id,))
+    result = cursor.fetchall()
+
+    conn.close()
+
+    if result:
+        return [item[0] for item in result]
+
+    else:
+        return None
+
+
+if __name__ == "__main__":
+    get_service_id_by_dialogue_id_and_task_id(7, 1)

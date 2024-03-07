@@ -1,3 +1,4 @@
+import csv
 import sqlite3
 from datetime import datetime
 
@@ -10,10 +11,11 @@ from services.db_rule import get_score_by_name
 from services.db_scheme import update_score_by_HitRulesList
 from services.db_task import Task, delete_task, get_dialogue_count_by_task_id, get_average_score_by_task_id, \
     get_hit_times_by_task_id, get_hit_rate_by_task_id, remove_hit_rule, get_task_id_by_task_name, add_hit_rule, \
-    get_score_by_task_id_and_dialogue_id, change_manual_check, get_manully_check_by_task_id_and_dialogue_id
+    get_score_by_task_id_and_dialogue_id, change_manual_check, get_manually_check_by_task_id_and_dialogue_id, \
+    change_manual_review_corrected_errors, add_review_count
 from services.model_api_client import AIAnalysisWorker
 from ui.dialog_pick_a_rule import Ui_add_rule_to_scheme_Dialog
-from ui.ui_utils import autoResizeColumnsWithStretch
+from ui.ui_utils import autoResizeColumnsWithStretch, export_model_to_csv
 from utils.data_utils import text_to_list, get_score_info_by_name
 from utils.file_utils import TASK_DB_PATH, DIALOGUE_DB_PATH, SCHEME_DB_PATH, RULE_DB_PATH
 
@@ -21,6 +23,7 @@ from utils.file_utils import TASK_DB_PATH, DIALOGUE_DB_PATH, SCHEME_DB_PATH, RUL
 class TaskManager:
     def __init__(self, main_window, RuleManager_instance, parent=None):
 
+        self.model_task_detail_table_view = None
         self.model_setup_task_table_view = None
 
         self.hit_rule_model = None
@@ -39,6 +42,7 @@ class TaskManager:
             self.on_back_to_dialogue_detail_button_clicked)
         self.main_window.back_to_task_list_pushButton.clicked.connect(self.on_back_to_task_list_button_clicked)
         self.thread_ongoing = False
+        self.review_correction = True  # 如果True，代表这个对话没有被人工纠正错误，是正确的
 
     def on_back_to_task_list_button_clicked(self):
 
@@ -54,13 +58,14 @@ class TaskManager:
     def setup_task_table_view(self):
         conn = sqlite3.connect(TASK_DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM tasks")
+        cursor.execute(
+            "SELECT tasks.*, COALESCE(SUM(evaluation_results.manually_check = 1 AND evaluation_results.manual_review_completed = 0), 0) AS pending_reviews FROM tasks LEFT JOIN evaluation_results ON tasks.id = evaluation_results.task_id GROUP BY tasks.id")
         tasks = cursor.fetchall()
 
         self.model_setup_task_table_view = QStandardItemModel(len(tasks), 7)  # 根据列的实际数量调整
 
         self.model_setup_task_table_view.setHorizontalHeaderLabels(
-            ["任务ID", "任务名称", "描述", "使用方案", "人工复检", "数据集名称", "操作"])
+            ["任务ID", "任务名称", "描述", "使用方案", "需要人工复检", "数据集名称", "操作"])
 
         for row_index, task in enumerate(tasks):
             task_id = task[0]
@@ -69,13 +74,11 @@ class TaskManager:
             datasets = cursor.fetchall()
             datasets_names = ', '.join([dataset[0] for dataset in datasets])  # 将数据集名称合并成一个字符串
 
-            for column_index, item in enumerate(task):
-                if column_index == 4:  # 特别处理“人工复检”列
-                    manually_check = "是" if item == 1 else "否"  # 根据布尔值显示“是”或“否”
-                    print(manually_check)
-                    item = QStandardItem(manually_check)
-                else:
-                    item = QStandardItem(str(item))
+            for column_index in range(len(task) - 1):  # 最后一个额外的列是pending_reviews，不需要显示
+                item = QStandardItem(str(task[column_index]))
+                if column_index == 4:  # 特别处理“需要人工复检”列
+                    needs_review = "是" if task[-1] > 0 else "否"  # 根据pending_reviews判断是否需要人工复检
+                    item = QStandardItem(needs_review)
                 item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)  # 设置文本居中
                 self.model_setup_task_table_view.setItem(row_index, column_index, item)
 
@@ -138,7 +141,11 @@ class TaskManager:
             delete_task(task_id)
             self.main_window.stackedWidget.setCurrentIndex(3)
 
+            # 刷新任务表格视图
             self.setup_task_table_view()
+            # 刷新待办任务视图
+            self.main_window.undo_check_manager.setup_undo_check_tableView()
+            self.main_window.summary_manager.reset_summary()
         except Exception as e:
             print(f"删除任务后刷新任务表格视图时发生错误：{e}")
 
@@ -154,11 +161,17 @@ class TaskManager:
 
         # 获取每个对话的质检结果和命中的规则详情，确保只考虑了同一task_id下的相同dialogue_id
         cursor.execute("""
-            SELECT evaluation_results.dialogue_id, evaluation_results.score, evaluation_results.evaluation_time,
-            GROUP_CONCAT(hit_rules_details.rule_name, ' ') AS hit_rules
+            SELECT 
+                evaluation_results.dialogue_id, 
+                evaluation_results.score, 
+                evaluation_results.evaluation_time,
+                GROUP_CONCAT(hit_rules_details.rule_name, ' ') AS hit_rules,
+                evaluation_results.manually_check,
+                evaluation_results.manual_review_completed
             FROM evaluation_results
-            LEFT JOIN hit_rules_details ON evaluation_results.dialogue_id = hit_rules_details.dialogue_id
-            AND evaluation_results.task_id = hit_rules_details.task_id
+            LEFT JOIN hit_rules_details 
+                ON evaluation_results.dialogue_id = hit_rules_details.dialogue_id
+                AND evaluation_results.task_id = hit_rules_details.task_id
             WHERE evaluation_results.task_id=?
             GROUP BY evaluation_results.dialogue_id
         """, (task_id,))
@@ -166,11 +179,9 @@ class TaskManager:
 
         # 设置任务基本信息
         self.main_window.the_task_name_label.setText(self.model_setup_task_table_view.item(0, 1).text())
-        # print(f"任务名称：{self.model_setup_task_table_view.item(0, 1).text()}")
+
         if self.model_setup_task_table_view.item(0, 2).text() != "":
-            print(f"任务描述：{self.model_setup_task_table_view.item(0, 2).text()}")
             self.main_window.the_task_description_label.setText(self.model_setup_task_table_view.item(0, 2).text())
-        # print(f"任务描述：{self.model_setup_task_table_view.item(0, 2).text()}")
 
         # 设置模型和表格视图
         self.model_task_detail_table_view = QStandardItemModel(0, 9)  # 初始化时行数设置为0
@@ -188,14 +199,16 @@ class TaskManager:
         datasets_names = ', '.join([dataset[0] for dataset in datasets])  # 将数据集名称合并成一个字符串
 
         # 填充表格行
-        for dialogue_id, score, evaluation_time, hit_rules in evaluation_results:
+        for dialogue_id, score, evaluation_time, hit_rules, manually_check, manual_review_completed in evaluation_results:
+            # 当manually_check为1且manual_review_completed为0时，人工复检状态为"是"
+            manual_review_status = "是" if manually_check == 1 and manual_review_completed == 0 else "否"
+
             items = [
                 QStandardItem(dialogue_id),
                 QStandardItem(task_name),
                 QStandardItem(scheme),
                 QStandardItem(datasets_names),
-                QStandardItem(
-                    "是" if get_manully_check_by_task_id_and_dialogue_id(task_id, dialogue_id) == "1" else "否"),
+                QStandardItem(manual_review_status),  # 使用新计算的人工复检状态
                 QStandardItem(evaluation_time),
                 QStandardItem(hit_rules if hit_rules else "无"),
                 QStandardItem(str(score)),
@@ -247,9 +260,11 @@ class TaskManager:
         # 配置信号和槽（只需为主视图配置即可）
         try:
             self.main_window.task_detail_tableView_fixed.clicked.disconnect()
+            self.main_window.export_task_report_pushButton.clicked.disconnect()
         except Exception:
             pass  # 如果之前没有连接，则忽略错误
-
+        self.main_window.export_task_report_pushButton.clicked.connect(
+            lambda: export_model_to_csv(self.model_task_detail_table_view, self.main_window))
         self.main_window.task_detail_tableView_fixed.clicked.connect(self.on_clicked_dialogue_detail)
 
     def on_clicked_dialogue_detail(self, index):
@@ -261,14 +276,14 @@ class TaskManager:
 
         try:
             if index.column() == 8:
-
+                self.review_correction = True
                 self.main_window.stackedWidget.setCurrentIndex(11)
                 # 获取对话ID和任务名称等基本信息
                 dialogue_id = self.model_task_detail_table_view.item(index.row(), 0).text()
                 task_name = self.model_task_detail_table_view.item(index.row(), 1).text()
                 dataset_name = self.model_task_detail_table_view.item(index.row(), 3).text()
-                manually_check = get_manully_check_by_task_id_and_dialogue_id(get_task_id_by_task_name(task_name),
-                                                                              dialogue_id)
+                manually_check = get_manually_check_by_task_id_and_dialogue_id(get_task_id_by_task_name(task_name),
+                                                                               dialogue_id)
 
                 self.main_window.manually_check_done_pushButton.hide()
                 if manually_check == "1":
@@ -300,7 +315,7 @@ class TaskManager:
                 except Exception:
                     pass
                 self.main_window.back_to_task_detail_pushButton.clicked.connect(
-                    self.on_clicked_back_to_task_detail)  # 返回任务详情
+                    lambda: self.on_clicked_back_to_task_detail(10))  # 返回任务详情
 
                 if hit_rules == ['无']:
                     hit_rules = []
@@ -317,20 +332,15 @@ class TaskManager:
                     self.main_window.manually_check_done_pushButton.clicked.disconnect()
                 except Exception:
                     pass
-                print("按钮连接已解除")
 
                 self.main_window.manually_remove_pushButton.clicked.connect(
                     lambda: self.on_clicked_manually_remove_hit_rule(task_id, dialogue_id, hit_rules))
-                print("手动移除按钮连接成功")
                 self.main_window.manually_add_pushButton.clicked.connect(
                     lambda: self.manually_add_hit_rule(task_id, dialogue_id, hit_rules))
-                print("手动添加按钮连接成功")
                 self.main_window.manually_check_pushButton.clicked.connect(
                     self.on_clicked_manually_check_pushButton)
-                print("人工复检按钮连接成功")
                 self.main_window.manually_check_done_pushButton.clicked.connect(
                     lambda: self.on_clicked_manually_check_done_pushButton(task_id, dialogue_id))
-                print(f"对话ID：{dialogue_id}")
 
 
         except Exception as e:
@@ -348,8 +358,22 @@ class TaskManager:
 
             self.main_window.manually_check_done_pushButton.hide(),
             self.main_window.manually_check_pushButton.hide(),
-            change_manual_check(task_id, dialogue_id, 0),
+            # 设置为已被检查
+            change_manual_check(task_id, dialogue_id, 1),
             self.main_window.manually_check_label.setText("否"),
+            # 重设相关显示
+            self.setup_task_detail_table_view(task_id),
+            self.main_window.undo_check_manager.setup_undo_check_tableView(),
+            self.main_window.summary_manager.reset_summary(),
+
+            if not self.review_correction:
+                # 如果人工复检时发现了错误，需要修改是否出错的状态，然后回复到原来的状态
+                change_manual_review_corrected_errors(task_id, dialogue_id),
+                self.review_correction = True
+
+            self.main_window.summary_manager.reset_summary()
+            self.main_window.undo_check_manager.setup_undo_check_tableView(),
+
         else:
             pass
 
@@ -363,7 +387,10 @@ class TaskManager:
         # 根据用户的选择进行操作
         if reply == QMessageBox.StandardButton.Yes:
             # 如果用户点击“是”，则显示按钮
+
             self.main_window.manually_check_done_pushButton.show()
+            self.main_window.manually_check_pushButton.hide()
+            self.main_window.undo_check_manager.setup_undo_check_tableView()
         else:
             # 如果用户点击“否”，则不做任何操作（或者根据需要执行其他操作）
             pass
@@ -371,6 +398,7 @@ class TaskManager:
     def on_clicked_manually_remove_hit_rule(self, task_id, dialogue_id, hit_rules=None):
         # 获取当前选中的行对应的规则名称
         print(hit_rules)
+        self.review_correction = False
         selected_index = self.main_window.hit_rules_tableView.currentIndex()
         print(f"selected_index: {selected_index}")
         try:
@@ -385,6 +413,7 @@ class TaskManager:
 
                 # 更新得分
                 self.main_window.score_label.setText(str(update_score_by_HitRulesList(task_id, dialogue_id, hit_rules)))
+                self.main_window.undo_check_manager.setup_undo_check_tableView()
             else:
                 QMessageBox.information(self.main_window, "提示", "请选择要移除的规则")
         except Exception as e:
@@ -392,15 +421,19 @@ class TaskManager:
 
     def manually_add_hit_rule(self, task_id, dialogue_id, hit_rules=None):
         AppendHitRuleDialog(task_id, dialogue_id, self, hit_rules, self.main_window).exec()
+        self.review_correction = False
+        print("重新加载命中规则")
+        self.setup_task_detail_table_view(task_id)
         # 更新得分显示
         try:
             self.main_window.score_label.setText(str(get_score_by_task_id_and_dialogue_id(task_id, dialogue_id)))
+            self.main_window.undo_check_manager.setup_undo_check_tableView()
         except Exception as e:
             print(f"手动添加规则后更新得分时发生错误：{e}")
 
-    def on_clicked_back_to_task_detail(self):
+    def on_clicked_back_to_task_detail(self, index):
         try:
-            self.main_window.stackedWidget.setCurrentIndex(10)
+            self.main_window.stackedWidget.setCurrentIndex(index)
             # 检查AI分析线程是否存在并且正在运行
             if self.thread_ongoing:
                 print(f"正在运行AI分析线程，请求终止...", hasattr(self, 'thread'))
@@ -683,13 +716,21 @@ class TaskManager:
                 new_task.save_to_db()
                 print(f"任务描述：{task_description}")
                 new_task.process_task()
+                if manually_check == 1:
+                    dialogue_count = get_dialogue_count_by_task_id(new_task.task_id)
+                    print(f"需要人工复检,对话数：{dialogue_count}")
+                else:
+                    print("不需要人工复检")
+
                 ##########################################################################
 
-                QMessageBox.information(self.main_window, "成功", "任务创建成功！")
+                QMessageBox.information(self.main_window, "成功", "质检任务执行成功！")
 
                 self.main_window.stackedWidget.setCurrentIndex(3)
                 self.setup_task_table_view()
+                self.main_window.undo_check_manager.setup_undo_check_tableView()
                 self.step_of_create_task = 1
+                self.main_window.summary_manager.reset_summary()  # 重设一下概览界面的任务基本信息
             except Exception as e:
                 print(f"创建任务时发生错误：{e}")
                 raise
