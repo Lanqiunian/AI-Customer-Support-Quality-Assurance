@@ -12,7 +12,7 @@ from services.db_scheme import update_score_by_HitRulesList
 from services.db_task import Task, delete_task, get_dialogue_count_by_task_id, get_average_score_by_task_id, \
     get_hit_times_by_task_id, get_hit_rate_by_task_id, remove_hit_rule, get_task_id_by_task_name, add_hit_rule, \
     get_score_by_task_id_and_dialogue_id, change_manual_check, get_manually_check_by_task_id_and_dialogue_id, \
-    change_manual_review_corrected_errors, add_review_count
+    change_manual_review_corrected_errors, add_review_count, get_AI_prompt_by_task_id
 from services.model_api_client import AIAnalysisWorker
 from ui.dialog_pick_a_rule import Ui_add_rule_to_scheme_Dialog
 from ui.ui_utils import autoResizeColumnsWithStretch, export_model_to_csv
@@ -125,29 +125,65 @@ class TaskManager:
                 average_score = get_average_score_by_task_id(task_id)
                 hit_times = get_hit_times_by_task_id(task_id)
                 hit_rates = get_hit_rate_by_task_id(task_id)
+                AI_prompt = get_AI_prompt_by_task_id(task_id) if get_AI_prompt_by_task_id(
+                    task_id) else "你的任务是:\n1.识别客服在对话中的表现问题，\n2.给出改善建议。"
+                task_description = self.model_setup_task_table_view.item(index.row(), 2).text()
                 self.main_window.dialogue_count_label.setText(str(dialogue_count))
                 self.main_window.average_score_label.setText(str(average_score))
                 self.main_window.hit_times_label.setText(str(hit_times))
                 self.main_window.hit_rate_label.setText(str(hit_rates))
+                self.main_window.display_AI_prompt_TextEdit.setText(AI_prompt)
+
+                # 设置任务基本信息
+                self.main_window.the_task_name_label.setText(self.model_setup_task_table_view.item(0, 1).text())
+
+                if task_description != "":
+                    self.main_window.the_task_description_label.setText(
+                        task_description)
+                    print(f"任务描述：{task_description}")
+                else:
+                    self.main_window.the_task_description_label.setText("无")
 
 
         except Exception as e:
             print(f"点击表格视图时发生错误：{e}")
 
+    from PyQt6.QtWidgets import QMessageBox
+
+    from PyQt6.QtWidgets import QMessageBox, QPushButton
+
     def on_delete_task_button_clicked(self):
         task_id = self.model_setup_task_table_view.item(self.main_window.task_tableView.currentIndex().row(), 0).text()
-        print(f"删除了任务 {task_id}")
-        try:
-            delete_task(task_id)
-            self.main_window.stackedWidget.setCurrentIndex(3)
+        print(f"尝试删除任务 {task_id}")
 
-            # 刷新任务表格视图
-            self.setup_task_table_view()
-            # 刷新待办任务视图
-            self.main_window.undo_check_manager.setup_undo_check_tableView()
-            self.main_window.summary_manager.reset_summary()
-        except Exception as e:
-            print(f"删除任务后刷新任务表格视图时发生错误：{e}")
+        msgBox = QMessageBox(self.main_window)
+        msgBox.setWindowTitle("删除任务")
+        msgBox.setText(f"你确定要删除任务 {task_id} 吗?")
+        msgBox.setIcon(QMessageBox.Icon.Question)
+
+        # 创建自定义按钮
+        confirmButton = msgBox.addButton("确认", QMessageBox.ButtonRole.AcceptRole)
+        cancelButton = msgBox.addButton("取消", QMessageBox.ButtonRole.RejectRole)
+
+        msgBox.exec()
+
+        # 检查哪个按钮被点击
+        if msgBox.clickedButton() == confirmButton:
+            print(f"确认删除任务 {task_id}")
+            try:
+                # 调用删除任务的方法
+                delete_task(task_id)
+                self.main_window.stackedWidget.setCurrentIndex(3)
+
+                # 刷新任务表格视图
+                self.setup_task_table_view()
+                # 刷新待办任务视图
+                self.main_window.undo_check_manager.setup_undo_check_tableView()
+                self.main_window.summary_manager.reset_summary()
+            except Exception as e:
+                print(f"删除任务后刷新任务表格视图时发生错误：{e}")
+        else:
+            print(f"取消删除任务 {task_id}")
 
     def setup_task_detail_table_view(self, task_id):
         # 用于展示任务详情，呈现某个任务所包含对话的列表
@@ -176,12 +212,6 @@ class TaskManager:
             GROUP BY evaluation_results.dialogue_id
         """, (task_id,))
         evaluation_results = cursor.fetchall()
-
-        # 设置任务基本信息
-        self.main_window.the_task_name_label.setText(self.model_setup_task_table_view.item(0, 1).text())
-
-        if self.model_setup_task_table_view.item(0, 2).text() != "":
-            self.main_window.the_task_description_label.setText(self.model_setup_task_table_view.item(0, 2).text())
 
         # 设置模型和表格视图
         self.model_task_detail_table_view = QStandardItemModel(0, 9)  # 初始化时行数设置为0
@@ -296,9 +326,10 @@ class TaskManager:
 
                 # 设置对话文本的显示
                 self.main_window.setupDialogueDisplay(dialogue_data)
-
+                AI_prompt = get_AI_prompt_by_task_id(get_task_id_by_task_name(task_name))
+                print(f"AI_prompt: {AI_prompt}")
                 # 创建一个线程来执行AI分析
-                self.display_ai_response(dialogue_data)
+                self.display_ai_response(dialogue_data, AI_prompt)
 
                 # 获取命中规则详情
                 hit_rules = text_to_list(self.model_task_detail_table_view.item(index.row(), 6).text())
@@ -365,15 +396,16 @@ class TaskManager:
             self.setup_task_detail_table_view(task_id),
             self.main_window.undo_check_manager.setup_undo_check_tableView(),
             self.main_window.summary_manager.reset_summary(),
+            try:
+                if not self.review_correction:
+                    # 如果人工复检时发现了错误，需要修改是否出错的状态，然后回复到原来的状态
+                    change_manual_review_corrected_errors(task_id, dialogue_id),
+                    self.review_correction = True
 
-            if not self.review_correction:
-                # 如果人工复检时发现了错误，需要修改是否出错的状态，然后回复到原来的状态
-                change_manual_review_corrected_errors(task_id, dialogue_id),
-                self.review_correction = True
-
-            self.main_window.summary_manager.reset_summary()
-            self.main_window.undo_check_manager.setup_undo_check_tableView(),
-
+                self.main_window.summary_manager.reset_summary()
+                self.main_window.undo_check_manager.setup_undo_check_tableView(),
+            except Exception as e:
+                print(f"完成人工复检时发生错误：{e}")
         else:
             pass
 
@@ -450,14 +482,14 @@ class TaskManager:
             print(f"返回对话列表时发生错误：{e}")
 
     # 修改display_ai_response方法，每次都创建新的线程和工作对象
-    def display_ai_response(self, dialogue_data):
+    def display_ai_response(self, dialogue_data, AI_prompt=None):
         # 初始化显示正在加载的文本
         loadingText = "正在加载AI分析结果，请稍候..."
         self.update_ai_scroll_area(loadingText)
 
         # 创建新的线程和工作对象
         self.thread = QThread()
-        self.worker = AIAnalysisWorker(dialogue_data)
+        self.worker = AIAnalysisWorker(dialogue_data, AI_prompt)
         self.worker.moveToThread(self.thread)
         # 连接信号
         self.worker.analysisCompleted.connect(self.update_ai_scroll_area)
@@ -568,11 +600,10 @@ class TaskManager:
     def setup_choosing_dataset_table_view(self):
         try:
             self.main_window.previous_step_pushButton.hide()
-            self.main_window.task_name_lineEdit.hide()
-            self.main_window.task_description_textEdit.hide()
-            self.main_window.task_description_label.hide()
-            self.main_window.task_name_label.hide()
-            self.main_window.manual_check_checkBox.hide()
+            self.main_window.create_task_info_frame.hide()
+
+
+
         except Exception as e:
             print(f"隐藏上一步按钮时发生错误：{e}")
 
@@ -688,12 +719,9 @@ class TaskManager:
 
             # 切换到设置任务信息界面，把组件显示出来
             self.main_window.previous_step_pushButton.show()
-            self.main_window.task_name_lineEdit.show()
+            self.main_window.create_task_info_frame.show()
+
             self.main_window.task_name_lineEdit.setText(default_task_name)
-            self.main_window.task_description_textEdit.show()
-            self.main_window.task_description_label.show()
-            self.main_window.task_name_label.show()
-            self.main_window.manual_check_checkBox.show()
 
             self.main_window.choose_dataset_tableView.hide()
             self.step_of_create_task = 3
@@ -708,7 +736,8 @@ class TaskManager:
                 print(f"选中的方案为：{selected_scheme}")
                 manually_check = 1 if self.main_window.manual_check_checkBox.isChecked() else 0
                 selected_dataset = self.selected_dataset
-                new_task = Task(task_name, task_description, selected_scheme, manually_check)
+                AI_prompt = self.main_window.AI_prompt_textEdit.toPlainText()
+                new_task = Task(task_name, task_description, selected_scheme, manually_check, AI_prompt)
                 for dataset in selected_dataset:
                     new_task.append_dataset(dataset)
                 print(f"任务名称：{task_name}")

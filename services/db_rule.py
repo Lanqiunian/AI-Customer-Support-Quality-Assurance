@@ -75,7 +75,8 @@ def init_db():
                             task_name TEXT,
                             task_description TEXT,
                             scheme TEXT,
-                            manually_check INTEGER)''')  # 任务表
+                            manually_check INTEGER,
+                            AI_prompt TEXT)''')  # 任务表
 
     cursor_task.execute('''CREATE TABLE IF NOT EXISTS datasets (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,

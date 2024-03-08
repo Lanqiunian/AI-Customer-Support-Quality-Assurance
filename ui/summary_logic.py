@@ -2,7 +2,7 @@ import sqlite3
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
-from PyQt6.QtWidgets import QHeaderView, QMessageBox
+from PyQt6.QtWidgets import QMessageBox
 
 from services.db_task import get_overall_info, get_review_statistics
 from ui.ui_utils import immersingTableView, autoResizeColumnsWithStretch

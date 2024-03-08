@@ -4,7 +4,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont, QStandardItem, QStandardItemModel
 
 from services.db_dialogue_data import get_dialogue_by_datasetname_and_dialogueid
-from services.db_task import get_manually_check_by_task_id_and_dialogue_id
+from services.db_task import get_manually_check_by_task_id_and_dialogue_id, get_AI_prompt_by_task_id
 from ui.ui_utils import autoResizeColumnsWithStretch
 from utils.data_utils import text_to_list
 from utils.file_utils import TASK_DB_PATH
@@ -152,7 +152,8 @@ class UndoCheckManager:
                 self.main_window.setupDialogueDisplay(dialogue_data)
 
                 # 执行AI分析
-                self.main_window.Task_Manager.display_ai_response(dialogue_data)
+                AI_prompt = get_AI_prompt_by_task_id(task_id)
+                self.main_window.Task_Manager.display_ai_response(dialogue_data, AI_prompt)
 
                 # 获取命中规则详情
 

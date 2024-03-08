@@ -73,15 +73,18 @@ def get_ai_analysis_chatglm6b(df):
     return feedback
 
 
-def get_ai_analysis_chatgpt(dialogue):
+def get_ai_analysis_chatgpt(dialogue, AI_prompt=None):
     load_dotenv()  # 加载.env文件中的变量
     openai.api_key = os.getenv('OPENAI_API_KEY')
-
+    if AI_prompt is None:
+        AI_prompt = "作为一位客服对话分析专家，你的任务是:1.识别客服在对话中的表现问题，2.给出改善建议。"
+    else:
+        AI_prompt = "作为一位客服对话分析专家，你的任务是:1.识别客服在对话中的表现问题，2.给出改善建议。附加要求：" + AI_prompt
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system",
-             "content": "作为一位客服对话分析专家，你的任务是:1.识别客服在对话中的表现问题，2.给出改善建议。"},
+             "content": AI_prompt},
             {"role": "user", "content": dialogue}
         ]
     )
@@ -95,13 +98,14 @@ class AIAnalysisWorker(QObject):
     analysisCompleted = pyqtSignal(str)
     finished = pyqtSignal()
 
-    def __init__(self, dialogue_data):
+    def __init__(self, dialogue_data, AI_prompt=None):
         super().__init__()
         self.dialogue_data = dialogue_data
+        self.AI_prompt = AI_prompt
 
     def process(self):
         dialogue_str = convert_dataframe_to_single_string_dialog(self.dialogue_data)
-        ai_response = get_ai_analysis_chatgpt(dialogue_str)
+        ai_response = get_ai_analysis_chatgpt(dialogue_str, self.AI_prompt)
         print(ai_response)
         self.analysisCompleted.emit(ai_response)
         self.finished.emit()

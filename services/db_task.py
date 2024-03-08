@@ -7,13 +7,14 @@ from utils.file_utils import TASK_DB_PATH
 
 
 class Task:
-    def __init__(self, task_name, description, scheme_name, manually_check):
+    def __init__(self, task_name, description, scheme_name, manually_check, AI_prompt=None):
         self.task_name = task_name
         self.description = description
         self.scheme = query_scheme(scheme_name)
         self.dataset_list = []
         self.manually_check = manually_check
         self.task_id = None
+        self.AI_prompt = AI_prompt
 
     def get_task_id(self):
         conn = sqlite3.connect(TASK_DB_PATH)
@@ -54,9 +55,9 @@ class Task:
         cursor = conn.cursor()
 
         # 首先保存任务信息
-        cursor.execute('''INSERT INTO tasks (task_name, task_description, scheme, manually_check)
-                          VALUES (?, ?, ?, ?)''',
-                       (self.task_name, self.description, self.scheme.scheme_name, self.manually_check))
+        cursor.execute('''INSERT INTO tasks (task_name, task_description, scheme, manually_check, AI_prompt)
+                          VALUES (?, ?, ?, ?, ?)''',
+                       (self.task_name, self.description, self.scheme.scheme_name, self.manually_check, self.AI_prompt))
 
         # 获取刚刚插入的任务的ID
         task_id = cursor.lastrowid
@@ -72,6 +73,18 @@ class Task:
         conn.close()
 
         print(f"任务 '{self.task_name}' 及其数据集已保存到数据库。")
+
+
+def get_AI_prompt_by_task_id(task_id):
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT AI_prompt FROM tasks WHERE id=?", (task_id,))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        return result[0]
+    else:
+        return None
 
 
 def delete_task(task_id):
@@ -275,7 +288,9 @@ def add_review_count(num):
 def change_manual_review_corrected_errors(task_id, dialogue_id):
     conn = sqlite3.connect(TASK_DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("UPDATE evaluation_results SET manual_review_corrected_errors WHERE task_id=? AND dialogue_id=?",
+    # 更新 manual_review_corrected_errors 为 1
+    cursor.execute("UPDATE evaluation_results SET manual_review_corrected_errors = 1 WHERE task_id=? AND "
+                   "dialogue_id=?",
                    (task_id, dialogue_id))
     conn.commit()
     conn.close()

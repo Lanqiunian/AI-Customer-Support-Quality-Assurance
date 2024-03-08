@@ -2,7 +2,7 @@ import csv
 from datetime import datetime
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QFileDialog
+from PyQt6.QtWidgets import QFileDialog, QAbstractItemView
 
 
 def autoResizeColumnsWithStretch(tableViewWidget):
@@ -22,6 +22,8 @@ def autoResizeColumnsWithStretch(tableViewWidget):
 
     # 最后一列使用Stretch模式，填满剩余空间
     tableViewWidget.horizontalHeader().setStretchLastSection(True)
+    # 设置为不可编辑
+    tableViewWidget.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
 
 def immersingTableView(tableViewWidget):
@@ -64,6 +66,31 @@ def immersingTableView(tableViewWidget):
 
     # 关闭表格的默认网格线显示
     tableViewWidget.setShowGrid(False)
+
+    # 设置为不可编辑
+    tableViewWidget.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+
+
+def immersing_TextEdit(textEditWidget):
+    """
+    自定义QTextEdit的外观，包括文字的颜色和大小。
+    :param textEditWidget: QTextEdit对象
+    """
+    # 设置样式表
+    textEditWidget.setStyleSheet("""
+        QTextEdit#display_AI_prompt_TextEdit {
+        background-color: transparent;
+        border: 2px solid #cfcfcf; 
+        border-radius: 10px; 
+        }
+
+        QTextEdit#display_AI_prompt_TextEdit QScrollBar:vertical {
+            width: 0px;
+        }
+        
+        QTextEdit#display_AI_prompt_TextEdit QScrollBar:horizontal {
+        height: 0px;
+        }""")
 
 
 def user_select_save_file(parent, default_name):
