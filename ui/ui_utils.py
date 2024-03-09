@@ -93,7 +93,7 @@ def immersing_TextEdit(textEditWidget):
         }""")
 
 
-def user_select_save_file(parent, default_name):
+def user_select_save_file(parent, default_name=None):
     """
     弹出一个文件选择对话框，让用户选择保存文件的路径和文件名。
 
@@ -104,16 +104,20 @@ def user_select_save_file(parent, default_name):
     Returns:
         str: 用户选择的文件路径。如果用户取消，则返回None。
     """
-    default_name = datetime.now().strftime(
-        '%Y-%m-%d_%H-%M-%S') + "_export.csv" if default_name is None else default_name
-    options = QFileDialog.Option.DontUseNativeDialog
-    file_path, _ = QFileDialog.getSaveFileName(
-        parent,
-        "导出任务报告",
-        default_name,
-        "CSV Files (*.csv)",
-        options=options
-    )
+    try:
+        default_name = "质检报告-" + datetime.now().strftime(
+            '%Y-%m-%d_%H-%M-%S') + ".csv" if default_name is None else default_name
+        options = QFileDialog.Option.DontUseNativeDialog
+        file_path, _ = QFileDialog.getSaveFileName(
+            parent,
+            "导出任务报告",
+            default_name,
+            "CSV Files (*.csv)",
+            options=options
+        )
+    except Exception as e:
+        print(f"选择文件路径: {e}")
+        file_path = None
     return file_path if file_path else None
 
 

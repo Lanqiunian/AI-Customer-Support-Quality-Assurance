@@ -1,59 +1,254 @@
 {
   "rules": [
     {
-      "rule_name": "ExampleRule1",
+      "rule_name": "礼貌用语鼓励",
       "score_type": 1,
-      "score_value": -5,
-      "script_rules": [
-        {
-          "scripts": [
-            "笑了",
-            "可以尝试一下哦"
-          ],
-          "similarity_threshold": 0.8,
-          "condition_id": "1"
-        }
-      ],
+      "score_value": 5,
+      "script_rules": [],
       "keyword_rules": [
         {
           "keywords": [
-            "傻逼",
-            "操你妈"
+            "请",
+            "谢谢",
+            "不客气"
+          ],
+          "check_type": "any",
+          "condition_id": "1",
+          "n": null
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "避免负面词汇",
+      "score_type": 1,
+      "score_value": -5,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "遗憾",
+            "不幸",
+            "失望"
           ],
           "check_type": "any",
           "condition_id": "2",
           "n": null
-        },
-        {
-          "keywords": [
-            "我爱你",
-            "我真帅"
-          ],
-          "check_type": "any",
-          "condition_id": "3",
-          "n": 2
         }
       ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "敏感话题警告",
+      "score_type": 1,
+      "score_value": -20,
+      "script_rules": [],
+      "keyword_rules": [],
       "regex_rules": [
         {
-          "pattern": "(孩子|娃|姑娘).{0,4}(多大|几岁)|(孩子|娃|姑娘|上).{0,3}(几年级|初几|高几)|您.{0,3}做什么|什么工作|报过.{0,3}(其他|别的).{0,3}辅导班",
+          "pattern": "(退款|投诉).*",
           "condition_id": "3"
         }
       ]
     },
     {
-      "rule_name": "ExampleRule2",
+      "rule_name": "正面反馈提醒",
+      "score_type": 1,
+      "score_value": 10,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "非常好",
+            "很满意",
+            "非常满意"
+          ],
+          "check_type": "any",
+          "condition_id": "4",
+          "n": null
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "产品知识点强化",
+      "score_type": 1,
+      "score_value": 10,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "产品特点",
+            "使用方法",
+            "性能优势"
+          ],
+          "check_type": "any",
+          "condition_id": "5",
+          "n": null
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "提问技巧检测",
+      "score_type": 1,
+      "score_value": 5,
+      "script_rules": [],
+      "keyword_rules": [],
+      "regex_rules": [
+        {
+          "pattern": "(怎么|如何|什么时候|哪里|谁).*",
+          "condition_id": "6"
+        }
+      ]
+    },
+    {
+      "rule_name": "敬语使用",
+      "score_type": 1,
+      "score_value": 5,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "尊敬的",
+            "敬爱的",
+            "亲爱的"
+          ],
+          "check_type": "any",
+          "condition_id": "7",
+          "n": null
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "积极情绪传递",
+      "score_type": 1,
+      "score_value": 10,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "开心",
+            "快乐",
+            "幸福"
+          ],
+          "check_type": "any",
+          "condition_id": "8",
+          "n": null
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "客户身份尊重",
+      "score_type": 1,
+      "score_value": 10,
+      "script_rules": [],
+      "keyword_rules": [],
+      "regex_rules": [
+        {
+          "pattern": "先生|女士|小姐",
+          "condition_id": "9"
+        }
+      ]
+    },
+    {
+      "rule_name": "避免使用行业术语",
       "score_type": 1,
       "score_value": -10,
       "script_rules": [],
       "keyword_rules": [
         {
           "keywords": [
-            "6的",
-            "不想你"
+            "行业术语1",
+            "行业术语2",
+            "行业术语3"
           ],
           "check_type": "any",
-          "condition_id": "1",
+          "condition_id": "10",
+          "n": null
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "快速响应提醒",
+      "score_type": 1,
+      "score_value": 10,
+      "script_rules": [],
+      "keyword_rules": [],
+      "regex_rules": [
+        {
+          "pattern": "对不起|抱歉.*等候",
+          "condition_id": "11"
+        }
+      ]
+    },
+    {
+      "rule_name": "不恰当语言警告",
+      "score_type": 1,
+      "score_value": -20,
+      "script_rules": [],
+      "keyword_rules": [],
+      "regex_rules": [
+        {
+          "pattern": "(孩子|娃|姑娘).{0,4}(多大|几岁)|(孩子|娃|姑娘|上).{0,3}(几年级|初几|高几)|您.{0,3}做什么|什么工作|报过.{0,3}(其他|别的).{0,3}辅导班",
+          "condition_id": "12"
+        }
+      ]
+    },
+    {
+      "rule_name": "客户需求确认",
+      "score_type": 1,
+      "score_value": 10,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "您的需求是",
+            "您需要"
+          ],
+          "check_type": "any",
+          "condition_id": "13",
+          "n": null
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "解决方案提示",
+      "score_type": 1,
+      "score_value": 15,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "解决办法",
+            "解决方案",
+            "解决方法"
+          ],
+          "check_type": "any",
+          "condition_id": "14",
+          "n": null
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "客户感谢回应",
+      "score_type": 1,
+      "score_value": 5,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "谢谢您",
+            "非常感谢",
+            "十分感谢"
+          ],
+          "check_type": "any",
+          "condition_id": "15",
           "n": null
         }
       ],

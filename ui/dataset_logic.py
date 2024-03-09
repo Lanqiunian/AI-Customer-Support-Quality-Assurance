@@ -22,7 +22,7 @@ class DataSetManager:
     def show_file_dialog(self):
         try:
             dialog = FileDialog(self.parent)
-            default_name = "新数据集" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            default_name = "数据集_" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
             dialog.ui.new_dataset_name_lineEdit.setText(default_name)
             if dialog.exec() == QDialog.DialogCode.Accepted:
                 # 在这里处理对话框的结果，比如获取文件名

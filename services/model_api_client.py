@@ -1,9 +1,10 @@
 import openai
-from PyQt6.QtCore import pyqtSignal, QObject
+from PyQt6.QtCore import pyqtSignal, QObject, QThread
 from bs4 import BeautifulSoup
 from gradio_client import Client
 from dotenv import load_dotenv
 import os
+from services.global_setting import AI_PROMPT_RULES, AI_PROMPT_RULES_JSON_EXAMPLE
 
 
 def convert_dataframe_to_single_string_dialog(df):
@@ -94,6 +95,25 @@ def get_ai_analysis_chatgpt(dialogue, AI_prompt=None):
     return analysis
 
 
+def get_ai_rule_json_chatgpt(direction=None):
+    load_dotenv()  # 加载.env文件中的变量
+    openai.api_key = os.getenv('OPENAI_API_KEY')
+
+    AI_prompt = AI_PROMPT_RULES + direction + AI_PROMPT_RULES_JSON_EXAMPLE
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system",
+             "content": AI_prompt},
+
+        ]
+    )
+
+    rule_json = response.choices[0].message['content'].strip()
+    return rule_json
+
+
 # AIAnalysisWorker类中添加finished信号
 class AIAnalysisWorker(QObject):
     analysisCompleted = pyqtSignal(str)
@@ -112,10 +132,20 @@ class AIAnalysisWorker(QObject):
         self.finished.emit()
 
 
-if __name__ == "__main__":
-    # Example dialogue string
-    dialogue = "客户：我想了解我的订单状态。\n客服：请提供您的订单号。\n客户：123456。\n客服：让我查一下... 您的订单已经发货。\n客户：发货了吗？我还没收到通知。\n客服：应该很快就会到了。"
+class AISuggestionThread(QThread):
+    finished = pyqtSignal(str, object)  # object 可以接受任何类型，包括 NoneType 和 Exception
 
-    # Get the analysis
-    analysis = get_ai_analysis_chatgpt(dialogue)
-    print("分析与建议：", analysis)
+    def __init__(self, direction, parent=None):
+        super().__init__(parent)
+        self.direction = direction
+
+    def run(self):
+        try:
+            rule_json = get_ai_rule_json_chatgpt(self.direction)  # 假设这是获取 AI 建议的函数
+            self.finished.emit(rule_json, None)  # 没有异常时，第二个参数为 None
+        except Exception as e:
+            self.finished.emit("", e)  # 捕获到异常时，发送异常对象
+
+
+if __name__ == "__main__":
+    print(get_ai_rule_json_chatgpt("分析客服的营销意识"))

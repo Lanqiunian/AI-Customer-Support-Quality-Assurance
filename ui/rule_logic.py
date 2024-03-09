@@ -11,7 +11,9 @@ from services.db_rule import delete_rule, add_rule, get_script_by_name, \
 from services.db_rule import rule_exists, \
     get_score_by_name
 from services.db_scheme import get_scheme_by_rule_name
+from services.model_api_client import get_ai_rule_json_chatgpt, AISuggestionThread
 from services.rule_manager import Rule
+from ui.task_logic import WaitingDialog
 from ui.ui_utils import autoResizeColumnsWithStretch
 from utils.data_utils import list_to_text, format_score
 from utils.file_utils import RULE_DB_PATH
@@ -34,14 +36,15 @@ class RuleManager:
         self.main_window.NewRuleButton.clicked.connect(self.add_condition_layout)
         self.main_window.save_rule_pushButton.clicked.connect(self.save_rule)
         self.main_window.delete_rule_pushButton.clicked.connect(self.delete_rule)
+        self.main_window.generate_ai_suggestion_pushButton.clicked.connect(self.on_click_generate_ai_rule_suggestion)
 
         # 添加一个弹性空间以确保组件紧密排列在顶部
         self.verticalLayout.addStretch(1)
 
     def add_condition_layout(self, condition_type=None, condition_value=None, additional_info=None):
-        # 移除弹性空间
+
         try:
-            print("添加条件组件")
+
             stretch_index = self.verticalLayout.count() - 1
             if stretch_index >= 0:
                 item = self.verticalLayout.takeAt(stretch_index)
@@ -363,7 +366,6 @@ class RuleManager:
         rules = cursor.fetchall()
         cursor.execute('SELECT score_type, score_value FROM score_rules ')
         scores = cursor.fetchall()
-        print(f"获取的评分信息", scores)
 
         # 为每个规则加载相关的数据
         for rule_id, rule_name in rules:
@@ -396,7 +398,6 @@ class RuleManager:
     def onRuleClicked(self, index):
         # 假设规则的ID存储在第一列
         rule_name = self.model.item(index.row(), 1).text()
-        # print(f"规则名称为 {rule_name}")
 
         self.loadRuleDetails(rule_name)
 
@@ -421,13 +422,12 @@ class RuleManager:
         selected_rule = query_rule(rule_name)
         # 查询并加载规则的各项条件数据
         regex = selected_rule.regex_rules
-        print(f"获取了正则表达式匹配条件", regex)
+
         keyword = selected_rule.keyword_rules
-        print(f"获取了关键词匹配条件", keyword)
 
         script = selected_rule.script_rules
         threshold = get_script_by_name(rule_name, 1)
-        print(f"获取了话术匹配条件", script, threshold)
+
         if regex:
             print("添加正则表达式匹配条件")
             for regex_condition in regex:
@@ -583,6 +583,7 @@ class RuleManager:
             try:
                 import_rules_from_json(file_path)
                 QMessageBox.information(self.main_window, "导入成功", "规则成功导入数据库。")
+                self.setupRuleManagerTableView()
             except Exception as e:
                 QMessageBox.critical(self.main_window, "导入失败", f"导入过程中发生错误：{e}")
 
@@ -591,7 +592,7 @@ class RuleManager:
         打开文件选择器来选择保存位置和文件名，并调用export_rules_to_json函数来导出规则。
         """
         date_str = QDateTime.currentDateTime().toString("yyyy-MM-dd_HH-mm-ss")
-        default_name = "rules_export" + date_str + ".json"
+        default_name = "rules_config_" + date_str + ".json"
         file_path, _ = QFileDialog.getSaveFileName(self.main_window, "导出规则配置文件", default_name,
                                                    "JSON Files (*.json)",
                                                    options=QFileDialog.Option.DontUseNativeDialog)
@@ -601,3 +602,64 @@ class RuleManager:
                 QMessageBox.information(self.main_window, "导出成功", "规则成功导出到文件。")
             except Exception as e:
                 QMessageBox.critical(self.main_window, "导出失败", f"导出过程中发生错误：{e}")
+
+    def on_click_generate_ai_rule_suggestion(self):
+        direction = self.main_window.ai_direction_textEdit.toPlainText()
+        if not direction:
+            QMessageBox.critical(self.main_window, "错误", "请提供一个方向描述。")
+            return
+
+        # 显示等待窗口
+        self.waitingDialog = WaitingDialog(self.main_window)
+        self.waitingDialog.setModal(True)
+        self.waitingDialog.setWindowTitle("请稍候")
+        self.waitingDialog.show()
+
+        # 创建并启动AI线程
+        self.ai_thread = AISuggestionThread(direction)
+        self.ai_thread.finished.connect(self.on_ai_suggestion_received)
+        self.ai_thread.start()
+
+    def on_ai_suggestion_received(self, rule_json, error):
+        self.waitingDialog.accept()  # 关闭等待窗口
+        if error is not None:  # 检查是否有错误
+            QMessageBox.critical(self.main_window, "错误", f"生成规则的AI建议时发生错误：{error}")
+            return
+        print(f"AI建议的规则JSON：{rule_json}")
+        self.add_conditions_from_json(rule_json)
+
+    def add_conditions_from_json(self, json_data):
+        """
+        从JSON格式的字符串中读取规则信息，并使用add_condition_layout添加到布局中。
+
+        Parameters:
+            json_data (str): 包含规则定义的JSON字符串。
+        """
+        self.rule_editing_clear()
+        # 解析JSON字符串
+        rule_data = json.loads(json_data)
+
+        # 首先添加规则的基本信息
+        print(f"Rule Name: {rule_data['rule_name']}")
+        print(f"Score Type: {rule_data['score_type']}")
+        print(f"Score Value: {rule_data['score_value']}")
+        self.main_window.RuleNameEditText.setText(rule_data['rule_name'])
+        self.main_window.score_type_comboBox.setCurrentIndex(rule_data['score_type'])
+        self.main_window.score_value_line_edit.setText(str(rule_data['score_value']))
+
+        # 添加话术匹配规则
+        for script_rule in rule_data['script_rules']:
+            self.add_condition_layout(condition_type="话术匹配",
+                                      condition_value=script_rule['scripts'],  # 直接传递列表
+                                      additional_info=script_rule['similarity_threshold'])
+
+        # 添加关键词匹配规则
+        for keyword_rule in rule_data['keyword_rules']:
+            self.add_condition_layout(condition_type="关键词匹配",
+                                      condition_value=keyword_rule['keywords'],  # 直接传递列表
+                                      additional_info=(keyword_rule['check_type'], keyword_rule.get('n')))
+
+        # 添加正则表达式匹配规则
+        for regex_rule in rule_data['regex_rules']:
+            self.add_condition_layout(condition_type="正则表达式匹配",
+                                      condition_value=regex_rule['pattern'])  # 传递字符串，因为正则是单个字符串

@@ -37,6 +37,7 @@ class TaskManager:
         self.main_window.task_tableView.clicked.connect(self.on_choosing_dataset_table_view_clicked)
         self.main_window.new_task_pushButton.clicked.connect(self.on_new_task_button_clicked)
         self.main_window.next_step_pushButton.clicked.connect(self.next_step)
+        self.main_window.previous_step_pushButton.clicked.connect(self.previous_step)
         self.step_of_create_task = 1
         self.main_window.back_to_dialogue_detail_pushButton.clicked.connect(
             self.on_back_to_dialogue_detail_button_clicked)
@@ -594,7 +595,7 @@ class TaskManager:
                 QMessageBox.information(self.main_window, "提示", "规则已被删除")
 
     def on_new_task_button_clicked(self):
-        print("点击了新建任务按钮")
+        self.highlight_step_title()
         self.main_window.stackedWidget.setCurrentIndex(9)
         self.main_window.choose_dataset_tableView.show()
         self.setup_choosing_dataset_table_view()
@@ -603,6 +604,8 @@ class TaskManager:
         try:
             self.main_window.previous_step_pushButton.hide()
             self.main_window.create_task_info_frame.hide()
+            # 重置创建任务的步骤,解决打断时不重置导致问题。
+            self.step_of_create_task = 1
 
 
 
@@ -693,7 +696,7 @@ class TaskManager:
     def next_step(self):
         if self.step_of_create_task == 1:
             # 获取当前选中的行
-            print("第一步")
+
             selection_model = self.main_window.choose_dataset_tableView.selectionModel()
 
             # 如果没有选中任何数据集，则弹出警告对话框
@@ -710,6 +713,7 @@ class TaskManager:
 
             print(f"选中的数据集为：{self.selected_dataset}")
             self.step_of_create_task += 1  # 进入下一步
+            self.highlight_step_title()
             try:
                 self.setup_scheme_selection_table_view()  # 设置方案选择视图
                 self.main_window.previous_step_pushButton.show()  # 显示上一步按钮
@@ -719,7 +723,7 @@ class TaskManager:
 
         if self.step_of_create_task == 2:
             current_time_str = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-            default_task_name = "task-" + current_time_str
+            default_task_name = "质检任务_" + current_time_str
 
             # 切换到设置任务信息界面，把组件显示出来
             self.main_window.previous_step_pushButton.show()
@@ -729,9 +733,11 @@ class TaskManager:
 
             self.main_window.choose_dataset_tableView.hide()
             self.step_of_create_task = 3
+            self.highlight_step_title()
             return
 
         if self.step_of_create_task == 3:
+
             try:
                 # 把任务存进表格##############################################################
                 task_name = self.main_window.task_name_lineEdit.text()
@@ -768,6 +774,40 @@ class TaskManager:
                 print(f"创建任务时发生错误：{e}")
                 raise
             return
+
+    def previous_step(self):
+        if self.step_of_create_task == 2:
+            try:
+                # 从方案选择界面返回数据集选择界面
+                self.setup_choosing_dataset_table_view()
+
+                self.main_window.previous_step_pushButton.hide()  # 在第一步时隐藏上一步按钮
+                self.step_of_create_task -= 1
+                self.highlight_step_title()
+                return
+            except Exception as e:
+                print(f"返回数据集选择界面时发生错误：{e}")
+
+        if self.step_of_create_task == 3:
+            # 从设置任务信息界面返回方案选择界面
+
+            self.main_window.create_task_info_frame.hide()
+
+            self.setup_scheme_selection_table_view()
+            self.main_window.choose_dataset_tableView.show()
+            self.step_of_create_task -= 1
+            self.highlight_step_title()
+            return
+
+    def highlight_step_title(self):
+        # 高亮显示当前步骤的标题
+        for i in range(1, 4):
+            label = getattr(self.main_window, f"step_{i}_label")
+            if i == self.step_of_create_task:
+                label.setStyleSheet("color: #000; font-weight: bold;")
+                print(f"高亮显示步骤{i}的标题")
+            else:
+                label.setStyleSheet("color: #666; font-weight: normal;")
 
 
 class WaitingDialog(QDialog):

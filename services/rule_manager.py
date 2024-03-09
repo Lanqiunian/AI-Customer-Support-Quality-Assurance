@@ -82,7 +82,7 @@ class Rule:
 
     def evaluate(self, material_to_evaluate):
         """
-        评估全部的规则，全部命中，则返回True，否则返回False
+        评估规则包含的全部的条件，全部命中，则返回True，否则返回False
 
         :param material_to_evaluate: Panda Series类型 待评估的语料.
         :return: 评估结果的布尔值.

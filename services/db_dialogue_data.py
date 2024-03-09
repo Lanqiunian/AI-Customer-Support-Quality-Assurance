@@ -180,7 +180,13 @@ def get_service_id_by_dialogue_id_and_task_id(task_id, dialogue_id):
     cursor = conn.cursor()
     cursor.execute('SELECT table_name FROM meta_table WHERE data_name = ?', (dataset_id,))
 
-    dataset_name = cursor.fetchone()[0]
+    try:
+
+        dataset_name = cursor.fetchone()[0]
+    except:
+        print('No such dataset')
+        dataset_name = "未知"
+        return None
     df = load_data_from_db(dataset_id)
     if df is not None:
         if '对话ID' in df.columns and '客服ID' in df.columns:
