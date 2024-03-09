@@ -7,7 +7,7 @@ from PyQt6.QtGui import QStandardItemModel, QStandardItem, QColor, QFont, QBrush
 from PyQt6.QtWidgets import QTableView, QMessageBox, QTextEdit, QDialog, QVBoxLayout, QLabel, QApplication
 
 from services.db_dialogue_data import get_dialogue_by_datasetname_and_dialogueid
-from services.db_rule import get_score_by_name
+from services.db_rule import get_score_by_name, rule_exists
 from services.db_scheme import update_score_by_HitRulesList
 from services.db_task import Task, delete_task, get_dialogue_count_by_task_id, get_average_score_by_task_id, \
     get_hit_times_by_task_id, get_hit_rate_by_task_id, remove_hit_rule, get_task_id_by_task_name, add_hit_rule, \
@@ -147,10 +147,6 @@ class TaskManager:
 
         except Exception as e:
             print(f"点击表格视图时发生错误：{e}")
-
-    from PyQt6.QtWidgets import QMessageBox
-
-    from PyQt6.QtWidgets import QMessageBox, QPushButton
 
     def on_delete_task_button_clicked(self):
         task_id = self.model_setup_task_table_view.item(self.main_window.task_tableView.currentIndex().row(), 0).text()
@@ -542,7 +538,7 @@ class TaskManager:
     def setup_hit_rules_table_view(self, hit_rules=None):
         if hit_rules is None:
             hit_rules = []  # 确保hit_rules不为None，避免后续操作引发错误
-
+        print(f"命中规则ssssss：{hit_rules}")
         hit_rule_model = QStandardItemModel(len(hit_rules), 2)
         hit_rule_model.setHorizontalHeaderLabels(["命中规则", "评分效果"])
 
@@ -559,7 +555,11 @@ class TaskManager:
                 hit_rule_model.setItem(row_index, 0, rule_item)
 
                 # 假设 get_score_info_by_name 函数返回评分效果的文本描述
-                score_effect = get_score_info_by_name(rule)
+                if get_score_info_by_name(rule) is not None:
+                    score_effect = get_score_info_by_name(rule)
+
+                else:
+                    score_effect = "规则已被删除"
                 score_effect_item = QStandardItem(score_effect)
                 score_effect_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 hit_rule_model.setItem(row_index, 1, score_effect_item)
@@ -579,17 +579,19 @@ class TaskManager:
             rule_name = index.model().item(index.row(), 0).text()
 
             self.main_window.back_to_dialogue_detail_pushButton.show()
-
-            self.rule_manager.loadRuleDetails(rule_name)
-            score_type = int(str(get_score_by_name(rule_name, 0)))
-            score_value = str(get_score_by_name(rule_name, 1))
-            try:
-                self.main_window.score_type_comboBox.setCurrentIndex(score_type)
-                print(f"score_type: {score_type}")
-                self.main_window.score_value_line_edit.setText(score_value)
-                print(f"score_value: {score_value}")
-            except Exception as e:
-                print(f"on_Clicked_Rule_Detail发生异常：{e}")
+            if rule_exists(rule_name):
+                self.rule_manager.loadRuleDetails(rule_name)
+                score_type = int(str(get_score_by_name(rule_name, 0)))
+                score_value = str(get_score_by_name(rule_name, 1))
+                try:
+                    self.main_window.score_type_comboBox.setCurrentIndex(score_type)
+                    print(f"score_type: {score_type}")
+                    self.main_window.score_value_line_edit.setText(score_value)
+                    print(f"score_value: {score_value}")
+                except Exception as e:
+                    print(f"on_Clicked_Rule_Detail发生异常：{e}")
+            else:
+                QMessageBox.information(self.main_window, "提示", "规则已被删除")
 
     def on_new_task_button_clicked(self):
         print("点击了新建任务按钮")
@@ -691,13 +693,15 @@ class TaskManager:
     def next_step(self):
         if self.step_of_create_task == 1:
             # 获取当前选中的行
+            print("第一步")
             selection_model = self.main_window.choose_dataset_tableView.selectionModel()
-            selected_indexes = selection_model.selectedRows()
 
             # 如果没有选中任何数据集，则弹出警告对话框
-            if not selected_indexes:
-                self.main_window.show_warning_message("请选择数据集")
+            if not selection_model.selectedRows():
+                QMessageBox.warning(self.main_window, "警告", "请选择一个数据集！")
                 return
+
+            selected_indexes = selection_model.selectedRows()
 
             # 获取选中数据集的名称
             selected_index = selected_indexes[0]  # 由于是单选，所以取第一个选中的行

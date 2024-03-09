@@ -1,12 +1,13 @@
+import json
 import sqlite3
 
 from PyQt6 import QtWidgets
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QDateTime
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QColor, QFont
-from PyQt6.QtWidgets import QApplication, QMessageBox
+from PyQt6.QtWidgets import QApplication, QMessageBox, QFileDialog
 
 from services.db_rule import delete_rule, add_rule, get_script_by_name, \
-    query_rule
+    query_rule, import_rules_from_json, export_rules_to_json
 from services.db_rule import rule_exists, \
     get_score_by_name
 from services.db_scheme import get_scheme_by_rule_name
@@ -72,7 +73,12 @@ class RuleManager:
             textEdit_content.setFixedHeight(50)
             # 如果有条件值，则将其填充到文本编辑框中
             if condition_value:
-                textEdit_content.setPlainText(list_to_text((condition_value)))
+                if condition_type == "正则表达式匹配":
+                    textEdit_content.setPlainText(condition_value)
+                else:
+                    textEdit_content.setPlainText(list_to_text(condition_value))
+                    # 正则表达式不要用这个list_to_text，因为它会让正则表达式有一堆空格
+
             condition_layout.addWidget(textEdit_content)
 
             # 创建并添加相似度要求标签和 QLineEdit（默认隐藏）
@@ -280,7 +286,15 @@ class RuleManager:
         # 连接表格的clicked信号到onRuleClicked槽函数
         self.main_window.RuleManagerTableView.clicked.connect(self.onRuleClicked)
         self.main_window.AddRuleButton.clicked.connect(self.AddRule)
-
+        try:
+            # 断开之前的连接（如果存在）
+            self.main_window.import_rules_pushButton.clicked.disconnect()
+            self.main_window.export_rules_pushButton.clicked.disconnect()
+        except TypeError:
+            # 如果之前没有连接，则忽略这个错误
+            pass
+        self.main_window.import_rules_pushButton.clicked.connect(self.on_clicked_import_rules)
+        self.main_window.export_rules_pushButton.clicked.connect(self.on_clicked_export_rules)
         # 在这里添加实例数据
         self.loadRuleFromDB()
 
@@ -557,3 +571,33 @@ class RuleManager:
             self.model.removeRow(self.main_window.RuleManagerTableView.currentIndex().row())
         else:
             print("用户点击了'否'")
+
+    def on_clicked_import_rules(self):
+        """
+        打开文件选择器来选择JSON文件，并调用import_rules_from_json函数来导入规则。
+        """
+        file_path, _ = QFileDialog.getOpenFileName(self.main_window, "选择规则配置文件", "",
+                                                   "JSON Files (*.json)",
+                                                   options=QFileDialog.Option.DontUseNativeDialog)
+        if file_path:
+            try:
+                import_rules_from_json(file_path)
+                QMessageBox.information(self.main_window, "导入成功", "规则成功导入数据库。")
+            except Exception as e:
+                QMessageBox.critical(self.main_window, "导入失败", f"导入过程中发生错误：{e}")
+
+    def on_clicked_export_rules(self):
+        """
+        打开文件选择器来选择保存位置和文件名，并调用export_rules_to_json函数来导出规则。
+        """
+        date_str = QDateTime.currentDateTime().toString("yyyy-MM-dd_HH-mm-ss")
+        default_name = "rules_export" + date_str + ".json"
+        file_path, _ = QFileDialog.getSaveFileName(self.main_window, "导出规则配置文件", default_name,
+                                                   "JSON Files (*.json)",
+                                                   options=QFileDialog.Option.DontUseNativeDialog)
+        if file_path:
+            try:
+                export_rules_to_json(RULE_DB_PATH, file_path)
+                QMessageBox.information(self.main_window, "导出成功", "规则成功导出到文件。")
+            except Exception as e:
+                QMessageBox.critical(self.main_window, "导出失败", f"导出过程中发生错误：{e}")

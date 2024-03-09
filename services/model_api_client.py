@@ -74,12 +74,13 @@ def get_ai_analysis_chatglm6b(df):
 
 
 def get_ai_analysis_chatgpt(dialogue, AI_prompt=None):
+    print(f"AI_prompt为", AI_prompt)
     load_dotenv()  # 加载.env文件中的变量
     openai.api_key = os.getenv('OPENAI_API_KEY')
-    if AI_prompt is None:
+    if AI_prompt == "":  # 这里用""而不是None
         AI_prompt = "作为一位客服对话分析专家，你的任务是:1.识别客服在对话中的表现问题，2.给出改善建议。"
     else:
-        AI_prompt = "作为一位客服对话分析专家，你的任务是:1.识别客服在对话中的表现问题，2.给出改善建议。附加要求：" + AI_prompt
+        AI_prompt = "作为一位客服对话分析专家，你的任务是:" + AI_prompt
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[

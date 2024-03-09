@@ -153,7 +153,7 @@ QTreeWidget {
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>8</number>
     </property>
     <widget class="QWidget" name="page">
      <widget class="QLabel" name="label">
@@ -1058,9 +1058,9 @@ color:rgb(120, 120, 120)</string>
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>80</y>
+        <y>90</y>
         <width>851</width>
-        <height>481</height>
+        <height>471</height>
        </rect>
       </property>
       <property name="focusPolicy">
@@ -1094,8 +1094,8 @@ color:rgb(120, 120, 120)</string>
      <widget class="QPushButton" name="AddRuleButton">
       <property name="geometry">
        <rect>
-        <x>770</x>
-        <y>20</y>
+        <x>0</x>
+        <y>50</y>
         <width>81</width>
         <height>31</height>
        </rect>
@@ -1106,6 +1106,40 @@ color:rgb(120, 120, 120)</string>
       <property name="icon">
        <iconset>
         <normaloff>pic/append.png</normaloff>pic/append.png</iconset>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="import_rules_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>770</x>
+        <y>55</y>
+        <width>81</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>导入规则</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>pic/import.png</normaloff>pic/import.png</iconset>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="export_rules_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>770</x>
+        <y>20</y>
+        <width>81</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>导出规则</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>pic/export.png</normaloff>pic/export.png</iconset>
       </property>
      </widget>
     </widget>
@@ -1676,7 +1710,7 @@ color:rgb(120, 120, 120)</string>
        </rect>
       </property>
       <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;AI分析重点帮助您指导AI分析的侧重点。&lt;/p&gt;&lt;p&gt;例如：&amp;quot;请侧重于分析客服的营销意识。&amp;quot;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string/>
       </property>
      </widget>
      <widget class="QLabel" name="pick_dataset_label">
@@ -1685,7 +1719,7 @@ color:rgb(120, 120, 120)</string>
         <x>80</x>
         <y>40</y>
         <width>181</width>
-        <height>51</height>
+        <height>41</height>
        </rect>
       </property>
       <property name="font">
@@ -1707,10 +1741,10 @@ color:rgb(120, 120, 120)</string>
      <widget class="QLabel" name="label_16">
       <property name="geometry">
        <rect>
-        <x>270</x>
-        <y>60</y>
-        <width>41</width>
-        <height>16</height>
+        <x>250</x>
+        <y>49</y>
+        <width>61</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="font">
@@ -1728,7 +1762,7 @@ color:rgb(120, 120, 120)</string>
         <x>340</x>
         <y>40</y>
         <width>161</width>
-        <height>51</height>
+        <height>41</height>
        </rect>
       </property>
       <property name="font">
@@ -1744,10 +1778,10 @@ color:rgb(120, 120, 120)</string>
      <widget class="QLabel" name="start_analyze_label">
       <property name="geometry">
        <rect>
-        <x>600</x>
+        <x>570</x>
         <y>40</y>
         <width>181</width>
-        <height>51</height>
+        <height>41</height>
        </rect>
       </property>
       <property name="font">
@@ -1763,10 +1797,10 @@ color:rgb(120, 120, 120)</string>
      <widget class="QLabel" name="label_17">
       <property name="geometry">
        <rect>
-        <x>510</x>
-        <y>60</y>
-        <width>41</width>
-        <height>16</height>
+        <x>480</x>
+        <y>49</y>
+        <width>91</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="font">
@@ -1944,6 +1978,63 @@ background-color:transparent</string>
         <bool>true</bool>
        </property>
       </widget>
+     </widget>
+     <widget class="QLabel" name="label_29">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>40</y>
+        <width>41</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>pic/dataset.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_30">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>40</y>
+        <width>41</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>pic/scheme.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_32">
+      <property name="geometry">
+       <rect>
+        <x>530</x>
+        <y>40</y>
+        <width>41</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>pic/task.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="page_11">
@@ -2514,7 +2605,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
          <x>50</x>
          <y>50</y>
          <width>411</width>
-         <height>16</height>
+         <height>21</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -2546,7 +2637,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
          <x>10</x>
          <y>30</y>
          <width>54</width>
-         <height>16</height>
+         <height>21</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -2562,7 +2653,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
          <x>10</x>
          <y>10</y>
          <width>61</width>
-         <height>16</height>
+         <height>21</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -2578,7 +2669,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
          <x>50</x>
          <y>30</y>
          <width>411</width>
-         <height>16</height>
+         <height>21</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -2594,7 +2685,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
          <x>10</x>
          <y>50</y>
          <width>54</width>
-         <height>16</height>
+         <height>21</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -2610,7 +2701,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
          <x>70</x>
          <y>10</y>
          <width>54</width>
-         <height>16</height>
+         <height>21</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -2626,7 +2717,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
          <x>170</x>
          <y>10</y>
          <width>61</width>
-         <height>16</height>
+         <height>21</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -2658,7 +2749,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
          <x>120</x>
          <y>10</y>
          <width>54</width>
-         <height>16</height>
+         <height>21</height>
         </rect>
        </property>
        <property name="styleSheet">

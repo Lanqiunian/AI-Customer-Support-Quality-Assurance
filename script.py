@@ -1,33 +1,38 @@
+import json
 import sqlite3
 
+from services.db_rule import add_rule
+from services.rule_manager import Rule
 from utils.file_utils import TASK_DB_PATH
 
-conn = sqlite3.connect(TASK_DB_PATH)
-cursor_task = conn.cursor()
-cursor_task.execute('''Drop table if exists review_statistics''')
-cursor_task.execute('''
-    CREATE TABLE IF NOT EXISTS review_statistics (
-        variable_name TEXT PRIMARY KEY,
-        value INTEGER DEFAULT 0
-    )
-''')
 
-# 初始化变量名和值
-initial_values = [
-    ("review_count", 0),
-    ("review_completion_count", 0),
-    ("review_mistake_count", 0)
-]
+def import_rules_from_json(json_file_path):
+    """
+    从 JSON 文件批量导入规则到数据库。
 
-# 插入初始值
-for variable, value in initial_values:
-    cursor_task.execute('''
-        INSERT INTO review_statistics (variable_name, value)
-        VALUES (?, ?)
-    ''', (variable, value))
+    :param json_file_path: JSON 文件的路径。
+    """
+    # 加载 JSON 文件
+    with open(json_file_path, 'r', encoding='utf-8') as file:
+        rules_data = json.load(file)
 
-# 提交更改
+    # 遍历每个规则并保存到数据库
+    for rule_data in rules_data['rules']:
+        try:
+            rule = Rule(
+                rule_name=rule_data['rule_name'],
+                score_type=rule_data.get('score_type', 1),
+                score_value=rule_data.get('score_value', 0),
+                script_rules=rule_data.get('script_rules', []),
+                keyword_rules=rule_data.get('keyword_rules', []),
+                regex_rules=rule_data.get('regex_rules', [])
+            )
+            add_rule(rule)
+            print(f"规则 '{rule.rule_name}' 已成功导入数据库。")
+        except Exception as e:
+            print(f"导入规则 '{rule.rule_name}' 时发生错误：{e}")
 
 
-conn.commit()
-conn.close()
+# 示例调用
+json_file_path = 'repositories/json/rule.json'
+import_rules_from_json(json_file_path)
