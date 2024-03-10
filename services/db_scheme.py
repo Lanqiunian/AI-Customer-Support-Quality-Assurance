@@ -3,7 +3,7 @@ import sqlite3
 from services.db_dialogue_data import load_data_from_db
 from services.db_rule import query_rule
 from utils.data_utils import list_to_text
-from utils.file_utils import SCHEME_DB_PATH, TASK_DB_PATH, RULE_DB_PATH
+from utils.global_utils import SCHEME_DB_PATH, TASK_DB_PATH, RULE_DB_PATH
 
 
 # scheme类，多个rule组成一个scheme

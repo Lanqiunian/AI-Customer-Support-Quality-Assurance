@@ -4,7 +4,7 @@ from qdarkstyle import LightPalette
 from PyQt6.QtWidgets import QApplication
 from qt_material import apply_stylesheet
 from services.db_rule import init_db
-from ui.QSS import QSSLoader
+
 from ui.main_window_logic import CustomMainWindow
 
 # 在程序开始时初始化数据库
@@ -32,7 +32,6 @@ if __name__ == "__main__":
     # apply_stylesheet(app, 'light_cyan.xml', invert_secondary=True, extra=extra)
 
     app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt6', palette=LightPalette()))
-
 
     # 显示窗口
     mainWindow.show()

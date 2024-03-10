@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from services.exceptions import RuleNameExistsException
 from services.rule_manager import Rule
-from utils.file_utils import RULE_DB_PATH, DIALOGUE_DB_PATH, SCHEME_DB_PATH, TASK_DB_PATH
+from utils.global_utils import RULE_DB_PATH, DIALOGUE_DB_PATH, SCHEME_DB_PATH, TASK_DB_PATH, GLOBAL_DB_PATH
 
 """
 
@@ -111,6 +111,23 @@ def init_db():
     conn_task.commit()
     conn_task.close()
 
+    conn_global = sqlite3.connect(GLOBAL_DB_PATH)
+    cursor_global = conn_global.cursor()
+    cursor_global.execute('''CREATE TABLE IF NOT EXISTS global (
+                                user_name TEXT,
+                                default_ai_prompt TEXT,
+                                API_KEY TEXT)''')
+
+    cursor_global.execute('SELECT COUNT(*) FROM global')
+    data_exists = cursor_global.fetchone()[0] > 0
+
+    # 如果表是新创建的且没有数据，插入初始值
+    if not data_exists:
+        cursor_global.execute('''INSERT INTO global (user_name, default_ai_prompt,API_KEY) VALUES ('admin', 
+        '作为一位客服对话分析专家，你的任务是:1.识别客服在对话中的表现问题，2.给出改善建议。','sk-1234567890')''')
+
+    conn_global.commit()
+    conn_global.close()
     print("All databases have been initialized successfully.")
 
     """
@@ -200,18 +217,16 @@ def add_rule(rule):
     conn = sqlite3.connect(RULE_DB_PATH)
     cursor = conn.cursor()
 
-    # 检查规则名称是否已存在
-    if rule_name_exists(rule.rule_name):
-        # 如果规则名称已存在，则删除所有相关记录
-        cursor.execute('DELETE FROM script_rules WHERE rule_name = ?', (rule.rule_name,))
-        cursor.execute('DELETE FROM keyword_rules WHERE rule_name = ?', (rule.rule_name,))
-        cursor.execute('DELETE FROM regex_rules WHERE rule_name = ?', (rule.rule_name,))
-        cursor.execute('DELETE FROM score_rules WHERE rule_name = ?', (rule.rule_name,))
-        # 由于 rule_index 表中的 rule_name 设置为 UNIQUE，需要更新而不是删除和插入
-        cursor.execute('UPDATE rule_index SET rule_name = ? WHERE rule_name = ?', (rule.rule_name, rule.rule_name))
-    else:
-        # 规则名称不存在，插入新的规则名称到 rule_index 表中
+    if not rule_name_exists(rule.rule_name):
+        # 规则名称不存在，插入新的规则名称到 rule_index 表中。如果存在，则只更新。
         cursor.execute('INSERT INTO rule_index (rule_name) VALUES (?)', (rule.rule_name,))
+    else:
+        # 删除规则绑定的脚本规则
+        cursor.execute('DELETE FROM script_rules WHERE rule_name = ?', (rule.rule_name,))
+        # 删除规则绑定的关键词规则
+        cursor.execute('DELETE FROM keyword_rules WHERE rule_name = ?', (rule.rule_name,))
+        # 删除规则绑定的正则表达式规则
+        cursor.execute('DELETE FROM regex_rules WHERE rule_name = ?', (rule.rule_name,))
 
     # 添加脚本规则
     for script_rule in rule.script_rules:
@@ -268,15 +283,6 @@ def delete_rule(rule_name):
     conn.close()
     conn_scheme.commit()
     conn_scheme.close()
-
-
-# 更新规则
-def update_rule(existing_rule_name, new_rule):
-    # 删除现有规则
-    delete_rule(existing_rule_name)
-
-    # 添加新规则
-    add_rule(new_rule)
 
 
 def query_rule(rule_name):

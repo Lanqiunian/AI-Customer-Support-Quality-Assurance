@@ -16,7 +16,7 @@ from services.rule_manager import Rule
 from ui.task_logic import WaitingDialog
 from ui.ui_utils import autoResizeColumnsWithStretch
 from utils.data_utils import list_to_text, format_score
-from utils.file_utils import RULE_DB_PATH
+from utils.global_utils import RULE_DB_PATH
 
 
 class RuleManager:
@@ -512,9 +512,6 @@ class RuleManager:
                 new_score_type = 1
             new_score_value = int(self.main_window.score_value_line_edit.text())
 
-            if rule_exists(rule_name):
-                delete_rule(rule_name)
-
             new_rule = Rule(rule_name)
             new_rule.change_score_setting(new_score_type, new_score_value)
 
@@ -622,10 +619,15 @@ class RuleManager:
 
     def on_ai_suggestion_received(self, rule_json, error):
         self.waitingDialog.accept()  # 关闭等待窗口
+
         if error is not None:  # 检查是否有错误
-            QMessageBox.critical(self.main_window, "错误", f"生成规则的AI建议时发生错误：{error}")
+            QMessageBox.critical(self.main_window, "错误", f"AI建议获取错误:生成规则的AI建议时发生错误：{error}")
             return
         print(f"AI建议的规则JSON：{rule_json}")
+
+        if rule_json == "处理超时，请检查网络连接并重试":
+            QMessageBox.critical(self.main_window, "错误", f"AI建议获取错误:{rule_json}")
+            return
         self.add_conditions_from_json(rule_json)
 
     def add_conditions_from_json(self, json_data):

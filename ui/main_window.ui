@@ -153,7 +153,7 @@ QTreeWidget {
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>10</number>
+     <number>6</number>
     </property>
     <widget class="QWidget" name="page">
      <widget class="QLabel" name="label">
@@ -652,8 +652,6 @@ font: 12pt &quot;微软雅黑&quot;;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QFrame#frame_4 {
-    
-
     background-color: rgb(236, 236, 236); 
     padding: 5px; /* 内边距 */
 }
@@ -1351,41 +1349,110 @@ color:rgb(120, 120, 120)</string>
        <string>系统管理</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_56">
+     <widget class="QFrame" name="frame_9">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>70</y>
-        <width>101</width>
-        <height>20</height>
+        <x>0</x>
+        <y>30</y>
+        <width>501</width>
+        <height>211</height>
        </rect>
       </property>
-      <property name="text">
-       <string>AI分析默认建议：</string>
+      <property name="styleSheet">
+       <string notr="true">QFrame#frame_9 {
+    background-color: rgb(236, 236, 236); 
+    padding: 5px; /* 内边距 */
+}
+</string>
       </property>
-     </widget>
-     <widget class="QTextEdit" name="default_AI_prompt_textEdit">
-      <property name="geometry">
-       <rect>
-        <x>110</x>
-        <y>70</y>
-        <width>371</width>
-        <height>71</height>
-       </rect>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
       </property>
-     </widget>
-     <widget class="QPushButton" name="save_default_AI_prompt_pushButton">
-      <property name="geometry">
-       <rect>
-        <x>400</x>
-        <y>150</y>
-        <width>75</width>
-        <height>24</height>
-       </rect>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
       </property>
-      <property name="text">
-       <string>保存</string>
-      </property>
+      <widget class="QLabel" name="label_56">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>90</y>
+         <width>101</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>AI分析默认建议：</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="APIkey_lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>60</y>
+         <width>371</width>
+         <height>21</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="setting_save_Pushbutton">
+       <property name="geometry">
+        <rect>
+         <x>400</x>
+         <y>170</y>
+         <width>75</width>
+         <height>24</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>保存</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_57">
+       <property name="geometry">
+        <rect>
+         <x>60</x>
+         <y>30</y>
+         <width>51</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>用户名：</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_58">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>60</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>API-Key:</string>
+       </property>
+      </widget>
+      <widget class="QTextEdit" name="default_AI_prompt_textEdit">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>90</y>
+         <width>371</width>
+         <height>71</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="user_name_lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>30</y>
+         <width>371</width>
+         <height>21</height>
+        </rect>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="page_8">

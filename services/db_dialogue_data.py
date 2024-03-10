@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from utils.file_utils import DIALOGUE_DB_PATH, TASK_DB_PATH
+from utils.global_utils import DIALOGUE_DB_PATH, TASK_DB_PATH
 
 
 # 数据库总览:

@@ -9,7 +9,7 @@ from services.db_scheme import query_scheme, Scheme, delete_scheme
 from ui.dialog_pick_a_rule import Ui_add_rule_to_scheme_Dialog
 from ui.ui_utils import autoResizeColumnsWithStretch
 from utils.data_utils import format_score
-from utils.file_utils import SCHEME_DB_PATH, RULE_DB_PATH
+from utils.global_utils import SCHEME_DB_PATH, RULE_DB_PATH
 
 
 class SchemeManager:

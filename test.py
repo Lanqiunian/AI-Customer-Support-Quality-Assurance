@@ -3,7 +3,7 @@ import pandas as pd
 from services.db_scheme import update_score_by_HitRulesList
 from services.db_task import get_average_score_by_task_id, get_hit_times_by_task_id, get_dialogue_count_by_task_id
 from utils.data_utils import Dialogue, extract_service_messages
-from utils.file_utils import DIALOGUE_DATA_PATH
+from utils.global_utils import DIALOGUE_DATA_PATH
 
 
 def function_test():

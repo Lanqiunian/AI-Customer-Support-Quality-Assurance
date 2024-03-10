@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import QMessageBox
 from services.db_task import get_overall_info, get_review_statistics
 from ui.ui_utils import immersingTableView, autoResizeColumnsWithStretch
 from utils.data_utils import create_service_id_avg_score_table, analyzeResponseTime
-from utils.file_utils import TASK_DB_PATH
+from utils.global_utils import TASK_DB_PATH
 
 
 class SummaryManager:

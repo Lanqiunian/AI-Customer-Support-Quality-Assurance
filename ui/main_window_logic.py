@@ -6,6 +6,7 @@ from PyQt6.QtGui import QStandardItemModel, QPixmap
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextEdit, QLabel, QFrame
 
 from ui.dataset_logic import DataSetManager
+from ui.global_setting_logic import GlobalSettingPageLogic
 from ui.main_window import Ui_MainWindow
 from ui.rule_logic import RuleManager
 from ui.scheme_logic import SchemeManager
@@ -21,6 +22,8 @@ class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.setWindowFlags(self.windowFlags() | Qt.WindowType.FramelessWindowHint)
         self._drag_pos = None
+
+        self.statusbar.hide()
 
         # 将close_button_label转换为可点击的
         uic.loadUi("ui/main_window.ui", self)
@@ -72,6 +75,11 @@ class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Task_Manager = TaskManager(self, self.rule_manager)
         self.Task_Manager.setup_task_table_view()
         self.back_to_dialogue_detail_pushButton.hide()
+
+        # 初始化设置
+        self.GlobalSettingPage_manager = GlobalSettingPageLogic(self)
+        self.GlobalSettingPage_manager.setup_global_setting()
+        self.setting_save_Pushbutton.clicked.connect(self.GlobalSettingPage_manager.on_click_save_button)
 
         # 设置 objectName，如果在 Ui 文件中定义了 QLabel
         self.minimize_button_label.setObjectName("minimize_button_label")

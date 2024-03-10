@@ -7,7 +7,7 @@ from services.db_dialogue_data import get_dialogue_by_datasetname_and_dialogueid
 from services.db_task import get_manually_check_by_task_id_and_dialogue_id, get_AI_prompt_by_task_id
 from ui.ui_utils import autoResizeColumnsWithStretch
 from utils.data_utils import text_to_list
-from utils.file_utils import TASK_DB_PATH
+from utils.global_utils import TASK_DB_PATH
 
 
 class UndoCheckManager:
@@ -44,7 +44,7 @@ class UndoCheckManager:
 
             # 填充表格行
             for task_id, task_name, data_name, scheme, dialogue_id, score, evaluation_time, hit_rules, manually_check, manual_review_completed in evaluation_results:
-                manual_review_status = "是" if manually_check == 1 and manual_review_completed == 0 else "否"
+                manual_review_status = "复核"
 
                 items = [
                     QStandardItem(str(task_id)),

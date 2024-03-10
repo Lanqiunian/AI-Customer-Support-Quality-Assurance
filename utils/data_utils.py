@@ -1,3 +1,4 @@
+import json
 import re
 import sqlite3
 from datetime import datetime
@@ -6,7 +7,7 @@ import jieba
 import pandas as pd
 
 from services.db_dialogue_data import get_service_id_by_dialogue_id_and_task_id
-from utils.file_utils import RULE_DB_PATH, TASK_DB_PATH, DIALOGUE_DB_PATH
+from utils.global_utils import RULE_DB_PATH, TASK_DB_PATH, DIALOGUE_DB_PATH
 
 
 def load_stopwords(file_path):
@@ -330,6 +331,15 @@ def analyzeResponseTime(service_id=None):
     conn_dialogue.close()
 
     return average_response_time
+
+
+def is_valid_json(rule_json):
+    try:
+        # 尝试将字符串解析为 JSON
+        json.loads(rule_json)
+        return True  # 解析成功，是有效的 JSON 格式
+    except ValueError:
+        return False  # 解析失败，不是有效的 JSON 格式
 
 
 if __name__ == "__main__":

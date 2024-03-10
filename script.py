@@ -4,7 +4,7 @@ import sqlite3
 
 from services.db_rule import add_rule
 from services.rule_manager import Rule
-from utils.file_utils import TASK_DB_PATH
+from utils.global_utils import TASK_DB_PATH
 
 import csv
 
