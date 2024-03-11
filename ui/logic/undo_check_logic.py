@@ -5,7 +5,7 @@ from PyQt6.QtGui import QColor, QFont, QStandardItem, QStandardItemModel
 
 from services.db.db_dialogue_data import get_dialogue_by_datasetname_and_dialogueid
 from services.db.db_task import get_manually_check_by_task_id_and_dialogue_id, get_AI_prompt_by_task_id
-from ui.ui_utils import autoResizeColumnsWithStretch
+from utils.ui_utils import autoResizeColumnsWithStretch
 from utils.data_utils import text_to_list
 from utils.global_utils import TASK_DB_PATH
 

@@ -1,5 +1,4 @@
 import sqlite3
-import time
 from datetime import datetime
 
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
@@ -15,7 +14,7 @@ from services.db.db_task import Task, delete_task, get_dialogue_count_by_task_id
     change_manual_review_corrected_errors, get_AI_prompt_by_task_id
 from services.model_api_client import AIAnalysisWorker
 from ui.dialog_pick_a_rule import Ui_add_rule_to_scheme_Dialog
-from ui.ui_utils import autoResizeColumnsWithStretch, export_model_to_csv
+from utils.ui_utils import autoResizeColumnsWithStretch, export_model_to_csv
 from utils.data_utils import text_to_list, get_score_info_by_name
 from utils.global_utils import TASK_DB_PATH, DIALOGUE_DB_PATH, SCHEME_DB_PATH, RULE_DB_PATH
 
@@ -60,7 +59,9 @@ class TaskManager:
         conn = sqlite3.connect(TASK_DB_PATH)
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT tasks.*, COALESCE(SUM(evaluation_results.manually_check = 1 AND evaluation_results.manual_review_completed = 0), 0) AS pending_reviews FROM tasks LEFT JOIN evaluation_results ON tasks.id = evaluation_results.task_id GROUP BY tasks.id")
+            "SELECT tasks.*, COALESCE(SUM(evaluation_results.manually_check = 1 AND "
+            "evaluation_results.manual_review_completed = 0), 0) AS pending_reviews FROM tasks LEFT JOIN "
+            "evaluation_results ON tasks.id = evaluation_results.task_id GROUP BY tasks.id")
         tasks = cursor.fetchall()
 
         self.model_setup_task_table_view = QStandardItemModel(len(tasks), 7)  # 根据列的实际数量调整

@@ -1,0 +1,483 @@
+{
+    "rules": [
+        {
+            "rule_name": "客服询问满意度",
+            "logic_expression": "1 and 2",
+            "score_type": "1",
+            "score_value": 10,
+            "script_rules": [
+                {
+                    "condition_id": 2,
+                    "scripts": [
+                        "您对我们的服务满意吗？",
+                        "有什么可以改进的吗？"
+                    ],
+                    "similarity_threshold": 0.5,
+                    "target_role": 0
+                }
+            ],
+            "keyword_rules": [
+                {
+                    "condition_id": 1,
+                    "keywords": [
+                        "非常满意",
+                        "不太满意",
+                        "有待改进"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 1
+                }
+            ],
+            "regex_rules": []
+        },
+        {
+            "rule_name": "用户表达不满",
+            "logic_expression": "1 or 2 or 3",
+            "score_type": "1",
+            "score_value": -10,
+            "script_rules": [],
+            "keyword_rules": [
+                {
+                    "condition_id": 1,
+                    "keywords": [
+                        "不满意",
+                        "很失望",
+                        "服务态度差"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 1
+                }
+            ],
+            "regex_rules": [
+                {
+                    "condition_id": 2,
+                    "pattern": "太慢了",
+                    "target_role": 1
+                },
+                {
+                    "condition_id": 3,
+                    "pattern": "不\\s*解决",
+                    "target_role": 1
+                }
+            ]
+        },
+        {
+            "rule_name": "用户询问产品信息",
+            "logic_expression": "1 or (2 and 3)",
+            "score_type": "0",
+            "score_value": 5,
+            "script_rules": [],
+            "keyword_rules": [
+                {
+                    "condition_id": 3,
+                    "keywords": [
+                        "产品参数",
+                        "产品价格",
+                        "购买方式"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 1
+                }
+            ],
+            "regex_rules": [
+                {
+                    "condition_id": 1,
+                    "pattern": "怎么买",
+                    "target_role": 1
+                },
+                {
+                    "condition_id": 2,
+                    "pattern": "什么价格",
+                    "target_role": 1
+                }
+            ]
+        },
+        {
+            "rule_name": "客服提供帮助",
+            "logic_expression": "1 and 2",
+            "score_type": "1",
+            "score_value": 10,
+            "script_rules": [
+                {
+                    "condition_id": 1,
+                    "scripts": [
+                        "有什么可以帮您的？",
+                        "请问您需要什么帮助？"
+                    ],
+                    "similarity_threshold": 0.5,
+                    "target_role": 0
+                }
+            ],
+            "keyword_rules": [
+                {
+                    "condition_id": 2,
+                    "keywords": [
+                        "帮助",
+                        "解决",
+                        "支持"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 1
+                }
+            ],
+            "regex_rules": []
+        },
+        {
+            "rule_name": "用户对产品表达兴趣",
+            "logic_expression": "1 or (2 and 3)",
+            "score_type": "1",
+            "score_value": 5,
+            "script_rules": [],
+            "keyword_rules": [
+                {
+                    "condition_id": 1,
+                    "keywords": [
+                        "感兴趣",
+                        "想了解更多",
+                        "有没有更多信息"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 1
+                }
+            ],
+            "regex_rules": [
+                {
+                    "condition_id": 2,
+                    "pattern": "怎样\\s*购买",
+                    "target_role": 1
+                },
+                {
+                    "condition_id": 3,
+                    "pattern": "有什么\\s*优惠",
+                    "target_role": 1
+                }
+            ]
+        },
+        {
+            "rule_name": "客服回应用户感谢",
+            "logic_expression": "1 and 2",
+            "score_type": "1",
+            "score_value": 10,
+            "script_rules": [
+                {
+                    "condition_id": 2,
+                    "scripts": [
+                        "不客气",
+                        "随时为您服务"
+                    ],
+                    "similarity_threshold": 0.5,
+                    "target_role": 0
+                }
+            ],
+            "keyword_rules": [
+                {
+                    "condition_id": 1,
+                    "keywords": [
+                        "谢谢",
+                        "非常感谢"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 1
+                }
+            ],
+            "regex_rules": []
+        },
+        {
+            "rule_name": "客服推荐产品",
+            "logic_expression": "1 and (2 or 3)",
+            "score_type": "1",
+            "score_value": 10,
+            "script_rules": [
+                {
+                    "condition_id": 3,
+                    "scripts": [
+                        "这个产品非常适合您",
+                        "考虑试试我们的新产品吗？"
+                    ],
+                    "similarity_threshold": 0.5,
+                    "target_role": 0
+                }
+            ],
+            "keyword_rules": [
+                {
+                    "condition_id": 2,
+                    "keywords": [
+                        "新品",
+                        "推荐"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 0
+                }
+            ],
+            "regex_rules": [
+                {
+                    "condition_id": 1,
+                    "pattern": "(性价比高|功能全面|非常实用)",
+                    "target_role": 0
+                }
+            ]
+        },
+        {
+            "rule_name": "用户表达迷茫或需求寻求",
+            "logic_expression": "1 or 2 or 3",
+            "score_type": "1",
+            "score_value": 5,
+            "script_rules": [],
+            "keyword_rules": [
+                {
+                    "condition_id": 1,
+                    "keywords": [
+                        "不知道选哪个",
+                        "有什么推荐吗",
+                        "可以给点建议吗"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 1
+                }
+            ],
+            "regex_rules": [
+                {
+                    "condition_id": 2,
+                    "pattern": "比较\\s*(迷茫|犹豫)",
+                    "target_role": 1
+                },
+                {
+                    "condition_id": 3,
+                    "pattern": "(需要|寻找)\\s*建议",
+                    "target_role": 1
+                }
+            ]
+        },
+        {
+            "rule_name": "用户感谢后客服的礼貌回应",
+            "logic_expression": "1 and 2",
+            "score_type": "1",
+            "score_value": 10,
+            "script_rules": [],
+            "keyword_rules": [
+                {
+                    "condition_id": 1,
+                    "keywords": [
+                        "谢谢你",
+                        "非常感谢",
+                        "十分感谢"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 1
+                }
+            ],
+            "regex_rules": [
+                {
+                    "condition_id": 2,
+                    "pattern": "再次感谢",
+                    "target_role": 0
+                }
+            ]
+        },
+        {
+            "rule_name": "用户表达紧急情况",
+            "logic_expression": "1 or (2 and 3)",
+            "score_type": "1",
+            "score_value": -5,
+            "script_rules": [],
+            "keyword_rules": [
+                {
+                    "condition_id": 1,
+                    "keywords": [
+                        "急",
+                        "尽快",
+                        "紧急"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 1
+                }
+            ],
+            "regex_rules": [
+                {
+                    "condition_id": 2,
+                    "pattern": "快\\s*处理",
+                    "target_role": 1
+                },
+                {
+                    "condition_id": 3,
+                    "pattern": "等不了",
+                    "target_role": 1
+                }
+            ]
+        },
+        {
+            "rule_name": "客服态度不佳",
+            "logic_expression": "1 or 2",
+            "score_type": "1",
+            "score_value": -20,
+            "script_rules": [],
+            "keyword_rules": [
+                {
+                    "condition_id": 1,
+                    "keywords": [
+                        "请耐心等待",
+                        "别着急"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 0
+                }
+            ],
+            "regex_rules": [
+                {
+                    "condition_id": 2,
+                    "pattern": "(现在很忙|稍后再说)",
+                    "target_role": 0
+                }
+            ]
+        },
+        {
+            "rule_name": "用户询问售后服务",
+            "logic_expression": "1 or 2",
+            "score_type": "1",
+            "score_value": 5,
+            "script_rules": [],
+            "keyword_rules": [
+                {
+                    "condition_id": 1,
+                    "keywords": [
+                        "售后服务",
+                        "保修政策",
+                        "退货流程"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 1
+                }
+            ],
+            "regex_rules": [
+                {
+                    "condition_id": 2,
+                    "pattern": "如何(退货|换货)",
+                    "target_role": 1
+                }
+            ]
+        },
+        {
+            "rule_name": "客服解释产品特点",
+            "logic_expression": "1 and (2 or 3)",
+            "score_type": "1",
+            "score_value": 10,
+            "script_rules": [],
+            "keyword_rules": [
+                {
+                    "condition_id": 1,
+                    "keywords": [
+                        "产品特点",
+                        "产品优势",
+                        "为什么选择我们"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 0
+                }
+            ],
+            "regex_rules": [
+                {
+                    "condition_id": 2,
+                    "pattern": "最大的(特点|优势)",
+                    "target_role": 0
+                },
+                {
+                    "condition_id": 3,
+                    "pattern": "区别于其他",
+                    "target_role": 0
+                }
+            ]
+        },
+        {
+            "rule_name": "用户反馈产品问题",
+            "logic_expression": "1 and 2",
+            "score_type": "1",
+            "score_value": -5,
+            "script_rules": [],
+            "keyword_rules": [
+                {
+                    "condition_id": 1,
+                    "keywords": [
+                        "不工作",
+                        "有缺陷",
+                        "使用问题"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 1
+                }
+            ],
+            "regex_rules": [
+                {
+                    "condition_id": 2,
+                    "pattern": "(坏了|损坏)",
+                    "target_role": 1
+                }
+            ]
+        },
+        {
+            "rule_name": "用户表达满意度后客服的感谢回复",
+            "logic_expression": "1 and 2",
+            "score_type": "1",
+            "score_value": 10,
+            "script_rules": [],
+            "keyword_rules": [
+                {
+                    "condition_id": 1,
+                    "keywords": [
+                        "很满意",
+                        "服务很好",
+                        "非常感谢"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 1
+                }
+            ],
+            "regex_rules": [
+                {
+                    "condition_id": 2,
+                    "pattern": "感谢您的反馈",
+                    "target_role": 0
+                }
+            ]
+        },
+        {
+            "rule_name": "客服产品领先性能宣传",
+            "logic_expression": "1 and 2",
+            "score_type": "1",
+            "score_value": 10,
+            "script_rules": [
+                {
+                    "condition_id": 1,
+                    "scripts": [
+                        "我们的产品性能优于openai",
+                        "我们的产品没有使用限额"
+                    ],
+                    "similarity_threshold": 0.5,
+                    "target_role": 0
+                }
+            ],
+            "keyword_rules": [],
+            "regex_rules": [
+                {
+                    "condition_id": 2,
+                    "pattern": "(积极反馈|好评|满意度高)",
+                    "target_role": 1
+                }
+            ]
+        }
+    ]
+}

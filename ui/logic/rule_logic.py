@@ -1,9 +1,8 @@
 import json
-import re
 import sqlite3
 
 from PyQt6 import QtWidgets
-from PyQt6.QtCore import Qt, QDateTime, QSortFilterProxyModel
+from PyQt6.QtCore import Qt, QDateTime
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QColor, QFont
 from PyQt6.QtWidgets import QApplication, QMessageBox, QFileDialog
 
@@ -14,8 +13,8 @@ from services.db.db_rule import rule_exists, \
 from services.db.db_scheme import get_scheme_by_rule_name
 from services.model_api_client import AISuggestionThread
 from services.rule_manager import Rule
-from ui.task_logic import WaitingDialog
-from ui.ui_utils import autoResizeColumnsWithStretch, NumericSortProxyModel
+from ui.logic.task_logic import WaitingDialog
+from utils.ui_utils import autoResizeColumnsWithStretch, NumericSortProxyModel
 from utils.data_utils import list_to_text, format_score, is_valid_logic_expression
 from utils.global_utils import RULE_DB_PATH
 

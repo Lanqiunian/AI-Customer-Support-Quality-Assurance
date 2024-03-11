@@ -610,7 +610,7 @@ color:rgb(120, 120, 120)</string>
       <widget class="QLabel" name="welcome_label">
        <property name="geometry">
         <rect>
-         <x>20</x>
+         <x>10</x>
          <y>10</y>
          <width>341</width>
          <height>51</height>
@@ -628,7 +628,7 @@ font: 12pt &quot;微软雅黑&quot;;</string>
        <property name="geometry">
         <rect>
          <x>350</x>
-         <y>15</y>
+         <y>10</y>
          <width>121</width>
          <height>41</height>
         </rect>
@@ -1632,9 +1632,9 @@ color:rgb(120, 120, 120)</string>
      <widget class="QLabel" name="score_value_Label">
       <property name="geometry">
        <rect>
-        <x>280</x>
+        <x>275</x>
         <y>70</y>
-        <width>31</width>
+        <width>21</width>
         <height>31</height>
        </rect>
       </property>

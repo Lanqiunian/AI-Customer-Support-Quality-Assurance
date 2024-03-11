@@ -2,17 +2,17 @@
 
 from PyQt6 import QtWidgets, QtCore, uic
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QStandardItemModel, QPixmap
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextEdit, QLabel, QFrame
+from PyQt6.QtGui import QStandardItemModel
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextEdit, QLabel
 
-from ui.dataset_logic import DataSetManager
-from ui.global_setting_logic import GlobalSettingPageLogic
+from ui.logic.dataset_logic import DataSetManager
+from ui.logic.global_setting_logic import GlobalSettingPageLogic
 from ui.main_window import Ui_MainWindow
-from ui.rule_logic import RuleManager
-from ui.scheme_logic import SchemeManager
-from ui.summary_logic import SummaryManager
-from ui.task_logic import TaskManager
-from ui.undo_check_logic import UndoCheckManager
+from ui.logic.rule_logic import RuleManager
+from ui.logic.scheme_logic import SchemeManager
+from ui.logic.summary_logic import SummaryManager
+from ui.logic.task_logic import TaskManager
+from ui.logic.undo_check_logic import UndoCheckManager
 from utils.data_utils import generate_html
 
 

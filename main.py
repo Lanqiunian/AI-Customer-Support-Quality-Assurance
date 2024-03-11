@@ -4,7 +4,7 @@ from qdarkstyle import LightPalette
 from PyQt6.QtWidgets import QApplication
 from services.db.db_rule import init_db
 
-from ui.main_window_logic import CustomMainWindow
+from ui.logic.main_window_logic import CustomMainWindow
 
 # 在程序开始时初始化数据库
 if __name__ == "__main__":
