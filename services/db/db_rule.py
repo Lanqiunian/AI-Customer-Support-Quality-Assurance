@@ -19,7 +19,8 @@ def init_db():
     cursor_rule = conn_rule.cursor()
     cursor_rule.execute('''CREATE TABLE IF NOT EXISTS rule_index (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            rule_name TEXT UNIQUE)''')
+                            rule_name TEXT UNIQUE,
+                            logic_expression TEXT)''')
     cursor_rule.execute('''CREATE TABLE IF NOT EXISTS script_rules (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             rule_name TEXT,
@@ -216,7 +217,6 @@ def rule_name_exists(rule_name):
 def add_rule(rule):
     conn = sqlite3.connect(RULE_DB_PATH)
     cursor = conn.cursor()
-
     if not rule_name_exists(rule.rule_name):
         # 规则名称不存在，插入新的规则名称到 rule_index 表中。如果存在，则只更新。
         cursor.execute('INSERT INTO rule_index (rule_name) VALUES (?)', (rule.rule_name,))
@@ -227,7 +227,16 @@ def add_rule(rule):
         cursor.execute('DELETE FROM keyword_rules WHERE rule_name = ?', (rule.rule_name,))
         # 删除规则绑定的正则表达式规则
         cursor.execute('DELETE FROM regex_rules WHERE rule_name = ?', (rule.rule_name,))
-
+        # 删除规则绑定的评分规则
+        cursor.execute('DELETE FROM score_rules WHERE rule_name = ?', (rule.rule_name,))
+        # 删除规则绑定的评分规则
+        cursor.execute('DELETE FROM score_rules WHERE rule_name = ?', (rule.rule_name,))
+        # 删除规则绑定的逻辑表达式
+        cursor.execute('UPDATE rule_index SET logic_expression = ? WHERE rule_name = ?',
+                       (rule.logic_expression, rule.rule_name))
+    # 添加逻辑表达式
+    cursor.execute('UPDATE rule_index SET logic_expression = ? WHERE rule_name = ?',
+                   (rule.logic_expression, rule.rule_name))
     # 添加脚本规则
     for script_rule in rule.script_rules:
         for script in script_rule['scripts']:
@@ -306,11 +315,14 @@ def query_rule(rule_name):
     cursor.execute('SELECT score_type, score_value FROM score_rules WHERE rule_name = ?', (rule_name,))
     score_data = cursor.fetchone()
     score_type, score_value = score_data if score_data else (None, None)
+    # 查询逻辑表达式
+    cursor.execute('SELECT logic_expression FROM rule_index WHERE rule_name = ?', (rule_name,))
+    logic_expression = cursor.fetchone()[0]
 
     conn.close()
 
     # 构建 Rule 对象
-    rule = Rule(rule_name, score_type, score_value)
+    rule = Rule(rule_name, score_type, score_value, logic_expression)
 
     # 处理脚本规则，先按condition_id分组
     script_rules_by_condition = {}
@@ -508,6 +520,7 @@ def import_rules_from_json(json_file_path):
         try:
             rule = Rule(
                 rule_name=rule_data['rule_name'],
+                logic_expression=rule_data.get('logic_expression', None),
                 score_type=rule_data.get('score_type', 1),
                 score_value=rule_data.get('score_value', 0),
                 script_rules=rule_data.get('script_rules', []),
@@ -520,61 +533,59 @@ def import_rules_from_json(json_file_path):
             print(f"导入规则时发生错误：{e}")
 
 
-def export_rules_to_json(database_path, json_file_path):
+def fetch_rules(cursor, rule_name, query, rule_type):
     """
-    将数据库中的规则按指定格式导出到 JSON 文件。
+    从数据库中获取规则信息，并构造规则字典列表。
+    """
+    cursor.execute(query, (rule_name,))
+    if rule_type == "keyword":
+        # 处理关键词规则，关键词为逗号分隔的字符串转换为列表
+        return [{"keywords": keywords.split(','), "check_type": check_type, "n": n, "condition_id": condition_id} for
+                keywords, check_type, n, condition_id in cursor.fetchall()]
+    elif rule_type == "script":
+        # 处理脚本规则，确保scripts是一个列表
+        return [
+            {"scripts": scripts.split('|'), "similarity_threshold": similarity_threshold, "condition_id": condition_id}
+            for scripts, similarity_threshold, condition_id in cursor.fetchall()]
+    elif rule_type == "regex":
+        # 处理正则表达式规则
+        return [{"pattern": pattern, "condition_id": condition_id} for pattern, condition_id in cursor.fetchall()]
 
-    :param database_path: 数据库文件路径。
-    :param json_file_path: 导出的 JSON 文件路径。
-    """
+
+def export_rules_to_json(database_path, json_file_path):
     conn = sqlite3.connect(database_path)
     cursor = conn.cursor()
 
-    # 获取所有的规则名称
-    cursor.execute("SELECT rule_name FROM rule_index")
-    rule_names = cursor.fetchall()
+    cursor.execute("SELECT rule_name, logic_expression FROM rule_index")
+    rules_info = cursor.fetchall()
 
     exported_rules = {"rules": []}
 
-    for rule_name_tuple in rule_names:
-        rule_name = rule_name_tuple[0]
+    queries = {
+        "script": "SELECT scripts, similarity_threshold, condition_id FROM script_rules WHERE rule_name = ?",
+        "keyword": "SELECT keywords, check_type, n, condition_id FROM keyword_rules WHERE rule_name = ?",
+        "regex": "SELECT pattern, condition_id FROM regex_rules WHERE rule_name = ?"
+    }
 
-        # 获取评分信息
-        cursor.execute("SELECT score_type, score_value FROM score_rules WHERE rule_name = ?", (rule_name,))
-        score_info = cursor.fetchone()
-        score_type, score_value = score_info
+    for rule_name, logic_expression in rules_info:
+        score_type, score_value = cursor.execute("SELECT score_type, score_value FROM score_rules WHERE rule_name = ?",
+                                                 (rule_name,)).fetchone() or (None, None)
 
-        # 获取脚本规则
-        cursor.execute("SELECT scripts, similarity_threshold, condition_id FROM script_rules WHERE rule_name = ?",
-                       (rule_name,))
-        script_rules = [{"scripts": [script], "similarity_threshold": threshold, "condition_id": condition_id} for
-                        script, threshold, condition_id in cursor.fetchall()]
-
-        # 获取关键词规则
-        cursor.execute("SELECT keywords, check_type, n, condition_id FROM keyword_rules WHERE rule_name = ?",
-                       (rule_name,))
-        keyword_rules = [{"keywords": [keyword], "check_type": check_type, "condition_id": condition_id, "n": n} for
-                         keyword, check_type, n, condition_id in cursor.fetchall()]
-
-        # 获取正则表达式规则
-        cursor.execute("SELECT pattern, condition_id FROM regex_rules WHERE rule_name = ?", (rule_name,))
-        regex_rules = [{"pattern": pattern, "condition_id": condition_id} for pattern, condition_id in
-                       cursor.fetchall()]
-
-        # 构建规则字典
         rule_dict = {
             "rule_name": rule_name,
+            "logic_expression": logic_expression,
             "score_type": score_type,
-            "score_value": score_value,
-            "script_rules": script_rules,
-            "keyword_rules": keyword_rules,
-            "regex_rules": regex_rules
+            "score_value": score_value
         }
+
+        for rule_type, query in queries.items():
+            rule_dict[f"{rule_type}_rules"] = fetch_rules(cursor, rule_name, query, rule_type)
 
         exported_rules["rules"].append(rule_dict)
 
-    # 将规则写入 JSON 文件
     with open(json_file_path, 'w', encoding='utf-8') as json_file:
         json.dump(exported_rules, json_file, ensure_ascii=False, indent=4)
 
     print(f"Rules have been exported to {json_file_path}.")
+
+    conn.close()

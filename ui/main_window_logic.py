@@ -23,8 +23,6 @@ class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setWindowFlags(self.windowFlags() | Qt.WindowType.FramelessWindowHint)
         self._drag_pos = None
 
-        self.statusbar.hide()
-
         # 将close_button_label转换为可点击的
         uic.loadUi("ui/main_window.ui", self)
         # 获取当前窗口的初始尺寸
@@ -81,7 +79,7 @@ class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.GlobalSettingPage_manager.setup_global_setting()
         self.setting_save_Pushbutton.clicked.connect(self.GlobalSettingPage_manager.on_click_save_button)
 
-        # 设置 objectName，如果在 Ui 文件中定义了 QLabel
+        # 设置自定义开关
         self.minimize_button_label.setObjectName("minimize_button_label")
         self.close_button_label.setObjectName("close_button_label")
 

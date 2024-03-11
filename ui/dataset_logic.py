@@ -6,7 +6,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QColor, QFont
 from PyQt6.QtWidgets import QFileDialog, QDialog, QMessageBox
 
-from services.db_dialogue_data import import_dialogue_data, delete_dataset_by_name
+from services.db.db_dialogue_data import import_dialogue_data, delete_dataset_by_name
 from ui.dialog_new_dataset import Ui_Dialog_new_dataset
 from ui.ui_utils import autoResizeColumnsWithStretch
 from utils.global_utils import DIALOGUE_DB_PATH

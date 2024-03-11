@@ -7,7 +7,8 @@ from services.basic_methods import Keywords_Matching, Regex_Matching, Script_Mat
 
 
 class Rule:
-    def __init__(self, rule_name, score_type=1, score_value=0, script_rules=None, keyword_rules=None,
+    def __init__(self, rule_name, score_type=1, score_value=0, logic_expression=None, script_rules=None,
+                 keyword_rules=None,
                  regex_rules=None):
         """
         使用可选的脚本匹配规则、关键词匹配规则和正则表达式匹配规则初始化 Rule 类。每种规则类型预期是一个字典列表，
@@ -28,6 +29,10 @@ class Rule:
 
         self.score_type = score_type
         self.score_value = score_value
+        self.logic_expression = logic_expression
+
+    def add_logic_expression(self, logic_expression):
+        self.logic_expression = logic_expression
 
     def change_score_setting(self, score_type, score_value):
         """
@@ -81,60 +86,36 @@ class Rule:
         })
 
     def evaluate(self, material_to_evaluate):
-        """
-        评估规则包含的全部的条件，全部命中，则返回True，否则返回False
-
-        :param material_to_evaluate: Panda Series类型 待评估的语料.
-        :return: 评估结果的布尔值.
-        """
         material_to_evaluate_series = pd.Series(material_to_evaluate)
+        condition_results = {}  # 存储每个条件的匹配结果
 
-        # 查话术
-        for rule in self.script_rules:
-            scripts = rule['scripts']
-            threshold = rule['similarity_threshold']
-            if not scripts:
+        # 对每种规则类型进行评估，并存储结果
+        for rule in (self.script_rules + self.keyword_rules + self.regex_rules):
+            if 'condition_id' not in rule or rule['condition_id'] is None:
                 continue
+            condition_id = rule['condition_id']
+            if rule in self.script_rules:
+                matched = any(
+                    Script_Matching(rule['scripts'], material_to_evaluate_series, rule['similarity_threshold']) for
+                    reply in material_to_evaluate)
+            elif rule in self.keyword_rules:
+                matched = Keywords_Matching(material_to_evaluate_series, rule['keywords'], rule['check_type'],
+                                            rule.get('n'))
+            elif rule in self.regex_rules:
+                matched = Regex_Matching(rule['pattern'], material_to_evaluate_series)
+            condition_results[condition_id] = matched
 
-            matched = any(
-                Script_Matching(scripts, material_to_evaluate_series, threshold) for reply in material_to_evaluate)
-            if not matched:
-                print("话术匹配中断")
-                return False
-
-        # 查关键词
-        print(f"关键词规则为", self.keyword_rules)
-        for rule in self.keyword_rules:
-            keywords = rule['keywords']
-            check_type = rule['check_type']
-            print(check_type)
-            n = rule.get('n')
-            if not keywords:
-                continue
-            matched = Keywords_Matching(material_to_evaluate_series, keywords, check_type, n)
-
-            print(f"待查关键词有", check_type, keywords)
-            print(f"关键词匹配结果为", matched)
-
-            if not matched:
-                print("关键词匹配中断")
-                return False
-
-        # 查正则表达式
-        for rule in self.regex_rules:
-            pattern = rule['pattern']
-            if not pattern:
-                continue
-            matched = Regex_Matching(pattern, material_to_evaluate_series)
-            if not matched:
-                print("正则表达式匹配中断")
-                return False
-
-        return self.score_type, self.score_value
-        # 返回一个元组，记得可以这么访问
-        # result = get_score_by_name("Rule1")
-        # if result:
-        #     score_type, score_value = result
-        #     print(f"Score Type: {score_type}, Score Value: {score_value}")
-        # else:
-        #     print("No matching record found.")
+        # 计算逻辑表达式
+        try:
+            if self.logic_expression:
+                match_result = eval(self.logic_expression, {}, condition_results)
+            else:
+                # 如果没有定义逻辑表达式，则默认所有条件都必须匹配
+                match_result = all(condition_results.values())
+        except Exception as e:
+            print(f"逻辑表达式计算错误: {e}")
+            return False
+        if match_result:
+            return self.score_type, self.score_value
+        else:
+            return False

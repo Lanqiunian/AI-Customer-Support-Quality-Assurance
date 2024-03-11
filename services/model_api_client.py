@@ -5,11 +5,7 @@ import openai
 from PyQt6.QtCore import pyqtSignal, QObject, QThread
 from bs4 import BeautifulSoup
 from gradio_client import Client
-import concurrent.futures
-from dotenv import load_dotenv
-import os
-import signal
-from utils.global_utils import AI_PROMPT_RULES, AI_PROMPT_RULES_JSON_EXAMPLE, DEFAULT_AI_PROMPT, API_KEY
+from utils.global_utils import AI_PROMPT_RULES, AI_PROMPT_RULES_JSON_EXAMPLE
 
 
 def convert_dataframe_to_single_string_dialog(df):

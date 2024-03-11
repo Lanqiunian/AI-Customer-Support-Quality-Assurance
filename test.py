@@ -1,24 +1,56 @@
 import pandas as pd
 
-from services.db_scheme import update_score_by_HitRulesList
-from services.db_task import get_average_score_by_task_id, get_hit_times_by_task_id, get_dialogue_count_by_task_id
+from services.db.db_rule import query_rule
+from services.db.db_scheme import update_score_by_HitRulesList
+from services.rule_manager import Rule
 from utils.data_utils import Dialogue, extract_service_messages
 from utils.global_utils import DIALOGUE_DATA_PATH
 
 
 def function_test():
-    global test_0, data
-    test_0 = Dialogue(DIALOGUE_DATA_PATH)
-    # 手动定义service_replies DataFrame
     data = {
-        '客户ID': ['123', '123'],
-        '客服ID': ['456', '456'],
-        '消息内容': ['傻逼东西', '废物玩意儿'],
-        '发送方': [0, 0],
-        '发送时间': ['2023/8/20 16:05:00', '2023/8/21 16:05:00']
+        '客户ID': ['123', '123', '123', '123', '123'],
+        '客服ID': ['456', '456', '456', '456', '456'],
+        '消息内容': ['傻逼东西', '废物玩意儿', '幽默风趣', '俊朗帅气', '优秀'],
+        '发送方': [0, 0, 0, 0, 0],
+        '发送时间': ['2023/8/20 16:05:00', '2023/8/21 16:05:00', '2023/8/22 16:05:00', '2023/8/23 16:05:00',
+                     '2023/8/24 16:05:00']
     }
+    df = pd.DataFrame(data)
 
-    update_score_by_HitRulesList(18, 2, ["客服幽默风趣"])
+    # 更新规则以包括更多条件
+    rule = Rule(
+        rule_name="Test Rule",
+        score_type=1,
+        score_value=5,
+        keyword_rules=[
+            {'keywords': ['傻逼', '废物'], 'check_type': 'any', 'condition_id': '客服说脏话'},
+            {'keywords': ['优秀'], 'check_type': 'any', 'condition_id': '客服说好话'}
+        ],
+        regex_rules=[
+            {'pattern': r'幽默|帅气', 'condition_id': '客服吹嘘'}
+        ]
+    )
+
+    # 定义不同的逻辑表达式进行测试
+    expressions = [
+        "客服说脏话 and 客服说好话",
+        "客服说脏话 or 客服吹嘘",
+        "not 客服说好话 and (客服说脏话 or 客服吹嘘)",
+        "客服说脏话 and not 客服说好话"
+    ]
+
+    # 对每个逻辑表达式进行评估
+    for expr in expressions:
+        rule.logic_expression = expr
+        extracted_messages = extract_service_messages(df)
+        print(f"逻辑表达式: {expr}, 评估结果: {rule.evaluate(extracted_messages)}")
+
+    test_rule = query_rule("ExampleRule1")
+    print(f"关键词规则为：", test_rule.keyword_rules)
+    print(f"话术规则为", test_rule.script_rules)
+    print(f"正则表达式", test_rule.regex_rules)
+
     # df = load_data_from_db("电信客服")
     # print(load_data_from_db("电信客服"))
     # print(count_unique_dialogues(load_data_from_db("电信客服")))

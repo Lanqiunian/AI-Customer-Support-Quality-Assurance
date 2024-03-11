@@ -1,0 +1,569 @@
+{
+  "rules": [
+    {
+      "rule_name": "正面反馈提醒",
+      "logic_expression": "1 or 2 or 3 or 4 or 5",
+      "score_type": "1",
+      "score_value": 10,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "非常好",
+            "太棒了",
+            "服务很好"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 1
+        },
+        {
+          "keywords": [
+            "很满意"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 2
+        },
+        {
+          "keywords": [
+            "非常满意"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 3
+        },
+        {
+          "keywords": [
+            "很不错"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 4
+        },
+        {
+          "keywords": [
+            "赞一个"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 5
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "提问技巧检测",
+      "logic_expression": "1 or 2 or 3",
+      "score_type": "1",
+      "score_value": 5,
+      "script_rules": [],
+      "keyword_rules": [],
+      "regex_rules": [
+        {
+          "pattern": "(怎么|如何|什么时候|哪里|谁).*",
+          "condition_id": 1
+        },
+        {
+          "pattern": "为什么.*",
+          "condition_id": 2
+        },
+        {
+          "pattern": "是否可以.*",
+          "condition_id": 3
+        }
+      ]
+    },
+    {
+      "rule_name": "敬语使用",
+      "logic_expression": "1 or 2 or 3 or 4",
+      "score_type": "1",
+      "score_value": 5,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "尊敬的",
+            "您尊贵的意见"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 1
+        },
+        {
+          "keywords": [
+            "敬爱的"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 2
+        },
+        {
+          "keywords": [
+            "亲爱的"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 3
+        },
+        {
+          "keywords": [
+            "您尊重的"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 4
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "客户身份尊重",
+      "logic_expression": "1 or 2",
+      "score_type": "1",
+      "score_value": 10,
+      "script_rules": [],
+      "keyword_rules": [],
+      "regex_rules": [
+        {
+          "pattern": "先生|女士|小姐|谨先生|阁下",
+          "condition_id": 1
+        },
+        {
+          "pattern": "客户|朋友|网友",
+          "condition_id": 2
+        }
+      ]
+    },
+    {
+      "rule_name": "避免使用行业术语",
+      "logic_expression": "1 and 2 and 3",
+      "score_type": "1",
+      "score_value": -10,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "API",
+            "集群",
+            "内存"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 1
+        },
+        {
+          "keywords": [
+            "带宽",
+            "负载均衡",
+            "容器"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 2
+        },
+        {
+          "keywords": [
+            "路由",
+            "分布式",
+            "缓存"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 3
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "快速响应提醒",
+      "logic_expression": "1 or 2",
+      "score_type": "1",
+      "score_value": 10,
+      "script_rules": [],
+      "keyword_rules": [],
+      "regex_rules": [
+        {
+          "pattern": "对不起|抱歉.*等候|让您久等了",
+          "condition_id": 1
+        },
+        {
+          "pattern": "非常抱歉.*耽误了您的时间",
+          "condition_id": 2
+        }
+      ]
+    },
+    {
+      "rule_name": "不恰当语言警告",
+      "logic_expression": "1 or 2",
+      "score_type": "1",
+      "score_value": -20,
+      "script_rules": [],
+      "keyword_rules": [],
+      "regex_rules": [
+        {
+          "pattern": "(孩子|娃|姑娘).{0,4}(多大|几岁)|(孩子|娃|姑娘|上).{0,3}(几年级|初几|高几)|您.{0,3}做什么|什么工作|报过.{0,3}(其他|别的).{0,3}辅导班",
+          "condition_id": 1
+        },
+        {
+          "pattern": "(工资|薪水|收入|家庭|住址|个人|隐私|手机号|身份证号).*",
+          "condition_id": 2
+        }
+      ]
+    },
+    {
+      "rule_name": "客户需求确认",
+      "logic_expression": "1 and 2",
+      "score_type": "1",
+      "score_value": 10,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "您的需求是",
+            "我理解您需要"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 1
+        },
+        {
+          "keywords": [
+            "您需要",
+            "您期望"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 2
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "客户感谢回应",
+      "logic_expression": "1 or 2 or 3 or 4",
+      "score_type": "1",
+      "score_value": 5,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "谢谢您",
+            "不胜感谢您的支持"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 1
+        },
+        {
+          "keywords": [
+            "非常感谢"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 2
+        },
+        {
+          "keywords": [
+            "十分感谢"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 3
+        },
+        {
+          "keywords": [
+            "万分感谢"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 4
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "产品知识点强化",
+      "logic_expression": "1 or 2",
+      "score_type": "1",
+      "score_value": 10,
+      "script_rules": [
+        {
+          "scripts": [
+            "性能有很大提升",
+            "产品新功能介绍"
+          ],
+          "similarity_threshold": 0.6,
+          "condition_id": 1
+        },
+        {
+          "scripts": [
+            "产品优势在于..."
+          ],
+          "similarity_threshold": 0.7,
+          "condition_id": 2
+        }
+      ],
+      "keyword_rules": [],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "解决方案提示",
+      "logic_expression": "1 or 2 or 3",
+      "score_type": "1",
+      "score_value": 15,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "您可以",
+            "我建议您可以"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 1
+        },
+        {
+          "keywords": [
+            "产品使用方法"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 2
+        },
+        {
+          "keywords": [
+            "解决办法是"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 3
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "积极情绪传递",
+      "logic_expression": "1 or 2 or 3 or 4",
+      "score_type": "1",
+      "score_value": 10,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "！",
+            "👏",
+            "🔥"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 1
+        },
+        {
+          "keywords": [
+            "亲亲",
+            "加油"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 2
+        },
+        {
+          "keywords": [
+            "很高兴",
+            "很激动"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 3
+        },
+        {
+          "keywords": [
+            "哈哈",
+            "嘻嘻"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 4
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "敏感话题警告",
+      "logic_expression": "1 or 2",
+      "score_type": "1",
+      "score_value": -20,
+      "script_rules": [],
+      "keyword_rules": [],
+      "regex_rules": [
+        {
+          "pattern": "(退款|退货|投诉|索赔).*",
+          "condition_id": 1
+        },
+        {
+          "pattern": "(诉讼|法律).*",
+          "condition_id": 2
+        }
+      ]
+    },
+    {
+      "rule_name": "产品优点介绍",
+      "logic_expression": "(1 or 2) and (3 or 4 or 5 or 6) and 7",
+      "score_type": "1",
+      "score_value": 5,
+      "script_rules": [
+        {
+          "scripts": [
+            "产品优点"
+          ],
+          "similarity_threshold": 0.7,
+          "condition_id": 1
+        },
+        {
+          "scripts": [
+            "产品性能非常优秀"
+          ],
+          "similarity_threshold": 0.7,
+          "condition_id": 2
+        }
+      ],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "产品优点"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 3
+        },
+        {
+          "keywords": [
+            "产品特点"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 4
+        },
+        {
+          "keywords": [
+            "产品好处"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 5
+        },
+        {
+          "keywords": [
+            "产品性能"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 6
+        }
+      ],
+      "regex_rules": [
+        {
+          "pattern": "(为什么|优势|好处|特点|卖点).*",
+          "condition_id": 7
+        }
+      ]
+    },
+    {
+      "rule_name": "礼貌用语鼓励",
+      "logic_expression": "1 or 2 or 3 or 4",
+      "score_type": "1",
+      "score_value": 5,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "请",
+            "麻烦"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 1
+        },
+        {
+          "keywords": [
+            "谢谢",
+            "谢了"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 2
+        },
+        {
+          "keywords": [
+            "不客气",
+            "不用谢"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 3
+        },
+        {
+          "keywords": [
+            "劳驾",
+            "劳烦"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 4
+        }
+      ],
+      "regex_rules": []
+    },
+    {
+      "rule_name": "幽默检测",
+      "logic_expression": "1 and 2 and (3 or 4 or 5)",
+      "score_type": "1",
+      "score_value": 5,
+      "script_rules": [],
+      "keyword_rules": [
+        {
+          "keywords": [
+            "搞笑"
+          ],
+          "check_type": "all",
+          "n": null,
+          "condition_id": 1
+        },
+        {
+          "keywords": [
+            "有趣"
+          ],
+          "check_type": "all",
+          "n": null,
+          "condition_id": 2
+        },
+        {
+          "keywords": [
+            "幽默"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 3
+        },
+        {
+          "keywords": [
+            "有意思"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 4
+        },
+        {
+          "keywords": [
+            "好玩"
+          ],
+          "check_type": "any",
+          "n": null,
+          "condition_id": 5
+        }
+      ],
+      "regex_rules": []
+    }
+  ]
+}

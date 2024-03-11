@@ -4,10 +4,10 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtWidgets import QMessageBox
 
-from services.db_task import get_overall_info, get_review_statistics
+from services.db.db_task import get_overall_info, get_review_statistics
 from ui.ui_utils import immersingTableView, autoResizeColumnsWithStretch
 from utils.data_utils import create_service_id_avg_score_table, analyzeResponseTime
-from utils.global_utils import TASK_DB_PATH
+from utils.global_utils import TASK_DB_PATH, get_global_setting
 
 
 class SummaryManager:
@@ -42,7 +42,8 @@ class SummaryManager:
         self.main_window.summary_review_accuracy_label.setText(review_accuracy)
 
         uncompleted_review_count = str(self.main_window.undo_check_manager.model_undo_check_table_view.rowCount())
-        user_name = 'admin'
+        print(get_global_setting().user_name)
+        user_name = get_global_setting().user_name
         welcome = '欢迎回来！' + user_name + '，当前有' + uncompleted_review_count + '个待办任务☺️。'
         self.main_window.welcome_label.setText(welcome)
 
@@ -64,8 +65,9 @@ class SummaryManager:
             self.main_window.go_task_pushButton.clicked.disconnect()
             self.main_window.go_check_pushButton.clicked.disconnect()
             self.main_window.go_export_pushButton.clicked.disconnect()
+        except TypeError:
+            pass
 
-        except:
             self.main_window.go_check_commandLinkButton.clicked.connect(
                 lambda: self.main_window.stackedWidget.setCurrentIndex(5))
             self.main_window.go_rule_pushButton.clicked.connect(

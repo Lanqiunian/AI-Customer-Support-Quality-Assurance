@@ -1,18 +1,17 @@
-import csv
 import sqlite3
 from datetime import datetime
 
 from PyQt6.QtCore import Qt, QThread
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QColor, QFont, QBrush, QTextOption
-from PyQt6.QtWidgets import QTableView, QMessageBox, QTextEdit, QDialog, QVBoxLayout, QLabel, QApplication
+from PyQt6.QtWidgets import QTableView, QMessageBox, QTextEdit, QDialog, QVBoxLayout, QLabel
 
-from services.db_dialogue_data import get_dialogue_by_datasetname_and_dialogueid
-from services.db_rule import get_score_by_name, rule_exists
-from services.db_scheme import update_score_by_HitRulesList
-from services.db_task import Task, delete_task, get_dialogue_count_by_task_id, get_average_score_by_task_id, \
+from services.db.db_dialogue_data import get_dialogue_by_datasetname_and_dialogueid
+from services.db.db_rule import get_score_by_name, rule_exists
+from services.db.db_scheme import update_score_by_HitRulesList
+from services.db.db_task import Task, delete_task, get_dialogue_count_by_task_id, get_average_score_by_task_id, \
     get_hit_times_by_task_id, get_hit_rate_by_task_id, remove_hit_rule, get_task_id_by_task_name, add_hit_rule, \
     get_score_by_task_id_and_dialogue_id, change_manual_check, get_manually_check_by_task_id_and_dialogue_id, \
-    change_manual_review_corrected_errors, add_review_count, get_AI_prompt_by_task_id
+    change_manual_review_corrected_errors, get_AI_prompt_by_task_id
 from services.model_api_client import AIAnalysisWorker
 from ui.dialog_pick_a_rule import Ui_add_rule_to_scheme_Dialog
 from ui.ui_utils import autoResizeColumnsWithStretch, export_model_to_csv

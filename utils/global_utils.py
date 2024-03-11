@@ -20,36 +20,43 @@ GLOBAL_DB_PATH = os.path.join(root_directory, 'repositories', 'global.db')
 
 
 # 获取GLOBAL_DB_PATH中的参数
-def get_global_setting():
-    global USER_NAME, DEFAULT_AI_PROMPT, API_KEY  # 声明全局变量
 
+class AppConfig:
+    def __init__(self, user_name, default_ai_prompt, api_key):
+        self.user_name = user_name
+        self.default_ai_prompt = default_ai_prompt
+        self.api_key = api_key
+
+
+def get_global_setting():
     conn = sqlite3.connect(GLOBAL_DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM global")
-    global_setting = cursor.fetchall()
+    global_setting = cursor.fetchone()  # 假设只有一条记录
     conn.close()
 
-    # 假设 global_setting[0] 包含三个元素
-    USER_NAME, DEFAULT_AI_PROMPT, API_KEY = global_setting[0]
-    print(f"重新获取", USER_NAME, DEFAULT_AI_PROMPT, API_KEY)
-    return global_setting[0]
+    return AppConfig(*global_setting)
 
 
-USER_NAME, DEFAULT_AI_PROMPT, API_KEY = get_global_setting()
+app_config = get_global_setting()
 
 # Description: 全局配置文件
 AI_PROMPT_RULES = """请根据以下需求，生成一组json格式的规则。需求："""
 AI_PROMPT_RULES_JSON_EXAMPLE = """
-。你禁止返回任何除了json之外的内容，也不要有任何注释，一个返回格式的例子如下，：
+。"regex_rules"，"keyword_rules"，"regex_rules"可以有0或多组，由你决定，你应当基于人类社会的生活情景，根据现实中的情况合理给出你的规则设计。
+logic_expression描述了各组条件之间的关系，式子中必须包含全部的条件ID，例如condition_id最大值是4，那么就得包含1 2 3 4;满足这一logic_expression，说明命中了这一规则，请你根据需要设计这一逻辑关系。
+"condition_id"是从"1"开始严格递增的
+你禁止返回任何除了json之外的内容，也不要有任何注释，一个返回格式的例子如下，：
  {
-    "rule_name": "例子",
+    "rule_name": "客服问候有礼貌",
+    "logic_expression": "(1 or not 2) and 3",
     "score_type": 1,
     "score_value": 5,
     "script_rules": [
         {
             "scripts": [
-                "笑了",
-                "可以尝试一下哦"
+                "你好，很欢迎见到你",
+                "很高兴为您服务",
             ],
             "similarity_threshold": 0.8,
             "condition_id": "1"
@@ -58,9 +65,9 @@ AI_PROMPT_RULES_JSON_EXAMPLE = """
     "keyword_rules": [
         {
             "keywords": [
-                "请",
-                "谢谢",
-                "不客气"
+                "嗨",
+                "可以",
+                "不行"
             ],
             "check_type": "any",
             "condition_id": "2",

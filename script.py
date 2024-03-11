@@ -1,12 +1,7 @@
-import json
 import re
 import sqlite3
 
-from services.db_rule import add_rule
-from services.rule_manager import Rule
-from utils.global_utils import TASK_DB_PATH
-
-import csv
+from utils.global_utils import RULE_DB_PATH
 
 input_text = """
 客户1,客服1,你们公司的产品质量怎么样?我看到有些差评说很一般。,1,2023/10/16 14:00,1
@@ -93,4 +88,18 @@ def replace_commas_in_message_content(text):
 
 # Print the output text
 
-print(replace_commas_in_message_content(input_text))
+# 假设 RULE_DB_PATH 是你的数据库路径
+
+
+# 连接到 SQLite 数据库
+conn = sqlite3.connect(RULE_DB_PATH)
+cursor = conn.cursor()
+
+# 添加新列 logic_expression 到 rule_index 表
+cursor.execute('ALTER TABLE rule_index ADD COLUMN logic_expression TXT')
+
+# 提交更改
+conn.commit()
+
+# 关闭连接
+conn.close()

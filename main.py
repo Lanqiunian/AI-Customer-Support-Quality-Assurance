@@ -2,8 +2,7 @@ import qdarkstyle
 from qdarkstyle import LightPalette
 
 from PyQt6.QtWidgets import QApplication
-from qt_material import apply_stylesheet
-from services.db_rule import init_db
+from services.db.db_rule import init_db
 
 from ui.main_window_logic import CustomMainWindow
 

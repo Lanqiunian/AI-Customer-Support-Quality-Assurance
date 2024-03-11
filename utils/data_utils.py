@@ -6,7 +6,7 @@ from datetime import datetime
 import jieba
 import pandas as pd
 
-from services.db_dialogue_data import get_service_id_by_dialogue_id_and_task_id
+from services.db.db_dialogue_data import get_service_id_by_dialogue_id_and_task_id
 from utils.global_utils import RULE_DB_PATH, TASK_DB_PATH, DIALOGUE_DB_PATH
 
 
@@ -42,22 +42,6 @@ def chinese_tokenization(dataframe, column_name='消息内容', stopwords_path='
     )
 
     return tokenized_messages
-
-
-df = pd.DataFrame({
-    '发送方': [0, 1, 0, 1, 0],
-    '消息内容': [
-        "您好！请问有什么可以帮助您的吗？",
-        "我想咨询一下我的订单状态。",
-        "请问您的订单号是多少呢？",
-        "我的订单号是123456。",
-        "好的，我帮您查一下。"
-    ]
-})
-
-
-# df0 = load_data_from_db("测试数据1")
-# df['发送方'] = df0['发送方', '消息内容']
 
 
 def generate_html(dialogue_df):
@@ -118,6 +102,73 @@ def extract_customer_messages(df):
     # 筛选发送方为0的行，并提取消息内容列
     customer_messages = df[df['发送方'] == 1]['消息内容']
     return customer_messages
+
+
+def is_valid_logic_expression(expression, conditionsCounter):
+    # 移除表达式前后的空格
+    expression = expression.strip()
+
+    # 1. 检查是否有非法符号，正确排除括号
+    if re.search(r"[^0-9()\sandrotn]", expression):
+        print("Contains invalid characters.")
+        return False
+
+    # 2. 检查是否包含除了 1 到 conditionsCounter 之外的数字
+    invalid_numbers = [num for num in re.findall(r'\d+', expression) if not 1 <= int(num) <= conditionsCounter]
+    if invalid_numbers:
+        print(f"Contains numbers out of allowed range: {invalid_numbers}")
+        return False
+
+    # 3. 检查括号是否闭合
+    if not brackets_match(expression):
+        print("Unmatched parentheses.")
+        return False
+
+    # 4. 分词并检查每个元素是否合法
+    tokens = re.split(r'(\s+|\band\b|\bor\b|\bnot\b|\(|\))', expression)
+    tokens = [token.strip() for token in tokens if token.strip()]  # 移除空字符串和首尾空格
+
+    valid_tokens = set(["and", "or", "not"] + [str(i) for i in range(1, conditionsCounter + 1)] + ['(', ')'])
+    if not all(token in valid_tokens or token.isdigit() for token in tokens):
+        print("Contains invalid words or numbers.")
+        return False
+    # 5. 确保表达式不以逻辑运算符开头或结尾
+    if tokens[0] in ["and", "or"] or tokens[-1] in ["and", "or", "not"]:
+        print("Expression starts or ends with a logical operator.")
+        return False
+
+    # 5. 检查操作符前后是否正确放置
+    for i, token in enumerate(tokens[:-1]):  # 不检查最后一个元素，防止索引越界
+        next_token = tokens[i + 1]
+
+        # 允许 "and not" 和 "or not"
+        if token in ["and", "or"] and next_token == "not":
+            continue
+
+        # 检查逻辑运算符后是否紧跟另一个逻辑运算符（除了 "not"）
+        if token in ["and", "or", "not"] and next_token in ["and", "or"]:
+            print("Consecutive logical operators.")
+            return False
+
+        # 检查 "not" 后是否直接跟随数字或括号
+        if token == "not" and not (next_token.isdigit() or next_token == "("):
+            print("Invalid 'not' usage.")
+            return False
+
+    # 通过所有检查
+    return True
+
+
+def brackets_match(expression):
+    stack = []
+    for char in expression:
+        if char == '(':
+            stack.append(char)
+        elif char == ')':
+            if not stack or stack[-1] != '(':
+                return False
+            stack.pop()
+    return not stack
 
 
 class Dialogue:
@@ -276,8 +327,8 @@ def create_service_id_avg_score_table():
         service_avg_scores[service_id] = avg_score
 
     # 假设我们需要输出这个对照表以供后续使用
-    for service_id, avg_score in service_avg_scores.items():
-        print(f"Service ID: {service_id}, Average Score: {avg_score}")
+    # for service_id, avg_score in service_avg_scores.items():
+    #     print(f"Service ID: {service_id}, Average Score: {avg_score}")
 
     conn.close()
 
@@ -320,10 +371,10 @@ def analyzeResponseTime(service_id=None):
 
     if response_times:
         average_response_time = sum(response_times) / len(response_times)
-        if service_id is not None:
-            print(f"客服{service_id}的平均回复时间（分钟）: {average_response_time}")
-        else:
-            print(f"全体平均回复时间（分钟）: {average_response_time}")
+        # if service_id is not None:
+        #     # print(f"客服{service_id}的平均回复时间（分钟）: {average_response_time}")
+        # else:
+        #     # print(f"全体平均回复时间（分钟）: {average_response_time}")
     else:
         print("没有足够的数据来计算平均回复时间。")
         average_response_time = None
@@ -331,15 +382,6 @@ def analyzeResponseTime(service_id=None):
     conn_dialogue.close()
 
     return average_response_time
-
-
-def is_valid_json(rule_json):
-    try:
-        # 尝试将字符串解析为 JSON
-        json.loads(rule_json)
-        return True  # 解析成功，是有效的 JSON 格式
-    except ValueError:
-        return False  # 解析失败，不是有效的 JSON 格式
 
 
 if __name__ == "__main__":

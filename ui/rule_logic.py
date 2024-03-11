@@ -1,4 +1,5 @@
 import json
+import re
 import sqlite3
 
 from PyQt6 import QtWidgets
@@ -6,16 +7,16 @@ from PyQt6.QtCore import Qt, QDateTime
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QColor, QFont
 from PyQt6.QtWidgets import QApplication, QMessageBox, QFileDialog
 
-from services.db_rule import delete_rule, add_rule, get_script_by_name, \
+from services.db.db_rule import delete_rule, add_rule, get_script_by_name, \
     query_rule, import_rules_from_json, export_rules_to_json
-from services.db_rule import rule_exists, \
+from services.db.db_rule import rule_exists, \
     get_score_by_name
-from services.db_scheme import get_scheme_by_rule_name
-from services.model_api_client import get_ai_rule_json_chatgpt, AISuggestionThread
+from services.db.db_scheme import get_scheme_by_rule_name
+from services.model_api_client import AISuggestionThread
 from services.rule_manager import Rule
 from ui.task_logic import WaitingDialog
 from ui.ui_utils import autoResizeColumnsWithStretch
-from utils.data_utils import list_to_text, format_score
+from utils.data_utils import list_to_text, format_score, is_valid_logic_expression
 from utils.global_utils import RULE_DB_PATH
 
 
@@ -168,7 +169,7 @@ class RuleManager:
 
             # 重新添加弹性空间
             self.verticalLayout.addStretch(1)
-            self.print_all_objectNames()
+
         except Exception as e:
             print(f"add发生异常：{e}")
 
@@ -216,7 +217,6 @@ class RuleManager:
                     break
         # 重新编号剩余的条件
         self.renumber_conditions()
-        self.print_all_objectNames()
 
     def renumber_conditions(self):
         counter = 1
@@ -263,7 +263,6 @@ class RuleManager:
         # 更新条件计数器
         self.conditionsCounter = counter - 1
         # 如果存在，调用print_all_objectNames来打印所有子控件的objectName
-        self.print_all_objectNames()
 
     def print_all_objectNames(self):
         for i in range(self.verticalLayout.count()):
@@ -287,17 +286,19 @@ class RuleManager:
         autoResizeColumnsWithStretch(self.main_window.RuleManagerTableView)
 
         # 连接表格的clicked信号到onRuleClicked槽函数
-        self.main_window.RuleManagerTableView.clicked.connect(self.onRuleClicked)
+
         self.main_window.AddRuleButton.clicked.connect(self.AddRule)
         try:
             # 断开之前的连接（如果存在）
             self.main_window.import_rules_pushButton.clicked.disconnect()
             self.main_window.export_rules_pushButton.clicked.disconnect()
+            self.main_window.RuleManagerTableView.clicked.disconnect()
         except TypeError:
             # 如果之前没有连接，则忽略这个错误
             pass
         self.main_window.import_rules_pushButton.clicked.connect(self.on_clicked_import_rules)
         self.main_window.export_rules_pushButton.clicked.connect(self.on_clicked_export_rules)
+        self.main_window.RuleManagerTableView.clicked.connect(self.onRuleClicked)
         # 在这里添加实例数据
         self.loadRuleFromDB()
 
@@ -305,6 +306,8 @@ class RuleManager:
         self.rule_editing_clear()
         self.main_window.RuleNameEditText.setReadOnly(False)
         self.main_window.stackedWidget.setCurrentIndex(7)
+        self.main_window.logic_expression_lineEdit.textChanged.connect(self.check_logic_expression)
+        self.check_logic_expression()
 
     def rule_editing_clear(self):
         """
@@ -315,6 +318,9 @@ class RuleManager:
         self.main_window.RuleNameEditText.clear()
         self.main_window.score_type_comboBox.setCurrentIndex(0)
         self.main_window.score_value_line_edit.clear()
+        self.main_window.logic_expression_lineEdit.clear()
+        # 清除add_condition_to_logic_expression_comboBox中的选项
+        self.main_window.add_condition_to_logic_expression_comboBox.clear()
         self.conditionsCounter = 0
 
     def clear_existing_conditions(self):
@@ -339,7 +345,6 @@ class RuleManager:
 
         # 重置条件计数器
         self.conditionsCounter = 0
-        print("清除了现有条件布局")
 
     def clear_layout(self, layout):
         # 递归清除布局中的所有项目
@@ -402,10 +407,12 @@ class RuleManager:
         self.loadRuleDetails(rule_name)
 
     def loadRuleDetails(self, rule_name):
+
         # 先清空现有条件布局
         self.rule_editing_clear()
         score_type = int(str(get_score_by_name(rule_name, 0)))
         score_value = str(get_score_by_name(rule_name, 1))
+        logic_expression = str(query_rule(rule_name).logic_expression)
         try:
             self.main_window.score_type_comboBox.setCurrentIndex(score_type)
             self.main_window.score_value_line_edit.setText(score_value)
@@ -415,6 +422,7 @@ class RuleManager:
         # 切换到规则编辑界面并加载规则详情
         self.main_window.stackedWidget.setCurrentIndex(7)  # 确保这是正确的页面索引
         self.main_window.RuleNameEditText.setText(rule_name)
+
         self.main_window.RuleNameEditText.setReadOnly(True)  # 设置规则名称不可编辑
 
         # print(f"数据库绝对路径", RULE_DB_PATH)
@@ -450,53 +458,91 @@ class RuleManager:
             for script_condition in script:
                 self.add_condition_layout("话术匹配", script_condition['scripts'],
                                           additional_info=threshold)
+        self.setup_logic_expression_event()
 
-    # def loadRuleDetails(self, rule_name):
-    #     # 先清空现有条件布局
-    #     self.rule_editing_clear()
-    #     score_type = int(str(get_score_by_name(rule_name, 0)))
-    #     score_value = str(get_score_by_name(rule_name, 1))
-    #     try:
-    #         self.main_window.score_type_comboBox.setCurrentIndex(score_type)
-    #         self.main_window.score_value_line_edit.setText(score_value)
-    #         print(f"设置了评分类型和评分值", score_type, score_value)
-    #     except Exception as e:
-    #         print(f"发生异常：{e}")
-    #     # 切换到规则编辑界面并加载规则详情
-    #     self.main_window.stackedWidget.setCurrentIndex(7)  # 确保这是正确的页面索引
-    #     self.main_window.RuleNameEditText.setText(rule_name)
-    #
-    #     # print(f"数据库绝对路径", RULE_DB_PATH)
-    #     # print(f"规则名称", rule_name)
-    #     selected_rule = query_rule(rule_name)
-    #     # 查询并加载规则的各项条件数据
-    #     regex = get_regex_by_name(rule_name)
-    #     print(f"获取了正则表达式匹配条件", regex)
-    #     keyword = get_keyword_by_name(rule_name, 0)
-    #     print(f"获取了关键词匹配条件", keyword)
-    #     keyword_match_type = get_keyword_by_name(rule_name, 1)
-    #     print(f"获取了关键词匹配类型", keyword_match_type)
-    #     script = get_script_by_name(rule_name, 0)
-    #     threshold = get_script_by_name(rule_name, 1)
-    #     print(f"获取了话术匹配条件", script, threshold)
-    #     if regex:
-    #         print("添加正则表达式匹配条件")
-    #         self.add_condition_layout("正则表达式匹配", regex)
-    #     # 对于关键词匹配，我们可能同时需要关键词和匹配类型
-    #     if keyword:
-    #         print("添加关键词匹配条件")
-    #         self.add_condition_layout("关键词匹配", keyword, additional_info=keyword_match_type)
-    #     # 话术匹配可能包括话术本身和相应的阈值
-    #
-    #     if script:
-    #         print("添加话术匹配条件")
-    #         self.add_condition_layout("话术匹配", script, additional_info=threshold)
+        try:
+            self.main_window.logic_expression_lineEdit.textChanged.disconnect()
+        except TypeError:
+            pass
+        self.main_window.logic_expression_lineEdit.textChanged.connect(self.check_logic_expression)
+        self.main_window.logic_expression_lineEdit.setText(logic_expression)
+
+    def insert_text_to_logic_expression(self, text):
+        try:
+            # 在当前光标位置插入文本
+            self.main_window.logic_expression_lineEdit.insert(text)
+        except Exception as e:
+            print(f"插入文字发生异常：{e}")
+
+    def setup_logic_expression_event(self):
+        try:
+            self.main_window.add_and.clicked.disconnect()
+            self.main_window.add_or.clicked.disconnect()
+            self.main_window.add_not.clicked.disconnect()
+            self.main_window.add_open_bracket.clicked.disconnect()
+            self.main_window.add_close_bracket.clicked.disconnect()
+            self.main_window.add_condition.clicked.disconnect()
+
+        except TypeError:
+            print("没有连接到任何事件")
+            pass
+        try:
+            self.main_window.add_and.clicked.connect(lambda: self.insert_text_to_logic_expression(" and"))
+            self.main_window.add_or.clicked.connect(lambda: self.insert_text_to_logic_expression(" or"))
+            self.main_window.add_not.clicked.connect(lambda: self.insert_text_to_logic_expression(" not"))
+            self.main_window.add_open_bracket.clicked.connect(lambda: self.insert_text_to_logic_expression(" ("))
+            self.main_window.add_close_bracket.clicked.connect(lambda: self.insert_text_to_logic_expression(") "))
+            self.main_window.add_condition.clicked.connect(
+                self.on_click_add_condition_to_logic_expression)
+            self.setup_condition_selection_combo()
+
+        except Exception as e:
+            print(f"设定logic_expression_event发生异常：{e}")
+
+    def setup_condition_selection_combo(self):
+        for i in range(1, self.conditionsCounter + 1):
+            print(f"为条件 {i} 添加事件")
+            self.main_window.add_condition_to_logic_expression_comboBox.addItem(" " + str(i))
+
+    def check_logic_expression(self):
+        print("检查逻辑表达式")
+        # 获取编辑器内容
+        text = self.main_window.logic_expression_lineEdit.text()
+
+        # 1. 检查是否包含所有逻辑命题编号
+        missing_numbers = [str(i) for i in range(1, self.conditionsCounter + 1) if str(i) not in text]
+
+        if missing_numbers:
+            # 如果有缺失，则更新提示标签
+            self.main_window.logic_detect_label.setText(f"缺少条件: {', '.join(missing_numbers)}")
+            self.main_window.logic_detect_label.setStyleSheet("color: orange;background-color:transparent")  # 使提示标签醒目
+            return
+
+        # 2. 检查是否是正确的逻辑表达式
+        if not is_valid_logic_expression(text, self.conditionsCounter):
+            # 如果表达式不正确，则更新提示标签
+            self.main_window.logic_detect_label.setText("逻辑表达式错误")
+            self.main_window.logic_detect_label.setStyleSheet("color: red;background-color:transparent")
+            return
+
+        # 如果都没有问题，则提示正确
+        self.main_window.logic_detect_label.setText("逻辑表达式正确")
+        self.main_window.logic_detect_label.setStyleSheet("color: green;background-color:transparent")
+
+    def on_click_add_condition_to_logic_expression(self):
+
+        selected_condition = self.main_window.add_condition_to_logic_expression_comboBox.currentText()
+        self.insert_text_to_logic_expression(selected_condition)
 
     def save_rule(self):
         """
         点击规则保存按钮，保存规则
         :return:
         """
+        if is_valid_logic_expression(self.main_window.logic_expression_lineEdit.text(),
+                                     self.conditionsCounter) is False:
+            QMessageBox.critical(self.main_window, "错误", "逻辑表达式不正确,请修改后重试！")
+            return
         try:
             rule_name = self.main_window.RuleNameEditText.toPlainText().strip()
             if not rule_name:
@@ -511,10 +557,15 @@ class RuleManager:
             else:
                 new_score_type = 1
             new_score_value = int(self.main_window.score_value_line_edit.text())
-
             new_rule = Rule(rule_name)
+
+            # 更改评分设置
             new_rule.change_score_setting(new_score_type, new_score_value)
 
+            # 保存逻辑表达式
+            new_rule.logic_expression = self.main_window.logic_expression_lineEdit.text()
+
+            # 保存条件
             for i in range(1, self.conditionsCounter + 1):
                 comboBox = self.main_window.findChild(QtWidgets.QComboBox, f"condition_type_comboBox_{i}")
                 condition_type = comboBox.currentText() if comboBox else None
@@ -638,13 +689,19 @@ class RuleManager:
             json_data (str): 包含规则定义的JSON字符串。
         """
         self.rule_editing_clear()
+        self.main_window.logic_expression_lineEdit.textChanged.connect(self.check_logic_expression)
         # 解析JSON字符串
-        rule_data = json.loads(json_data)
+        try:
+            rule_data = json.loads(json_data)
+        except json.JSONDecodeError as e:
+            QMessageBox.critical(self.main_window, "错误", f"解析JSON时发生错误：{e}")
+            return
 
         # 首先添加规则的基本信息
         print(f"Rule Name: {rule_data['rule_name']}")
         print(f"Score Type: {rule_data['score_type']}")
         print(f"Score Value: {rule_data['score_value']}")
+        print(f"Logic Expression: {rule_data['logic_expression']}")
         self.main_window.RuleNameEditText.setText(rule_data['rule_name'])
         self.main_window.score_type_comboBox.setCurrentIndex(rule_data['score_type'])
         self.main_window.score_value_line_edit.setText(str(rule_data['score_value']))
@@ -665,3 +722,6 @@ class RuleManager:
         for regex_rule in rule_data['regex_rules']:
             self.add_condition_layout(condition_type="正则表达式匹配",
                                       condition_value=regex_rule['pattern'])  # 传递字符串，因为正则是单个字符串
+
+        self.main_window.logic_expression_lineEdit.setText(rule_data['logic_expression'])
+        self.setup_condition_selection_combo()

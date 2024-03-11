@@ -1,7 +1,7 @@
 import sqlite3
 
-from services.db_dialogue_data import load_data_from_db
-from services.db_rule import query_rule
+from services.db.db_dialogue_data import load_data_from_db
+from services.db.db_rule import query_rule
 from utils.data_utils import list_to_text
 from utils.global_utils import SCHEME_DB_PATH, TASK_DB_PATH, RULE_DB_PATH
 
@@ -204,7 +204,6 @@ def get_scheme_by_rule_name(rule_name):
     cursor.execute("SELECT scheme_name FROM Scheme_Rule_Relationship WHERE rule_name = ?", (rule_name,))
     scheme_data = cursor.fetchall()
     conn.close()
-    print(scheme_data)
     scheme_names = [item[0] for item in scheme_data]
     scheme_str = list_to_text(scheme_names)
     return scheme_str
