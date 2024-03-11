@@ -90,16 +90,8 @@ def replace_commas_in_message_content(text):
 
 # 假设 RULE_DB_PATH 是你的数据库路径
 
-
-# 连接到 SQLite 数据库
 conn = sqlite3.connect(RULE_DB_PATH)
 cursor = conn.cursor()
-
-# 添加新列 logic_expression 到 rule_index 表
-cursor.execute('ALTER TABLE rule_index ADD COLUMN logic_expression TXT')
-
-# 提交更改
-conn.commit()
-
-# 关闭连接
-conn.close()
+cursor.execute('SELECT target_role FROM target_role WHERE rule_name = ? AND condition_id=?', ("正面反馈提醒", 1))
+target_role_data = cursor.fetchone()[0]
+print(target_role_data)

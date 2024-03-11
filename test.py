@@ -1,6 +1,6 @@
 import pandas as pd
 
-from services.db.db_rule import query_rule
+from services.db.db_rule import query_rule, add_rule
 from services.db.db_scheme import update_score_by_HitRulesList
 from services.rule_manager import Rule
 from utils.data_utils import Dialogue, extract_service_messages
@@ -17,39 +17,72 @@ def function_test():
                      '2023/8/24 16:05:00']
     }
     df = pd.DataFrame(data)
-
-    # 更新规则以包括更多条件
-    rule = Rule(
-        rule_name="Test Rule",
+    rule_instance = Rule(
+        rule_name="Customer Service Quality",
         score_type=1,
         score_value=5,
+        logic_expression="1 and not 2 or 3",
+        script_rules=[
+            {
+                'scripts': ["你好，请问有什么可以帮到您的？", "很高兴为您服务，请问您需要什么帮助？"],
+                'similarity_threshold': 0.8,
+                'target_role': 0,  # 代表这条规则是针对客服的发言
+                'condition_id': "script1"
+            }
+        ],
         keyword_rules=[
-            {'keywords': ['傻逼', '废物'], 'check_type': 'any', 'condition_id': '客服说脏话'},
-            {'keywords': ['优秀'], 'check_type': 'any', 'condition_id': '客服说好话'}
+            {
+                'keywords': ["不满意", "差评"],
+                'check_type': 'any',
+                'n': None,
+                'target_role': 1,  # 代表这条规则是针对客户的发言
+                'condition_id': "keyword1"
+            }
         ],
         regex_rules=[
-            {'pattern': r'幽默|帅气', 'condition_id': '客服吹嘘'}
+            {
+                'pattern': r"退款|退货",
+                'target_role': 1,  # 代表这条规则是针对客户的发言
+                'condition_id': "regex1"
+            }
         ]
     )
+    add_rule(rule_instance)
 
-    # 定义不同的逻辑表达式进行测试
-    expressions = [
-        "客服说脏话 and 客服说好话",
-        "客服说脏话 or 客服吹嘘",
-        "not 客服说好话 and (客服说脏话 or 客服吹嘘)",
-        "客服说脏话 and not 客服说好话"
-    ]
-
-    # 对每个逻辑表达式进行评估
-    for expr in expressions:
-        rule.logic_expression = expr
-        extracted_messages = extract_service_messages(df)
-        print(f"逻辑表达式: {expr}, 评估结果: {rule.evaluate(extracted_messages)}")
-
-    test_rule = query_rule("ExampleRule1")
-    print(f"关键词规则为：", test_rule.keyword_rules)
-    print(f"话术规则为", test_rule.script_rules)
-    print(f"正则表达式", test_rule.regex_rules)
+    # # 更新规则以包括更多条件
+    # rule = Rule(
+    #     rule_name="Test Rule",
+    #     score_type=1,
+    #     score_value=5,
+    #     keyword_rules=[
+    #         {'keywords': ['傻逼', '废物'], 'check_type': 'any', 'condition_id': '客服说脏话'},
+    #         {'keywords': ['优秀'], 'check_type': 'any', 'condition_id': '客服说好话'},
+    #
+    #
+    #     ],
+    #     regex_rules=[
+    #         {'pattern': r'幽默|帅气', 'condition_id': '客服吹嘘'}
+    #     ]
+    # )
+    #
+    # # 定义不同的逻辑表达式进行测试
+    # expressions = [
+    #     "客服说脏话 and 客服说好话",
+    #     "客服说脏话 or 客服吹嘘",
+    #     "not 客服说好话 and (客服说脏话 or 客服吹嘘)",
+    #     "客服说脏话 and not 客服说好话"
+    # ]
+    #
+    # # 对每个逻辑表达式进行评估
+    # for expr in expressions:
+    #     rule.logic_expression = expr
+    #     extracted_messages = extract_service_messages(df)
+    #     print(f"逻辑表达式: {expr}, 评估结果: {rule.evaluate(extracted_messages)}")
+    #
+    # test_rule = query_rule("ExampleRule1")
+    # print(f"关键词规则为：", test_rule.keyword_rules)
+    # print(f"话术规则为", test_rule.script_rules)
+    # print(f"正则表达式", test_rule.regex_rules)
 
     # df = load_data_from_db("电信客服")
     # print(load_data_from_db("电信客服"))

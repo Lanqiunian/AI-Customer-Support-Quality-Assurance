@@ -44,6 +44,11 @@ def init_db():
                             rule_name TEXT,
                             score_type TEXT,
                             score_value INTEGER)''')
+
+    conn_rule.execute('''CREATE TABLE IF NOT EXISTS target_role (
+                            rule_name TEXT,
+                            condition_id INTEGER,
+                            target_role INTEGER)''')
     conn_rule.commit()
     conn_rule.close()
 
@@ -213,6 +218,20 @@ def rule_name_exists(rule_name):
     return exists
 
 
+def get_condition_count(rule_name):
+    """
+    获取规则的条件数量
+    :param rule_name:
+    :return:
+    """
+    conn = sqlite3.connect(RULE_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT COUNT(DISTINCT condition_id) FROM target_role WHERE rule_name = ?', (rule_name,))
+    condition_count = cursor.fetchone()[0]
+    conn.close()
+    return condition_count
+
+
 # 添加规则
 def add_rule(rule):
     conn = sqlite3.connect(RULE_DB_PATH)
@@ -229,14 +248,17 @@ def add_rule(rule):
         cursor.execute('DELETE FROM regex_rules WHERE rule_name = ?', (rule.rule_name,))
         # 删除规则绑定的评分规则
         cursor.execute('DELETE FROM score_rules WHERE rule_name = ?', (rule.rule_name,))
-        # 删除规则绑定的评分规则
-        cursor.execute('DELETE FROM score_rules WHERE rule_name = ?', (rule.rule_name,))
+
         # 删除规则绑定的逻辑表达式
         cursor.execute('UPDATE rule_index SET logic_expression = ? WHERE rule_name = ?',
                        (rule.logic_expression, rule.rule_name))
+        # 删除规则绑定的目标角色
+        cursor.execute('DELETE FROM target_role WHERE rule_name = ?', (rule.rule_name,))
+
     # 添加逻辑表达式
     cursor.execute('UPDATE rule_index SET logic_expression = ? WHERE rule_name = ?',
                    (rule.logic_expression, rule.rule_name))
+
     # 添加脚本规则
     for script_rule in rule.script_rules:
         for script in script_rule['scripts']:
@@ -261,6 +283,17 @@ def add_rule(rule):
     cursor.execute('DELETE FROM score_rules WHERE rule_name = ?', (rule.rule_name,))
     cursor.execute('INSERT INTO score_rules (rule_name, score_type, score_value) VALUES (?, ?, ?)',
                    (rule.rule_name, rule.score_type, rule.score_value))
+
+    # 添加目标角色
+    for script_rule in rule.script_rules:
+        cursor.execute('INSERT INTO target_role (rule_name, condition_id, target_role) VALUES (?, ?, ?)',
+                       (rule.rule_name, script_rule['condition_id'], script_rule['target_role']))
+    for keyword_rule in rule.keyword_rules:
+        cursor.execute('INSERT INTO target_role (rule_name, condition_id, target_role) VALUES (?, ?, ?)',
+                       (rule.rule_name, keyword_rule['condition_id'], keyword_rule['target_role']))
+    for regex_rule in rule.regex_rules:
+        cursor.execute('INSERT INTO target_role (rule_name, condition_id, target_role) VALUES (?, ?, ?)',
+                       (rule.rule_name, regex_rule['condition_id'], regex_rule['target_role']))
 
     conn.commit()
     conn.close()
@@ -288,6 +321,12 @@ def delete_rule(rule_name):
 
     # 在方案规则关系表中删除相关规则
     cursor_scheme.execute('DELETE FROM Scheme_Rule_Relationship WHERE rule_name = ?', (rule_name,))
+
+    # 删除评分规则
+    cursor.execute('DELETE FROM score_rules WHERE rule_name = ?', (rule_name,))
+
+    # 删除目标角色
+    cursor.execute('DELETE FROM target_role WHERE rule_name = ?', (rule_name,))
     conn.commit()
     conn.close()
     conn_scheme.commit()
@@ -315,6 +354,7 @@ def query_rule(rule_name):
     cursor.execute('SELECT score_type, score_value FROM score_rules WHERE rule_name = ?', (rule_name,))
     score_data = cursor.fetchone()
     score_type, score_value = score_data if score_data else (None, None)
+
     # 查询逻辑表达式
     cursor.execute('SELECT logic_expression FROM rule_index WHERE rule_name = ?', (rule_name,))
     logic_expression = cursor.fetchone()[0]
@@ -333,7 +373,9 @@ def query_rule(rule_name):
 
     # 将分组后的脚本规则添加到Rule对象
     for condition_id, rule_data in script_rules_by_condition.items():
-        rule.add_script_rule(rule_data['scripts'], rule_data['similarity_threshold'], condition_id)
+        target_role = get_target_role(rule_name, condition_id)
+        rule.add_script_rule(rule_data['scripts'], rule_data['similarity_threshold'], target_role,
+                             condition_id)
 
     # 处理关键词规则，先按condition_id分组
     keyword_rules_by_condition = {}
@@ -344,13 +386,26 @@ def query_rule(rule_name):
 
     # 将分组后的关键词规则添加到Rule对象
     for condition_id, rule_data in keyword_rules_by_condition.items():
-        rule.add_keyword_rule(rule_data['keywords'], rule_data['check_type'], condition_id, rule_data['n'])
+        target_role = get_target_role(rule_name, condition_id)
+        rule.add_keyword_rule(rule_data['keywords'], rule_data['check_type'], target_role,
+                              condition_id, rule_data['n'])
 
     # 处理正则表达式规则
     for condition_id, pattern in regex_rules_data:
-        rule.add_regex_rule(pattern, condition_id)
+        target_role = get_target_role(rule_name, condition_id)
+        rule.add_regex_rule(pattern, target_role, condition_id)
 
     return rule
+
+
+def get_target_role(rule_name, condition_id):
+    conn = sqlite3.connect(RULE_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT target_role FROM target_role WHERE rule_name = ? AND condition_id=?',
+                   (rule_name, condition_id))
+    target_role = cursor.fetchone()[0]
+    conn.close()
+    return target_role
 
 
 def get_script_by_name(script_name, get_type):
@@ -527,29 +582,20 @@ def import_rules_from_json(json_file_path):
                 keyword_rules=rule_data.get('keyword_rules', []),
                 regex_rules=rule_data.get('regex_rules', [])
             )
+
+            # 打印以上参数
+            print(rule.rule_name, rule.logic_expression, rule.score_type, rule.score_value, rule.script_rules,
+                  rule.keyword_rules, rule.regex_rules)
+
             add_rule(rule)
             print(f"规则 '{rule.rule_name}' 已成功导入数据库。")
         except Exception as e:
             print(f"导入规则时发生错误：{e}")
 
 
-def fetch_rules(cursor, rule_name, query, rule_type):
-    """
-    从数据库中获取规则信息，并构造规则字典列表。
-    """
-    cursor.execute(query, (rule_name,))
-    if rule_type == "keyword":
-        # 处理关键词规则，关键词为逗号分隔的字符串转换为列表
-        return [{"keywords": keywords.split(','), "check_type": check_type, "n": n, "condition_id": condition_id} for
-                keywords, check_type, n, condition_id in cursor.fetchall()]
-    elif rule_type == "script":
-        # 处理脚本规则，确保scripts是一个列表
-        return [
-            {"scripts": scripts.split('|'), "similarity_threshold": similarity_threshold, "condition_id": condition_id}
-            for scripts, similarity_threshold, condition_id in cursor.fetchall()]
-    elif rule_type == "regex":
-        # 处理正则表达式规则
-        return [{"pattern": pattern, "condition_id": condition_id} for pattern, condition_id in cursor.fetchall()]
+def fetch_target_roles(cursor, rule_name):
+    cursor.execute("SELECT condition_id, target_role FROM target_role WHERE rule_name = ?", (rule_name,))
+    return {condition_id: target_role for condition_id, target_role in cursor.fetchall()}
 
 
 def export_rules_to_json(database_path, json_file_path):
@@ -561,25 +607,70 @@ def export_rules_to_json(database_path, json_file_path):
 
     exported_rules = {"rules": []}
 
-    queries = {
-        "script": "SELECT scripts, similarity_threshold, condition_id FROM script_rules WHERE rule_name = ?",
-        "keyword": "SELECT keywords, check_type, n, condition_id FROM keyword_rules WHERE rule_name = ?",
-        "regex": "SELECT pattern, condition_id FROM regex_rules WHERE rule_name = ?"
-    }
-
     for rule_name, logic_expression in rules_info:
-        score_type, score_value = cursor.execute("SELECT score_type, score_value FROM score_rules WHERE rule_name = ?",
-                                                 (rule_name,)).fetchone() or (None, None)
+        score_info = cursor.execute("SELECT score_type, score_value FROM score_rules WHERE rule_name = ?",
+                                    (rule_name,)).fetchone() or (None, None)
+        score_type, score_value = score_info if score_info else (None, None)
+
+        target_roles = fetch_target_roles(cursor, rule_name)
 
         rule_dict = {
             "rule_name": rule_name,
             "logic_expression": logic_expression,
             "score_type": score_type,
-            "score_value": score_value
+            "score_value": score_value,
+            "script_rules": [],
+            "keyword_rules": [],
+            "regex_rules": []
         }
 
-        for rule_type, query in queries.items():
-            rule_dict[f"{rule_type}_rules"] = fetch_rules(cursor, rule_name, query, rule_type)
+        # Script rules
+        cursor.execute("SELECT condition_id, scripts, similarity_threshold FROM script_rules WHERE rule_name = ?",
+                       (rule_name,))
+        temp_scripts = {}
+        for condition_id, scripts, similarity_threshold in cursor.fetchall():
+            scripts_list = scripts.split(',') if scripts else []
+            if condition_id not in temp_scripts:
+                temp_scripts[condition_id] = {
+                    "condition_id": condition_id,
+                    "scripts": scripts_list,
+                    "similarity_threshold": similarity_threshold,
+                    "target_role": target_roles.get(condition_id)
+                }
+            else:
+                temp_scripts[condition_id]["scripts"].extend(scripts_list)
+        rule_dict["script_rules"].extend(temp_scripts.values())
+
+        # Keyword rules
+        cursor.execute("SELECT condition_id, keywords, check_type, n FROM keyword_rules WHERE rule_name = ?",
+                       (rule_name,))
+        temp_keywords = {}
+        for condition_id, keywords, check_type, n in cursor.fetchall():
+            keywords_list = keywords.split(',') if keywords else []
+            if condition_id not in temp_keywords:
+                temp_keywords[condition_id] = {
+                    "condition_id": condition_id,
+                    "keywords": keywords_list,
+                    "check_type": check_type,
+                    "n": n,
+                    "target_role": target_roles.get(condition_id)
+                }
+            else:
+                temp_keywords[condition_id]["keywords"].extend(keywords_list)
+        rule_dict["keyword_rules"].extend(temp_keywords.values())
+
+        # Regex rules
+        cursor.execute("SELECT condition_id, pattern FROM regex_rules WHERE rule_name = ?", (rule_name,))
+        temp_regex = {}
+        for condition_id, pattern in cursor.fetchall():
+            if condition_id not in temp_regex:
+                temp_regex[condition_id] = {
+                    "condition_id": condition_id,
+                    "pattern": pattern,
+                    "target_role": target_roles.get(condition_id)
+                }
+            # Note: Assuming regex patterns don't need to be merged like scripts/keywords
+        rule_dict["regex_rules"].extend(temp_regex.values())
 
         exported_rules["rules"].append(rule_dict)
 

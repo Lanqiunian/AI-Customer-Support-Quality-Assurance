@@ -1,7 +1,7 @@
 import csv
 from datetime import datetime
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSortFilterProxyModel, QModelIndex
 from PyQt6.QtWidgets import QFileDialog, QAbstractItemView
 
 
@@ -154,3 +154,22 @@ def export_model_to_csv(model, parent):
         print(f"Data exported to {file_path}")
     else:
         print("Export cancelled.")
+
+
+class NumericSortProxyModel(QSortFilterProxyModel):
+    """
+    这个类用于定义一个可以比较字符串数字大小的托管模型，我的代码中在填入模型时不得不用str，而排序得用int，所以需要这个类。
+    """
+
+    def lessThan(self, left: QModelIndex, right: QModelIndex) -> bool:
+        leftData = self.sourceModel().data(left)
+        rightData = self.sourceModel().data(right)
+
+        # Attempt to convert string data to integers for comparison
+        try:
+            leftNumber = int(leftData)
+            rightNumber = int(rightData)
+            return leftNumber < rightNumber
+        except ValueError:
+            # Fall back to default string comparison if conversion fails
+            return leftData < rightData

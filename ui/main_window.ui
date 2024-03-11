@@ -1562,7 +1562,7 @@ color:rgb(120, 120, 120)</string>
         <normaloff>pic/save.png</normaloff>pic/save.png</iconset>
       </property>
      </widget>
-     <widget class="QPushButton" name="NewRuleButton">
+     <widget class="QPushButton" name="new_condition_Pushbutton">
       <property name="geometry">
        <rect>
         <x>270</x>
@@ -3402,7 +3402,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
   <tabstop>scrollArea_rule_edit</tabstop>
   <tabstop>treeWidget_3</tabstop>
   <tabstop>RuleManagerTableView</tabstop>
-  <tabstop>NewRuleButton</tabstop>
+  <tabstop>new_condition_Pushbutton</tabstop>
   <tabstop>save_rule_pushButton</tabstop>
   <tabstop>RuleNameEditText</tabstop>
  </tabstops>

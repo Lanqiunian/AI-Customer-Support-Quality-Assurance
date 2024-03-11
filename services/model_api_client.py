@@ -5,7 +5,7 @@ import openai
 from PyQt6.QtCore import pyqtSignal, QObject, QThread
 from bs4 import BeautifulSoup
 from gradio_client import Client
-from utils.global_utils import AI_PROMPT_RULES, AI_PROMPT_RULES_JSON_EXAMPLE
+from utils.global_utils import AI_PROMPT_RULES, AI_PROMPT_RULES_JSON_EXAMPLE, get_global_setting
 
 
 def convert_dataframe_to_single_string_dialog(df):
@@ -81,7 +81,7 @@ async def call_openai_api_async(dialogue, AI_prompt):
             response = await client.post(
                 "https://api.openai.com/v1/chat/completions",
                 headers={
-                    "Authorization": f"Bearer {API_KEY}",
+                    "Authorization": f"Bearer {get_global_setting().api_key}",
                     "Content-Type": "application/json",
                 },
                 json={
@@ -107,7 +107,8 @@ async def call_openai_api_async(dialogue, AI_prompt):
 async def get_ai_analysis_chatgpt(dialogue, AI_prompt=None):
     try:
         if not AI_prompt:
-            AI_prompt = DEFAULT_AI_PROMPT
+
+            AI_prompt = get_global_setting().default_ai_prompt
         else:
             AI_prompt = "作为一位客服对话分析专家，你的任务是:" + AI_prompt
 
@@ -126,7 +127,7 @@ async def call_openai_api_async_with_rules(AI_prompt):
             response = await client.post(
                 "https://api.openai.com/v1/chat/completions",
                 headers={
-                    "Authorization": f"Bearer {API_KEY}",
+                    "Authorization": f"Bearer {get_global_setting().api_key}",
                     "Content-Type": "application/json",
                 },
                 json={

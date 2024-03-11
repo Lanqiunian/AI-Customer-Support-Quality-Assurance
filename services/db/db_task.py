@@ -40,7 +40,7 @@ class Task:
                 # 评估每个对话
                 print(f"对话ID: {dialogue_id}")
 
-                self.scheme.scheme_evaluate(self.task_id, dialogue_id, extract_service_messages(dialogue_df),
+                self.scheme.scheme_evaluate(self.task_id, dialogue_id, dialogue_df,
                                             self.manually_check)
                 print(f"对话内容:\n{extract_service_messages(dialogue_df)}")
             print(f"数据集 '{dataset}' 处理完成。")

@@ -1,0 +1,34 @@
+{
+    "rules": [
+        {
+            "rule_name": "正面反馈提醒",
+            "logic_expression": "1 or 2",
+            "score_type": "1",
+            "score_value": 10,
+            "script_rules": [
+                {
+                    "condition_id": 1,
+                    "scripts": [
+                        "我爱你"
+                    ],
+                    "similarity_threshold": 0.4,
+                    "target_role": 1
+                }
+            ],
+            "keyword_rules": [
+                {
+                    "condition_id": 1,
+                    "keywords": [
+                        "非常好",
+                        "太棒了",
+                        "服务很好"
+                    ],
+                    "check_type": "any",
+                    "n": null,
+                    "target_role": 1
+                }
+            ],
+            "regex_rules": []
+        }
+    ]
+}
