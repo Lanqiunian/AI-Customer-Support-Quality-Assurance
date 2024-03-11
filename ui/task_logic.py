@@ -1,7 +1,8 @@
 import sqlite3
+import time
 from datetime import datetime
 
-from PyQt6.QtCore import Qt, QThread
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QColor, QFont, QBrush, QTextOption
 from PyQt6.QtWidgets import QTableView, QMessageBox, QTextEdit, QDialog, QVBoxLayout, QLabel
 
@@ -101,11 +102,11 @@ class TaskManager:
         self.main_window.task_tableView.verticalHeader().setVisible(False)
         autoResizeColumnsWithStretch(self.main_window.task_tableView)
 
-        # 断开之前的连接
-        try:
-            self.main_window.task_tableView.clicked.disconnect()
-        except Exception:
-            pass  # 如果之前没有连接，则忽略错误
+        # # 断开之前的连接
+        # try:
+        #     self.main_window.task_tableView.clicked.disconnect()
+        # except Exception:
+        #     pass  # 如果之前没有连接，则忽略错误
 
         # 重新连接信号
         self.main_window.task_tableView.clicked.connect(self.on_table_view_clicked)
@@ -113,6 +114,7 @@ class TaskManager:
         conn.close()
 
     def on_table_view_clicked(self, index):
+        print("点击了表格视图")
         try:
             if index.column() == 6:
                 task_id = self.model_setup_task_table_view.item(index.row(), 0).text()
@@ -464,7 +466,7 @@ class TaskManager:
             self.main_window.stackedWidget.setCurrentIndex(index)
             # 检查AI分析线程是否存在并且正在运行
             if self.thread_ongoing:
-                print(f"正在运行AI分析线程，请求终止...", hasattr(self, 'thread'))
+
                 if self.thread.isRunning():
                     self.waitingDialog = WaitingDialog(self.main_window)
                     self.waitingDialog.show()
@@ -538,7 +540,7 @@ class TaskManager:
     def setup_hit_rules_table_view(self, hit_rules=None):
         if hit_rules is None:
             hit_rules = []  # 确保hit_rules不为None，避免后续操作引发错误
-        print(f"命中规则ssssss：{hit_rules}")
+
         hit_rule_model = QStandardItemModel(len(hit_rules), 2)
         hit_rule_model.setHorizontalHeaderLabels(["命中规则", "评分效果"])
 
@@ -750,12 +752,20 @@ class TaskManager:
                 for dataset in selected_dataset:
                     new_task.append_dataset(dataset)
                 print(f"任务名称：{task_name}")
+                # 创建等待对话框
+                wait_dialog = WaitingDialog()
+                wait_dialog.show()
 
-                new_task.save_to_db()
+                # 使用 TaskThread 来执行耗时操作
+                self.task_thread = TaskThread(new_task, self)
+                self.task_thread.taskCompleted.connect(lambda: (wait_dialog.accept(),
+                                                                QMessageBox.information(self.main_window, "成功",
+                                                                                        "质检任务执行成功！"),
+                                                                self.taskCompleted()))  # 任务完成时的其他操作
+                self.task_thread.taskFailed.connect(lambda e: QMessageBox.critical(self.main_window, "错误", str(e)))
+                # 任务完成时的其他操作
+                self.task_thread.start()
 
-                print(f"任务描述：{task_description}")
-
-                new_task.process_task()
                 if manually_check == 1:
                     dialogue_count = get_dialogue_count_by_task_id(new_task.task_id)
                     print(f"需要人工复检,对话数：{dialogue_count}")
@@ -764,17 +774,19 @@ class TaskManager:
 
                 ##########################################################################
 
-                QMessageBox.information(self.main_window, "成功", "质检任务执行成功！")
 
-                self.main_window.stackedWidget.setCurrentIndex(3)
-                self.setup_task_table_view()
-                self.main_window.undo_check_manager.setup_undo_check_tableView()
-                self.step_of_create_task = 1
-                self.main_window.summary_manager.reset_summary()  # 重设一下概览界面的任务基本信息
             except Exception as e:
                 print(f"创建任务时发生错误：{e}")
                 raise
             return
+
+    def taskCompleted(self):
+        print("执行任务完成")
+        self.setup_task_table_view()
+        self.main_window.undo_check_manager.setup_undo_check_tableView()
+        self.step_of_create_task = 1
+        self.main_window.summary_manager.reset_summary()
+        self.main_window.stackedWidget.setCurrentIndex(3)  # 重设一下概览界面的任务基本信息
 
     def previous_step(self):
         if self.step_of_create_task == 2:
@@ -818,13 +830,11 @@ class WaitingDialog(QDialog):
 
     def initUI(self):
         self.setWindowTitle("请稍候")
-        layout = QVBoxLayout(self)  # 确保将布局与对话框关联
-        label = QLabel("正在等待AI分析结束...", self)  # 确保将标签与对话框关联
-        layout.addWidget(label)  # 将标签添加到布局
-        self.setLayout(layout)  # 将布局设置给对话框
-        # 设置为模态窗口，如果不希望用户与其他窗口交互
+        layout = QVBoxLayout(self)
+        label = QLabel("请稍后...", self)
+        layout.addWidget(label)
+        self.setLayout(layout)
         self.setModal(True)
-        # 自动调整大小以适应内容
         self.adjustSize()
 
 
@@ -875,3 +885,23 @@ class AppendHitRuleDialog(QDialog):
                 print(f"添加规则到方案时发生错误：{e}")
             # 假设有这样的函数可用
             self.accept()  # 关闭对话框
+
+
+class TaskThread(QThread):
+    taskCompleted = pyqtSignal()  # 任务完成时发出的信号
+    taskFailed = pyqtSignal(Exception)  # 任务失败时发出的信号
+
+    def __init__(self, task, Task_Manager):
+        super().__init__()
+        self.task = task
+        self.TaskManager = Task_Manager
+
+    def run(self):
+        try:
+            self.task.save_to_db()
+            self.task.process_task()
+
+            self.taskCompleted.emit()
+
+        except Exception as e:
+            self.taskFailed.emit(e)
