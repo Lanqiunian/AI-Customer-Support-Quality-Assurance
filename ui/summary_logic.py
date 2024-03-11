@@ -44,7 +44,7 @@ class SummaryManager:
         uncompleted_review_count = str(self.main_window.undo_check_manager.model_undo_check_table_view.rowCount())
         print(get_global_setting().user_name)
         user_name = get_global_setting().user_name
-        welcome = '欢迎回来！' + user_name + '，当前有' + uncompleted_review_count + '个待办任务☺️。'
+        welcome = '欢迎回来！' + user_name + '，当前有' + uncompleted_review_count + '个待办任务😘'
         self.main_window.welcome_label.setText(welcome)
 
     def setup_button_click_event(self):
@@ -57,7 +57,7 @@ class SummaryManager:
         go_check_pushButton,
         go_export_pushButton
         """
-
+        print('setup_button_click_event')
         try:
             self.main_window.go_check_commandLinkButton.clicked.disconnect()
             self.main_window.go_rule_pushButton.clicked.disconnect()
@@ -68,20 +68,20 @@ class SummaryManager:
         except TypeError:
             pass
 
-            self.main_window.go_check_commandLinkButton.clicked.connect(
-                lambda: self.main_window.stackedWidget.setCurrentIndex(5))
-            self.main_window.go_rule_pushButton.clicked.connect(
-                lambda: self.main_window.stackedWidget.setCurrentIndex(1))
-            self.main_window.go_scheme_pushButton.clicked.connect(
-                lambda: self.main_window.stackedWidget.setCurrentIndex(2))
-            self.main_window.go_task_pushButton.clicked.connect(
-                lambda: self.main_window.stackedWidget.setCurrentIndex(3))
-            self.main_window.go_check_pushButton.clicked.connect(
-                lambda: self.main_window.stackedWidget.setCurrentIndex(5))
-            self.main_window.go_export_pushButton.clicked.connect(
-                lambda: QMessageBox.information(self.main_window, '提示',
-                                                '导出报告，步骤为：\n质检任务→任务管理→查看→导出报告',
-                                                QMessageBox.StandardButton.Ok))
+        self.main_window.go_check_commandLinkButton.clicked.connect(
+            lambda: self.main_window.stackedWidget.setCurrentIndex(5))
+        self.main_window.go_rule_pushButton.clicked.connect(
+            lambda: self.main_window.stackedWidget.setCurrentIndex(1))
+        self.main_window.go_scheme_pushButton.clicked.connect(
+            lambda: self.main_window.stackedWidget.setCurrentIndex(2))
+        self.main_window.go_task_pushButton.clicked.connect(
+            lambda: self.main_window.stackedWidget.setCurrentIndex(3))
+        self.main_window.go_check_pushButton.clicked.connect(
+            lambda: self.main_window.stackedWidget.setCurrentIndex(5))
+        self.main_window.go_export_pushButton.clicked.connect(
+            lambda: QMessageBox.information(self.main_window, '提示',
+                                            '导出报告，步骤为：\n质检任务→任务管理→查看→导出报告',
+                                            QMessageBox.StandardButton.Ok))
 
     def setup_tableview_top5_hit_rules(self):
         # 连接到数据库
@@ -153,3 +153,4 @@ class SummaryManager:
         self.setup_summary_basic_info()
         self.setup_tableview_top5_hit_rules()
         self.setup_tableview_summary_service()
+        self.setup_button_click_event()

@@ -11,7 +11,7 @@ root_directory = os.path.dirname(current_directory)
 # 构建数据库文件的绝对路径
 RULE_DB_PATH = os.path.join(root_directory, 'repositories', 'rules.db')
 REPOSITORY_PATH = os.path.join(root_directory, 'repositories')
-DIALOGUE_DATA_PATH = os.path.join(root_directory, 'repositories', 'CT_dialogue.csv')
+DIALOGUE_DATA_PATH = os.path.join(root_directory, 'repositories', '中国电信数据集.csv')
 DIALOGUE_DB_PATH = os.path.join(root_directory, 'repositories', 'dialogue.db')
 SCHEME_DB_PATH = os.path.join(root_directory, 'repositories', 'scheme.db')
 DIMENSION_DB_PATH = os.path.join(root_directory, 'repositories', 'dimension.db')

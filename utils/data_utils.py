@@ -352,9 +352,10 @@ def analyzeResponseTime(service_id=None):
         # 从每个对话表中读取数据
         dialogue_query = f'SELECT * FROM "{table_name}"'
         dialogues = pd.read_sql_query(dialogue_query, conn_dialogue)
-
         for _, group in dialogues.groupby('对话ID'):
+
             if group['发送方'].nunique() == 2:
+
                 last_sender = None
                 last_time = None
                 for _, row in group.iterrows():
@@ -376,6 +377,7 @@ def analyzeResponseTime(service_id=None):
         # else:
         #     # print(f"全体平均回复时间（分钟）: {average_response_time}")
     else:
+
         print("没有足够的数据来计算平均回复时间。")
         average_response_time = None
 

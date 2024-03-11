@@ -70,16 +70,17 @@ class Scheme:
 
         base_score = 100  # 基础分
         hit_rules = []  # 用于存储命中的规则及其影响
-
+        print(f"1")
         for rule in self.rules:
+            print(rule)
             evaluation_result = query_rule(rule).evaluate(dialogue_df)
 
             if not evaluation_result:
                 continue  # 规则未命中
-
+            print(f"3")
             if isinstance(evaluation_result, tuple):
                 score_type, score_value = evaluation_result
-
+                print(f"4")
                 # 记录命中的规则及其影响
                 hit_rules.append((rule, score_value))
 

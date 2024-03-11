@@ -336,29 +336,29 @@ def delete_rule(rule_name):
 def query_rule(rule_name):
     conn = sqlite3.connect(RULE_DB_PATH)
     cursor = conn.cursor()
-
+    
     # 查询脚本规则，并根据condition_id分组
     cursor.execute('SELECT condition_id, scripts, similarity_threshold FROM script_rules WHERE rule_name = ?',
                    (rule_name,))
     script_rules_data = cursor.fetchall()
-
+    print(f"script_rules：", script_rules_data)
     # 查询关键词规则，并根据condition_id分组
     cursor.execute('SELECT condition_id, keywords, check_type, n FROM keyword_rules WHERE rule_name = ?', (rule_name,))
     keyword_rules_data = cursor.fetchall()
-
+    print(f"keyword_rules：", keyword_rules_data)
     # 查询正则表达式规则
     cursor.execute('SELECT condition_id, pattern FROM regex_rules WHERE rule_name = ?', (rule_name,))
     regex_rules_data = cursor.fetchall()
-
+    print(f"regex_rules：", regex_rules_data)
     # 查询评分规则
     cursor.execute('SELECT score_type, score_value FROM score_rules WHERE rule_name = ?', (rule_name,))
     score_data = cursor.fetchone()
     score_type, score_value = score_data if score_data else (None, None)
-
+    print(f"score_data：", score_data)
     # 查询逻辑表达式
     cursor.execute('SELECT logic_expression FROM rule_index WHERE rule_name = ?', (rule_name,))
     logic_expression = cursor.fetchone()[0]
-
+    print(f"logic_expression：", logic_expression)
     conn.close()
 
     # 构建 Rule 对象

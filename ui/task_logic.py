@@ -752,7 +752,9 @@ class TaskManager:
                 print(f"任务名称：{task_name}")
 
                 new_task.save_to_db()
+
                 print(f"任务描述：{task_description}")
+
                 new_task.process_task()
                 if manually_check == 1:
                     dialogue_count = get_dialogue_count_by_task_id(new_task.task_id)

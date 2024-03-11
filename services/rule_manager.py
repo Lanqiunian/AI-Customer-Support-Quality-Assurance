@@ -93,17 +93,21 @@ class Rule:
         })
 
     def evaluate(self, material_to_evaluate):
+        print(f"material_to_evaluate: {material_to_evaluate}")
         customer_material_to_evaluate = extract_customer_messages(material_to_evaluate)
         service_material_to_evaluate = extract_service_messages(material_to_evaluate)
-
+        print(f"customer_material_to_evaluate: {customer_material_to_evaluate}")
+        print(f"service_material_to_evaluate: {service_material_to_evaluate}")
         customer_material_to_evaluate_series = pd.Series(customer_material_to_evaluate)
         service_material_to_evaluate_series = pd.Series(service_material_to_evaluate)
         condition_results = {}  # 存储每个条件的匹配结果
 
         # 对每种规则类型进行评估，并存储结果
         for rule in (self.script_rules + self.keyword_rules + self.regex_rules):
+            print(f"11")
             if 'condition_id' not in rule or rule['condition_id'] is None:
                 continue
+            print(f"2222")
             condition_id = rule['condition_id']
             if rule in self.script_rules:
                 material_to_evaluate_series = service_material_to_evaluate_series if rule[

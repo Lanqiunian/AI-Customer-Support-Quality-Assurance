@@ -39,7 +39,7 @@
       <x>0</x>
       <y>30</y>
       <width>161</width>
-      <height>591</height>
+      <height>561</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -2919,7 +2919,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
         <x>20</x>
         <y>110</y>
         <width>451</width>
-        <height>471</height>
+        <height>451</height>
        </rect>
       </property>
       <property name="widgetResizable">
@@ -2931,7 +2931,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
          <x>0</x>
          <y>0</y>
          <width>449</width>
-         <height>469</height>
+         <height>449</height>
         </rect>
        </property>
        <widget class="QScrollArea" name="dialogue_scrollArea_2">
@@ -2940,7 +2940,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
           <x>0</x>
           <y>0</y>
           <width>481</width>
-          <height>481</height>
+          <height>451</height>
          </rect>
         </property>
         <property name="widgetResizable">
@@ -2952,7 +2952,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
            <x>0</x>
            <y>0</y>
            <width>479</width>
-           <height>479</height>
+           <height>449</height>
           </rect>
          </property>
         </widget>
@@ -2988,7 +2988,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
         <x>480</x>
         <y>340</y>
         <width>371</width>
-        <height>241</height>
+        <height>221</height>
        </rect>
       </property>
       <property name="widgetResizable">
@@ -3000,7 +3000,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
          <x>0</x>
          <y>0</y>
          <width>369</width>
-         <height>239</height>
+         <height>219</height>
         </rect>
        </property>
       </widget>

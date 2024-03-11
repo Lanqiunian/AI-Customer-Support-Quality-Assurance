@@ -42,7 +42,7 @@ class Task:
 
                 self.scheme.scheme_evaluate(self.task_id, dialogue_id, dialogue_df,
                                             self.manually_check)
-                print(f"对话内容:\n{extract_service_messages(dialogue_df)}")
+                
             print(f"数据集 '{dataset}' 处理完成。")
 
     def append_dataset(self, dataset):
