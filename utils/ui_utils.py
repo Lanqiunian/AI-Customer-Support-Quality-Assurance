@@ -1,8 +1,13 @@
 import csv
+import html
+import re
 from datetime import datetime
 
 from PyQt6.QtCore import Qt, QSortFilterProxyModel, QModelIndex
 from PyQt6.QtWidgets import QFileDialog, QAbstractItemView
+
+from services.db.db_dialogue_data import get_dialogue_by_datasetname_and_dialogueid
+from services.db.db_task import get_comment_by_task_id_and_dialogue_id
 
 
 def autoResizeColumnsWithStretch(tableViewWidget):
@@ -121,14 +126,31 @@ def user_select_save_file(parent, default_name=None):
     return file_path if file_path else None
 
 
-def export_model_to_csv(model, parent):
-    """
-    弹出文件保存对话框，让用户选择保存位置和文件名，然后将QStandardItemModel的内容导出为CSV文件。
+def convert_html_to_plain_text(html_content):
+    # 处理HTML实体
+    text = html.unescape(html_content)
 
-    Parameters:
-        model (QStandardItemModel): 要导出的模型。
-        parent: 传递父窗口对象，通常是你的主窗口或当前窗口。
-    """
+    # 去除<style>标签及其内容
+    text = re.sub(r'<style[^<]*?</style>', '', text, flags=re.DOTALL)
+
+    # 将<p>, <br>, 和列表标签转换为换行符
+    text = re.sub(r'(?i)<br\s*/?>', '\n', text)  # 处理<br>和<br/>
+    text = re.sub(r'(?i)</p>', '\n', text)  # 处理</p>
+    text = re.sub(r'(?i)<li>', '\n', text)  # 处理<li>
+    # 注意: 可能需要更多替换以处理其他需要保留换行的情况
+
+    # 去除其他HTML标签
+    text = re.sub('<[^<]+?>', '', text)
+
+    # 去除多余的空白字符，但保留换行
+    text = re.sub('[ \t]+', ' ', text)  # 替换多余的空格和制表符为单个空格
+    text = re.sub('(\n\s*)+\n', '\n\n', text)  # 压缩多个换行和空格为两个换行符
+
+    return text.strip()
+
+
+def export_model_to_csv(model, parent, task_id):
+    print("导出操作开始。")
     file_path = user_select_save_file(parent)  # 获取用户选择的文件路径
     if file_path:
         # 如果用户选择了文件路径，则执行导出操作
@@ -136,24 +158,45 @@ def export_model_to_csv(model, parent):
             import csv
             writer = csv.writer(file)
 
-            # 写入列标题
-            headers = [model.headerData(i, Qt.Orientation.Horizontal) for i in range(model.columnCount())]
+            # 写入列标题，忽略最后一列“操作”列，并添加"复检建议"列，以及“客服名”和“用户名”列
+            headers = [model.headerData(i, Qt.Orientation.Horizontal) for i in range(model.columnCount() - 1)]
+            # 在适当的位置插入新列标题
+            headers.insert(4, "客服ID")  # 假设要插入为第5列
+            headers.insert(5, "客户ID")  # 假设要插入为第6列
+            headers.append("复检建议")  # 添加复检建议列标题
             writer.writerow(headers)
 
             # 遍历模型中的所有行
             for row in range(model.rowCount()):
                 row_data = []
-                for column in range(model.columnCount()):
+                for column in range(model.columnCount() - 1):  # 忽略最后一列
                     item = model.item(row, column)
-                    # 检查项是否存在
                     if item is not None:
                         row_data.append(item.text())
                     else:
                         row_data.append('')
+
+                # 在适当的位置插入客服ID和客户ID
+                dialogue_id = model.item(row, 0).text()  # 假设对话ID位于第一列
+                dataset_name = model.item(row, 3).text()  # 假设所属数据集位于第四列，根据实际情况调整
+
+                dialogue_data = get_dialogue_by_datasetname_and_dialogueid(dataset_name, dialogue_id)
+                service = dialogue_data.loc[0, "客服ID"]
+                customer = dialogue_data.loc[0, "客户ID"]
+                row_data.insert(4, service)  # 在第5列插入客服ID
+                row_data.insert(5, customer)  # 在第6列插入客户ID
+
+                # 获取复检建议并添加到行数据
+                review_comment = get_comment_by_task_id_and_dialogue_id(task_id, dialogue_id)
+                review_comment = convert_html_to_plain_text(
+                    review_comment) if review_comment else "未给出复检建议"  # 如果返回None，则添加空字符串
+                row_data.append(review_comment)
+
                 writer.writerow(row_data)
-        print(f"Data exported to {file_path}")
+
+        print(f"数据已导出到 {file_path}")
     else:
-        print("Export cancelled.")
+        print("导出操作被取消。")
 
 
 class NumericSortProxyModel(QSortFilterProxyModel):

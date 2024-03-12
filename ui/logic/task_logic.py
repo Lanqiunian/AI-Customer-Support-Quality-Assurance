@@ -11,12 +11,13 @@ from services.db.db_scheme import update_score_by_HitRulesList
 from services.db.db_task import Task, delete_task, get_dialogue_count_by_task_id, get_average_score_by_task_id, \
     get_hit_times_by_task_id, get_hit_rate_by_task_id, remove_hit_rule, get_task_id_by_task_name, add_hit_rule, \
     get_score_by_task_id_and_dialogue_id, change_manual_check, get_manually_check_by_task_id_and_dialogue_id, \
-    change_manual_review_corrected_errors, get_AI_prompt_by_task_id
+    change_manual_review_corrected_errors, get_AI_prompt_by_task_id, insert_review_comment, check_review_exist
 from services.model_api_client import AIAnalysisWorker
 from ui.dialog_pick_a_rule import Ui_add_rule_to_scheme_Dialog
 from utils.ui_utils import autoResizeColumnsWithStretch, export_model_to_csv
 from utils.data_utils import text_to_list, get_score_info_by_name
-from utils.global_utils import TASK_DB_PATH, DIALOGUE_DB_PATH, SCHEME_DB_PATH, RULE_DB_PATH
+from utils.global_utils import TASK_DB_PATH, DIALOGUE_DB_PATH, SCHEME_DB_PATH, RULE_DB_PATH, app_config, \
+    get_global_setting
 
 
 class TaskManager:
@@ -293,8 +294,27 @@ class TaskManager:
         except Exception:
             pass  # 如果之前没有连接，则忽略错误
         self.main_window.export_task_report_pushButton.clicked.connect(
-            lambda: export_model_to_csv(self.model_task_detail_table_view, self.main_window))
+            lambda: export_model_to_csv(self.model_task_detail_table_view, self.main_window, task_id))
         self.main_window.task_detail_tableView_fixed.clicked.connect(self.on_clicked_dialogue_detail)
+
+    def on_click_save_new_comment(self, task_id, dataset_name, dialogue_id, new_comment):
+        try:
+            if self.main_window.ai_scrollArea.findChild(QTextEdit,
+                                                        "Review_Comment").toPlainText() == "正在加载AI分析结果，请稍候...":
+                QMessageBox.critical(self.main_window, "错误", "AI分析结果尚未加载完成，请稍后再试！")
+                return
+
+            insert_review_comment(task_id, dataset_name, dialogue_id, new_comment)
+            self.main_window.stackedWidget.setCurrentIndex(11)
+            self.setup_task_detail_table_view(task_id)
+            QMessageBox.information(self.main_window, "提示", "保存成功！")
+        except Exception as e:
+            print(f"保存新的审核建议时发生错误：{e}")
+
+    def on_click_regenerate_AI_pushButton(self, dialogue_data, AI_prompt):
+        print("重新生成AI建议")
+        self.display_ai_response(dialogue_data, AI_prompt)
+        self.main_window.regenerate_AI_pushButton.hide()
 
     def on_clicked_dialogue_detail(self, index):
         """
@@ -313,7 +333,23 @@ class TaskManager:
                 dataset_name = self.model_task_detail_table_view.item(index.row(), 3).text()
                 manually_check = get_manually_check_by_task_id_and_dialogue_id(get_task_id_by_task_name(task_name),
                                                                                dialogue_id)
+                self.main_window.regenerate_AI_pushButton.hide()
 
+                try:
+                    self.main_window.regenerate_AI_pushButton.clicked.disconnect()
+                    self.main_window.save_new_comment_pushButton.clicked.disconnect()
+                except Exception:
+                    pass
+                self.main_window.regenerate_AI_pushButton.clicked.connect(lambda:
+                                                                          self.on_click_regenerate_AI_pushButton(
+                                                                              dialogue_data, AI_prompt))
+                self.main_window.save_new_comment_pushButton.clicked.connect(lambda:
+                                                                             self.on_click_save_new_comment(
+                                                                                 get_task_id_by_task_name(task_name),
+                                                                                 dataset_name, dialogue_id,
+                                                                                 self.main_window.ai_scrollArea.findChild(
+                                                                                     QTextEdit,
+                                                                                     "Review_Comment").toHtml()))
                 self.main_window.manually_check_done_pushButton.hide()
                 if manually_check == "1":
                     self.main_window.manually_check_pushButton.show()
@@ -328,7 +364,11 @@ class TaskManager:
                 AI_prompt = get_AI_prompt_by_task_id(get_task_id_by_task_name(task_name))
                 print(f"AI_prompt: {AI_prompt}")
                 # 创建一个线程来执行AI分析
-                self.display_ai_response(dialogue_data, AI_prompt)
+                if check_review_exist(get_task_id_by_task_name(task_name), dialogue_id):
+                    self.update_ai_scroll_area(check_review_exist(get_task_id_by_task_name(task_name), dialogue_id))
+                    self.main_window.save_new_comment_pushButton.show()
+                else:
+                    self.display_ai_response(dialogue_data, AI_prompt)
 
                 # 获取命中规则详情
                 hit_rules = text_to_list(self.model_task_detail_table_view.item(index.row(), 6).text())
@@ -377,54 +417,80 @@ class TaskManager:
             print(f"点击对话详情时发生错误：{e}")
 
     def on_clicked_manually_check_done_pushButton(self, task_id, dialogue_id):
-
-        # 创建一个询问框
-        reply = QMessageBox.question(self.main_window, '是否完成人工复检?',
-                                     "此操作将会关闭人工复检功能，是否继续？",
-                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                                     QMessageBox.StandardButton.No)
-
-        if reply == QMessageBox.StandardButton.Yes:
-
-            self.main_window.manually_check_done_pushButton.hide(),
-            self.main_window.manually_check_pushButton.hide(),
-            # 设置为已被检查
-            change_manual_check(task_id, dialogue_id, 1),
-            self.main_window.manually_check_label.setText("否"),
-            # 重设相关显示
-            self.setup_task_detail_table_view(task_id),
-            self.main_window.undo_check_manager.setup_undo_check_tableView(),
-            self.main_window.summary_manager.reset_summary(),
-            try:
-                if not self.review_correction:
-                    # 如果人工复检时发现了错误，需要修改是否出错的状态，然后回复到原来的状态
-                    change_manual_review_corrected_errors(task_id, dialogue_id),
-                    self.review_correction = True
-
-                self.main_window.summary_manager.reset_summary()
-                self.main_window.undo_check_manager.setup_undo_check_tableView(),
-            except Exception as e:
-                print(f"完成人工复检时发生错误：{e}")
+        dataset_name = self.main_window.dataset_name_label.text()
+        try:
+            review_comment = self.main_window.ai_scrollArea.findChild(QTextEdit, "Review_Comment").toHtml()
+        except Exception as e:
+            print(f"获取审核建议时发生错误：{e}")
+            review_comment = ""
+        if self.main_window.ai_scrollArea.findChild(QTextEdit,
+                                                    "Review_Comment").toPlainText() == "正在加载AI分析结果，请稍候...":
+            QMessageBox.critical(self.main_window, "错误", "AI分析结果尚未加载完成，请稍后再试！")
+            return
+        print(f"toHtml()的结果为", self.main_window.ai_scrollArea.findChild(QTextEdit,
+                                                                            "Review_Comment").toHtml())
+        if get_global_setting().review_complete_inform == 0:
+            self.complete_review(task_id, dataset_name, dialogue_id, review_comment)
         else:
-            pass
+            # 创建一个询问框
+            reply = QMessageBox.question(self.main_window, '是否完成人工复检?',
+                                         "此操作将会关闭人工复检功能，是否继续？",
+                                         QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                         QMessageBox.StandardButton.No)
+
+            if reply == QMessageBox.StandardButton.Yes:
+
+                self.complete_review(task_id, dataset_name, dialogue_id, review_comment)
+            else:
+                pass
+
+    def complete_review(self, task_id, dataset_name, dialogue_id, review_comment):
+        self.main_window.manually_check_done_pushButton.hide()
+        self.main_window.manually_check_pushButton.hide()
+        # 设置为已被检查
+        change_manual_check(task_id, dialogue_id, 1)
+        self.main_window.manually_check_label.setText("否")
+        # 重设相关显示
+        self.setup_task_detail_table_view(task_id)
+        self.main_window.undo_check_manager.setup_undo_check_tableView()
+        self.main_window.summary_manager.reset_summary()
+        try:
+            insert_review_comment(task_id, dataset_name, dialogue_id, review_comment)
+        except Exception as e:
+            print(f"插入审核建议时发生错误：{e}")
+        try:
+            if not self.review_correction:
+                # 如果人工复检时发现了错误，需要修改是否出错的状态，然后回复到原来的状态
+                change_manual_review_corrected_errors(task_id, dialogue_id)
+                self.review_correction = True
+
+            self.main_window.summary_manager.reset_summary()
+            self.main_window.undo_check_manager.setup_undo_check_tableView()
+        except Exception as e:
+            print(f"完成人工复检时发生错误：{e}")
 
     def on_clicked_manually_check_pushButton(self):
-        # 创建一个询问框
-        reply = QMessageBox.question(self.main_window, '是否进行人工复检',
-                                     "进行人工复检，请编辑所命中的规则，然后单击“完成人工复检”。",
-                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                                     QMessageBox.StandardButton.No)
-
-        # 根据用户的选择进行操作
-        if reply == QMessageBox.StandardButton.Yes:
-            # 如果用户点击“是”，则显示按钮
-
+        # 检查是否在设置中关闭了开始人工复检提示
+        if get_global_setting().review_begin_inform == 0:
             self.main_window.manually_check_done_pushButton.show()
             self.main_window.manually_check_pushButton.hide()
             self.main_window.undo_check_manager.setup_undo_check_tableView()
         else:
-            # 如果用户点击“否”，则不做任何操作（或者根据需要执行其他操作）
-            pass
+            reply = QMessageBox.question(self.main_window, '是否进行人工复检',
+                                         "进行人工复检，请编辑所命中的规则，然后单击“完成人工复检”。",
+                                         QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                         QMessageBox.StandardButton.No)
+
+            # 根据用户的选择进行操作
+            if reply == QMessageBox.StandardButton.Yes:
+                # 如果用户点击“是”，则显示按钮
+
+                self.main_window.manually_check_done_pushButton.show()
+                self.main_window.manually_check_pushButton.hide()
+                self.main_window.undo_check_manager.setup_undo_check_tableView()
+            else:
+                # 如果用户点击“否”，则不做任何操作（或者根据需要执行其他操作）
+                pass
 
     def on_clicked_manually_remove_hit_rule(self, task_id, dialogue_id, hit_rules=None):
         # 获取当前选中的行对应的规则名称
@@ -483,6 +549,7 @@ class TaskManager:
     # 修改display_ai_response方法，每次都创建新的线程和工作对象
     def display_ai_response(self, dialogue_data, AI_prompt=None):
         # 初始化显示正在加载的文本
+
         loadingText = "正在加载AI分析结果，请稍候..."
         self.update_ai_scroll_area(loadingText)
 
@@ -500,7 +567,7 @@ class TaskManager:
         self.thread_ongoing = True
 
     def on_ai_thread_finished(self):
-        # 关闭等待对话框，如果它被打开了
+        # 关闭等待对话框
         if hasattr(self, 'waitingDialog'):
             self.waitingDialog.accept()
         # 清理线程和工作对象
@@ -508,22 +575,25 @@ class TaskManager:
         if hasattr(self, 'thread'):
             self.thread.deleteLater()
         self.thread_ongoing = False
+        # AI线程结束，显示刷新按钮
+        self.main_window.regenerate_AI_pushButton.show()
 
-    def update_ai_scroll_area(self, text):
+    def update_ai_scroll_area(self, html_content):
         # 直接使用QTextEdit来展示文本内容
         textEdit = QTextEdit(self.main_window.ai_scrollArea)
-        textEdit.setReadOnly(True)  # 设置为只读模式
+        textEdit.setObjectName("Review_Comment")
+        # textEdit.setReadOnly(True)  # 设置为只读模式
         textEdit.setWordWrapMode(QTextOption.WrapMode.WordWrap)  # 启用自动换行
-        textEdit.setText(text)  # 设置文本内容
+        textEdit.setHtml(html_content)  # 设置HTML富文本内容
 
         # 应用样式
         textEdit.setStyleSheet("""
             QTextEdit {
-                font-size: 16px;
+                font-size: 12px;
                 color: #333;
                 padding: 10px;
                 background-color: #f0f0f0;
-                border-radius: 10px;
+                border-radius: 5px;
             }
         """)
 
@@ -677,6 +747,7 @@ class TaskManager:
         self.main_window.choose_dataset_tableView.verticalHeader().setVisible(False)
         self.main_window.choose_dataset_tableView.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         self.main_window.choose_dataset_tableView.setSelectionMode(QTableView.SelectionMode.SingleSelection)
+        autoResizeColumnsWithStretch(self.main_window.choose_dataset_tableView)
 
         # 连接表格选中信号到槽函数
         self.main_window.choose_dataset_tableView.selectionModel().selectionChanged.connect(

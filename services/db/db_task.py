@@ -42,7 +42,7 @@ class Task:
 
                 self.scheme.scheme_evaluate(self.task_id, dialogue_id, dialogue_df,
                                             self.manually_check)
-                
+
             print(f"数据集 '{dataset}' 处理完成。")
 
     def append_dataset(self, dataset):
@@ -321,3 +321,57 @@ def get_review_statistics():
         f"review_count: {review_count}, review_completion_count: {review_completion_count}, review_mistake_count: {review_mistake_count}")
     # 返回结果
     return review_count, review_completion_count, review_mistake_count
+
+
+def insert_review_comment(task_id, dataset_name, dialogue_id, review_comment):
+    print(f"正在保存或更新任务ID为{task_id}，数据集名称为{dataset_name}，对话ID为{dialogue_id}的评价...")
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+
+    # 首先检查是否存在具有相同 dataset_name 和 dialogue_id 的记录
+    cursor.execute("SELECT * FROM analysis WHERE dataset_name = ? AND dialogue_id = ?",
+                   (dataset_name, dialogue_id))
+    exists = cursor.fetchone()
+
+    if exists:
+        # 如果存在，更新 review_comment
+        cursor.execute("UPDATE analysis SET review_comment = ?, task_id = ? WHERE dataset_name = ? AND dialogue_id = ?",
+                       (review_comment, task_id, dataset_name, dialogue_id))
+        print(f"任务ID为{task_id}，数据集名称为{dataset_name}，对话ID为{dialogue_id}的评价已更新。")
+    else:
+        # 如果不存在，插入新记录
+        cursor.execute("INSERT INTO analysis (task_id, dataset_name, dialogue_id, review_comment) VALUES (?, ?, ?, ?)",
+                       (task_id, dataset_name, dialogue_id, review_comment))
+        print(f"任务ID为{task_id}，数据集名称为{dataset_name}，对话ID为{dialogue_id}的评价已保存。")
+
+    conn.commit()
+    conn.close()
+
+
+def check_review_exist(task_id, dialogue_id):
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT review_comment FROM analysis WHERE task_id=? AND dialogue_id=?",
+                   (task_id, dialogue_id))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        print(f"已存在的评价", result[0])
+        return result[0]
+
+    else:
+        print("不存在的评价")
+        return False
+
+
+def get_comment_by_task_id_and_dialogue_id(task_id, dialogue_id):
+    conn = sqlite3.connect(TASK_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT review_comment FROM analysis WHERE task_id=? AND dialogue_id=?",
+                   (task_id, dialogue_id))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        return result[0]
+    else:
+        return None

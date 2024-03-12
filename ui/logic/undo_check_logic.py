@@ -2,9 +2,11 @@ import sqlite3
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont, QStandardItem, QStandardItemModel
+from PyQt6.QtWidgets import QTextEdit, QMessageBox
 
 from services.db.db_dialogue_data import get_dialogue_by_datasetname_and_dialogueid
-from services.db.db_task import get_manually_check_by_task_id_and_dialogue_id, get_AI_prompt_by_task_id
+from services.db.db_task import get_manually_check_by_task_id_and_dialogue_id, get_AI_prompt_by_task_id, \
+    get_task_id_by_task_name, insert_review_comment
 from utils.ui_utils import autoResizeColumnsWithStretch
 from utils.data_utils import text_to_list
 from utils.global_utils import TASK_DB_PATH
@@ -114,6 +116,20 @@ class UndoCheckManager:
         except Exception as e:
             print(f"加载需要人工复查的对话时发生错误：{e}")
 
+    def on_click_save_new_comment(self, task_id, dataset_name, dialogue_id, new_comment):
+        try:
+            if self.main_window.ai_scrollArea.findChild(QTextEdit,
+                                                        "Review_Comment").toPlainText() == "正在加载AI分析结果，请稍候...":
+                QMessageBox.critical(self.main_window, "错误", "AI分析结果尚未加载完成，请稍后再试！")
+                return
+
+            insert_review_comment(task_id, dataset_name, dialogue_id, new_comment)
+            self.main_window.stackedWidget.setCurrentIndex(11)
+            self.main_window.Task_Manager.setup_task_detail_table_view(task_id)
+            QMessageBox.information(self.main_window, "提示", "保存成功！")
+        except Exception as e:
+            print(f"保存新的审核建议时发生错误：{e}")
+
     def on_clicked_dialogue_detail(self, index):
         """
         展示对话的详细信息，包括对话文本、命中规则详情等
@@ -129,13 +145,30 @@ class UndoCheckManager:
                 task_name_item = self.model_undo_check_table_view.item(index.row(), 1)
                 data_name_item = self.model_undo_check_table_view.item(index.row(), 2)
                 dialogue_id_item = self.model_undo_check_table_view.item(index.row(), 4)
+                self.main_window.regenerate_AI_pushButton.hide()
 
                 # 获取对应的文本
                 task_id = task_id_item.text()
                 task_name = task_name_item.text()
                 data_name = data_name_item.text()
                 dialogue_id = dialogue_id_item.text()
-
+                try:
+                    self.main_window.regenerate_AI_pushButton.clicked.disconnect()
+                    self.main_window.save_new_comment_pushButton.clicked.disconnect()
+                except Exception:
+                    pass
+                self.main_window.regenerate_AI_pushButton.clicked.connect(lambda:
+                                                                          self.main_window.task_manager.
+                                                                          on_click_regenerate_AI_pushButton(
+                                                                              dialogue_data, AI_prompt))
+                self.main_window.save_new_comment_pushButton.clicked.connect(lambda:
+                                                                             self.
+                                                                             on_click_save_new_comment(
+                                                                                 get_task_id_by_task_name(task_name),
+                                                                                 data_name, dialogue_id,
+                                                                                 self.main_window.ai_scrollArea.findChild(
+                                                                                     QTextEdit,
+                                                                                     "Review_Comment").toHtml()))
                 # 根据任务ID和对话ID获取是否需要人工复查的状态
                 manually_check = get_manually_check_by_task_id_and_dialogue_id(task_id, dialogue_id)
                 self.main_window.manually_check_done_pushButton.hide()

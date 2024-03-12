@@ -22,10 +22,12 @@ GLOBAL_DB_PATH = os.path.join(root_directory, 'repositories', 'global.db')
 # 获取GLOBAL_DB_PATH中的参数
 
 class AppConfig:
-    def __init__(self, user_name, default_ai_prompt, api_key):
+    def __init__(self, user_name, default_ai_prompt, api_key, review_begin_inform, review_complete_inform):
         self.user_name = user_name
         self.default_ai_prompt = default_ai_prompt
         self.api_key = api_key
+        self.review_complete_inform = review_complete_inform
+        self.review_begin_inform = review_begin_inform
 
 
 def get_global_setting():

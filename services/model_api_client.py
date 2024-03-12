@@ -108,9 +108,9 @@ async def get_ai_analysis_chatgpt(dialogue, AI_prompt=None):
     try:
         if not AI_prompt:
 
-            AI_prompt = get_global_setting().default_ai_prompt
+            AI_prompt = get_global_setting().default_ai_prompt + "请以简单的HTML的形式排版你的回答"
         else:
-            AI_prompt = "作为一位客服对话分析专家，你的任务是:" + AI_prompt
+            AI_prompt = "作为一位客服对话分析专家，你的任务是:" + AI_prompt + "请以简单的HTML的形式排版你的回答"
 
         result = await call_openai_api_async(dialogue, AI_prompt)
         print(result)

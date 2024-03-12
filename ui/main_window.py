@@ -28,20 +28,28 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.treeWidget_3 = QtWidgets.QTreeWidget(parent=self.centralwidget)
         self.treeWidget_3.setGeometry(QtCore.QRect(0, 30, 161, 561))
-        self.treeWidget_3.setStyleSheet("QTreeView::item {\n"
-"    border-bottom: 1px solid #d6d6d6; /* Add a bottom border to each item */\n"
-"    padding: 5px; /* Add padding to make item taller */\n"
-"    background-color:transparent\n"
+        self.treeWidget_3.setStyleSheet("QTreeWidget {\n"
+"    border-radius: 10px; /* 圆润边缘 */\n"
+"    background-color: rgb(236, 236, 236);\n"
+"    border: 1px solid #d6d6d6; /* 添加边框以显示圆润效果 */\n"
+"}\n"
 "\n"
-" \n"
+"QTreeView::item {\n"
+"    border-bottom: 1px solid #d6d6d6; /* 为每个项目添加底部边框 */\n"
+"    padding: 5px; /* 为项目添加填充，使项目更高 */\n"
+"    background-color: rgb(236, 236, 236);\n"
+"    /* 可以考虑为项目添加轻微的圆润边缘，但要小心不要太大 */\n"
+"    border-radius: 5px;\n"
 "}\n"
-"QTreeView::header{\n"
-"background-color:transparent\n"
+"\n"
+"QTreeView::header {\n"
+"    background-color: rgb(236, 236, 236);\n"
+"    /* 为头部添加圆润边缘 */\n"
+"    border-radius: 10px;\n"
+"    /* 添加边框以更好地展示圆润效果，可根据需要调整 */\n"
+"    border-bottom: 1px solid #d6d6d6;\n"
 "}\n"
-"QTreeWidget {\n"
-"    background-color:transparent\n"
-"   \n"
-"}")
+"")
         self.treeWidget_3.setObjectName("treeWidget_3")
         font = QtGui.QFont()
         font.setBold(True)
@@ -79,7 +87,7 @@ class Ui_MainWindow(object):
         self.label.setText("")
         self.label.setObjectName("label")
         self.frame = QtWidgets.QFrame(parent=self.page)
-        self.frame.setGeometry(QtCore.QRect(20, 100, 481, 191))
+        self.frame.setGeometry(QtCore.QRect(10, 100, 491, 201))
         self.frame.setStyleSheet("QFrame#frame {\n"
 "    \n"
 "\n"
@@ -180,7 +188,7 @@ class Ui_MainWindow(object):
 "    }")
         self.top_5_hit_tableView.setObjectName("top_5_hit_tableView")
         self.frame_2 = QtWidgets.QFrame(parent=self.page)
-        self.frame_2.setGeometry(QtCore.QRect(20, 300, 481, 111))
+        self.frame_2.setGeometry(QtCore.QRect(10, 310, 491, 111))
         self.frame_2.setStyleSheet("QFrame#frame_2 {\n"
 "    \n"
 "\n"
@@ -233,7 +241,7 @@ class Ui_MainWindow(object):
         self.label_26.setStyleSheet("background-color: transparent;")
         self.label_26.setObjectName("label_26")
         self.frame_3 = QtWidgets.QFrame(parent=self.page)
-        self.frame_3.setGeometry(QtCore.QRect(20, 19, 481, 71))
+        self.frame_3.setGeometry(QtCore.QRect(10, 19, 491, 71))
         self.frame_3.setStyleSheet("QFrame#frame_3 {\n"
 "     padding: 5px; /* 内边距 */\n"
 "}\n"
@@ -247,7 +255,7 @@ class Ui_MainWindow(object):
 "font: 12pt \"微软雅黑\";")
         self.welcome_label.setObjectName("welcome_label")
         self.go_check_commandLinkButton = QtWidgets.QCommandLinkButton(parent=self.frame_3)
-        self.go_check_commandLinkButton.setGeometry(QtCore.QRect(350, 10, 121, 41))
+        self.go_check_commandLinkButton.setGeometry(QtCore.QRect(360, 15, 121, 41))
         self.go_check_commandLinkButton.setStyleSheet("")
         self.go_check_commandLinkButton.setObjectName("go_check_commandLinkButton")
         self.frame_4 = QtWidgets.QFrame(parent=self.page)
@@ -261,11 +269,11 @@ class Ui_MainWindow(object):
         self.frame_4.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame_4.setObjectName("frame_4")
         self.label_31 = QtWidgets.QLabel(parent=self.frame_4)
-        self.label_31.setGeometry(QtCore.QRect(10, 10, 101, 16))
+        self.label_31.setGeometry(QtCore.QRect(10, 10, 111, 16))
         self.label_31.setStyleSheet("background-color: transparent;")
         self.label_31.setObjectName("label_31")
         self.summary_service_tableView = QtWidgets.QTableView(parent=self.frame_4)
-        self.summary_service_tableView.setGeometry(QtCore.QRect(0, 30, 341, 361))
+        self.summary_service_tableView.setGeometry(QtCore.QRect(0, 30, 341, 371))
         self.summary_service_tableView.setStyleSheet("   QTableView {\n"
 "        background-color: transparent;\n"
 "        border: none;\n"
@@ -281,7 +289,7 @@ class Ui_MainWindow(object):
 "    }")
         self.summary_service_tableView.setObjectName("summary_service_tableView")
         self.frame_5 = QtWidgets.QFrame(parent=self.page)
-        self.frame_5.setGeometry(QtCore.QRect(20, 420, 831, 131))
+        self.frame_5.setGeometry(QtCore.QRect(10, 430, 841, 131))
         self.frame_5.setStyleSheet("QFrame#frame_5 {\n"
 "    \n"
 "\n"
@@ -334,13 +342,13 @@ class Ui_MainWindow(object):
 "color:rgb(120, 120, 120)")
         self.label_36.setObjectName("label_36")
         self.label_37 = QtWidgets.QLabel(parent=self.frame_5)
-        self.label_37.setGeometry(QtCore.QRect(160, 10, 221, 41))
+        self.label_37.setGeometry(QtCore.QRect(160, 10, 231, 41))
         self.label_37.setStyleSheet("background-color: transparent;\n"
 "\n"
 "color:rgb(120, 120, 120)")
         self.label_37.setObjectName("label_37")
         self.label_38 = QtWidgets.QLabel(parent=self.frame_5)
-        self.label_38.setGeometry(QtCore.QRect(320, 80, 211, 31))
+        self.label_38.setGeometry(QtCore.QRect(320, 80, 221, 31))
         self.label_38.setStyleSheet("background-color: transparent;\n"
 "\n"
 "color:rgb(120, 120, 120)")
@@ -394,12 +402,12 @@ class Ui_MainWindow(object):
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setObjectName("page_2")
         self.label_3 = QtWidgets.QLabel(parent=self.page_2)
-        self.label_3.setGeometry(QtCore.QRect(10, 20, 81, 16))
+        self.label_3.setGeometry(QtCore.QRect(10, 0, 81, 16))
         self.label_3.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
         self.label_3.setScaledContents(False)
         self.label_3.setObjectName("label_3")
         self.RuleManagerTableView = QtWidgets.QTableView(parent=self.page_2)
-        self.RuleManagerTableView.setGeometry(QtCore.QRect(0, 90, 851, 461))
+        self.RuleManagerTableView.setGeometry(QtCore.QRect(0, 90, 850, 470))
         self.RuleManagerTableView.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.RuleManagerTableView.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.NoSelection)
         self.RuleManagerTableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
@@ -410,19 +418,19 @@ class Ui_MainWindow(object):
         self.RuleManagerTableView.horizontalHeader().setCascadingSectionResizes(False)
         self.RuleManagerTableView.horizontalHeader().setStretchLastSection(True)
         self.AddRuleButton = QtWidgets.QPushButton(parent=self.page_2)
-        self.AddRuleButton.setGeometry(QtCore.QRect(0, 50, 81, 31))
+        self.AddRuleButton.setGeometry(QtCore.QRect(10, 50, 81, 31))
         icon6 = QtGui.QIcon()
         icon6.addPixmap(QtGui.QPixmap("pic/append.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.AddRuleButton.setIcon(icon6)
         self.AddRuleButton.setObjectName("AddRuleButton")
         self.import_rules_pushButton = QtWidgets.QPushButton(parent=self.page_2)
-        self.import_rules_pushButton.setGeometry(QtCore.QRect(770, 55, 81, 31))
+        self.import_rules_pushButton.setGeometry(QtCore.QRect(770, 50, 81, 31))
         icon7 = QtGui.QIcon()
         icon7.addPixmap(QtGui.QPixmap("pic/import.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.import_rules_pushButton.setIcon(icon7)
         self.import_rules_pushButton.setObjectName("import_rules_pushButton")
         self.export_rules_pushButton = QtWidgets.QPushButton(parent=self.page_2)
-        self.export_rules_pushButton.setGeometry(QtCore.QRect(770, 20, 81, 31))
+        self.export_rules_pushButton.setGeometry(QtCore.QRect(680, 50, 81, 31))
         self.export_rules_pushButton.setIcon(icon5)
         self.export_rules_pushButton.setObjectName("export_rules_pushButton")
         self.stackedWidget.addWidget(self.page_2)
@@ -432,7 +440,7 @@ class Ui_MainWindow(object):
         self.label_4.setGeometry(QtCore.QRect(10, 20, 151, 16))
         self.label_4.setObjectName("label_4")
         self.scheme_tableView = QtWidgets.QTableView(parent=self.page_3)
-        self.scheme_tableView.setGeometry(QtCore.QRect(10, 50, 841, 501))
+        self.scheme_tableView.setGeometry(QtCore.QRect(0, 50, 850, 511))
         self.scheme_tableView.setObjectName("scheme_tableView")
         self.new_scheme_pushButton = QtWidgets.QPushButton(parent=self.page_3)
         self.new_scheme_pushButton.setGeometry(QtCore.QRect(770, 10, 75, 31))
@@ -445,7 +453,7 @@ class Ui_MainWindow(object):
         self.label_5.setGeometry(QtCore.QRect(10, 10, 61, 16))
         self.label_5.setObjectName("label_5")
         self.task_tableView = QtWidgets.QTableView(parent=self.page_4)
-        self.task_tableView.setGeometry(QtCore.QRect(0, 60, 851, 491))
+        self.task_tableView.setGeometry(QtCore.QRect(0, 70, 850, 491))
         self.task_tableView.setObjectName("task_tableView")
         self.new_task_pushButton = QtWidgets.QPushButton(parent=self.page_4)
         self.new_task_pushButton.setGeometry(QtCore.QRect(750, 10, 91, 31))
@@ -455,10 +463,10 @@ class Ui_MainWindow(object):
         self.page_5 = QtWidgets.QWidget()
         self.page_5.setObjectName("page_5")
         self.label_6 = QtWidgets.QLabel(parent=self.page_5)
-        self.label_6.setGeometry(QtCore.QRect(0, 10, 71, 16))
+        self.label_6.setGeometry(QtCore.QRect(10, 0, 71, 16))
         self.label_6.setObjectName("label_6")
         self.DataSetManagerTableView = QtWidgets.QTableView(parent=self.page_5)
-        self.DataSetManagerTableView.setGeometry(QtCore.QRect(10, 50, 841, 501))
+        self.DataSetManagerTableView.setGeometry(QtCore.QRect(0, 50, 850, 501))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -474,7 +482,7 @@ class Ui_MainWindow(object):
         self.DataSetManagerTableView.horizontalHeader().setCascadingSectionResizes(False)
         self.DataSetManagerTableView.horizontalHeader().setStretchLastSection(True)
         self.new_dataset_pushButton = QtWidgets.QPushButton(parent=self.page_5)
-        self.new_dataset_pushButton.setGeometry(QtCore.QRect(750, 10, 91, 31))
+        self.new_dataset_pushButton.setGeometry(QtCore.QRect(760, 10, 91, 31))
         self.new_dataset_pushButton.setIcon(icon6)
         self.new_dataset_pushButton.setObjectName("new_dataset_pushButton")
         self.stackedWidget.addWidget(self.page_5)
@@ -484,7 +492,7 @@ class Ui_MainWindow(object):
         self.label_7.setGeometry(QtCore.QRect(10, 10, 141, 16))
         self.label_7.setObjectName("label_7")
         self.undo_check_tableView = QtWidgets.QTableView(parent=self.page_6)
-        self.undo_check_tableView.setGeometry(QtCore.QRect(10, 30, 651, 521))
+        self.undo_check_tableView.setGeometry(QtCore.QRect(0, 30, 661, 521))
         self.undo_check_tableView.setObjectName("undo_check_tableView")
         self.undo_check_tableView_fixed = QtWidgets.QTableView(parent=self.page_6)
         self.undo_check_tableView_fixed.setGeometry(QtCore.QRect(660, 30, 181, 511))
@@ -496,7 +504,7 @@ class Ui_MainWindow(object):
         self.label_8.setGeometry(QtCore.QRect(0, 0, 54, 16))
         self.label_8.setObjectName("label_8")
         self.frame_9 = QtWidgets.QFrame(parent=self.page_7)
-        self.frame_9.setGeometry(QtCore.QRect(0, 30, 841, 211))
+        self.frame_9.setGeometry(QtCore.QRect(0, 30, 851, 531))
         self.frame_9.setStyleSheet("QFrame#frame_9 {\n"
 "    background-color: rgb(236, 236, 236); \n"
 "    padding: 5px; /* 内边距 */\n"
@@ -513,7 +521,7 @@ class Ui_MainWindow(object):
         self.APIkey_lineEdit.setGeometry(QtCore.QRect(110, 60, 371, 21))
         self.APIkey_lineEdit.setObjectName("APIkey_lineEdit")
         self.setting_save_Pushbutton = QtWidgets.QPushButton(parent=self.frame_9)
-        self.setting_save_Pushbutton.setGeometry(QtCore.QRect(400, 170, 75, 24))
+        self.setting_save_Pushbutton.setGeometry(QtCore.QRect(400, 210, 75, 24))
         self.setting_save_Pushbutton.setObjectName("setting_save_Pushbutton")
         self.label_57 = QtWidgets.QLabel(parent=self.frame_9)
         self.label_57.setGeometry(QtCore.QRect(60, 30, 51, 20))
@@ -529,6 +537,19 @@ class Ui_MainWindow(object):
         self.user_name_lineEdit = QtWidgets.QLineEdit(parent=self.frame_9)
         self.user_name_lineEdit.setGeometry(QtCore.QRect(110, 30, 371, 21))
         self.user_name_lineEdit.setObjectName("user_name_lineEdit")
+        self.review_begin_inform_checkBox = QtWidgets.QCheckBox(parent=self.frame_9)
+        self.review_begin_inform_checkBox.setGeometry(QtCore.QRect(30, 170, 121, 20))
+        self.review_begin_inform_checkBox.setStyleSheet("background-color:transparent")
+        self.review_begin_inform_checkBox.setChecked(True)
+        self.review_begin_inform_checkBox.setTristate(False)
+        self.review_begin_inform_checkBox.setObjectName("review_begin_inform_checkBox")
+        self.review_complete_inform_checkBox = QtWidgets.QCheckBox(parent=self.frame_9)
+        self.review_complete_inform_checkBox.setGeometry(QtCore.QRect(210, 170, 121, 20))
+        self.review_complete_inform_checkBox.setAcceptDrops(False)
+        self.review_complete_inform_checkBox.setAutoFillBackground(False)
+        self.review_complete_inform_checkBox.setStyleSheet("background-color:transparent")
+        self.review_complete_inform_checkBox.setChecked(True)
+        self.review_complete_inform_checkBox.setObjectName("review_complete_inform_checkBox")
         self.stackedWidget.addWidget(self.page_7)
         self.page_8 = QtWidgets.QWidget()
         self.page_8.setObjectName("page_8")
@@ -694,7 +715,8 @@ class Ui_MainWindow(object):
         self.add_close_bracket.setStyleSheet("")
         self.add_close_bracket.setObjectName("add_close_bracket")
         self.toolButton_2 = QtWidgets.QToolButton(parent=self.frame_10)
-        self.toolButton_2.setGeometry(QtCore.QRect(0, 30, 21, 31))
+        self.toolButton_2.setGeometry(QtCore.QRect(0, 35, 21, 21))
+        self.toolButton_2.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.WhatsThisCursor))
         self.toolButton_2.setToolTipDuration(-1)
         self.toolButton_2.setStyleSheet("\n"
 "background-color:transparent")
@@ -752,7 +774,7 @@ class Ui_MainWindow(object):
         self.choose_dataset_tableView.setToolTip("")
         self.choose_dataset_tableView.setObjectName("choose_dataset_tableView")
         self.step_1_label = QtWidgets.QLabel(parent=self.page_10)
-        self.step_1_label.setGeometry(QtCore.QRect(80, 40, 181, 41))
+        self.step_1_label.setGeometry(QtCore.QRect(130, 40, 181, 41))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(24)
@@ -760,27 +782,27 @@ class Ui_MainWindow(object):
         self.step_1_label.setToolTipDuration(-1)
         self.step_1_label.setObjectName("step_1_label")
         self.label_16 = QtWidgets.QLabel(parent=self.page_10)
-        self.label_16.setGeometry(QtCore.QRect(250, 49, 61, 31))
+        self.label_16.setGeometry(QtCore.QRect(300, 49, 61, 31))
         font = QtGui.QFont()
         font.setPointSize(26)
         self.label_16.setFont(font)
         self.label_16.setObjectName("label_16")
         self.step_2_label = QtWidgets.QLabel(parent=self.page_10)
-        self.step_2_label.setGeometry(QtCore.QRect(340, 40, 161, 41))
+        self.step_2_label.setGeometry(QtCore.QRect(390, 40, 161, 41))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(24)
         self.step_2_label.setFont(font)
         self.step_2_label.setObjectName("step_2_label")
         self.step_3_label = QtWidgets.QLabel(parent=self.page_10)
-        self.step_3_label.setGeometry(QtCore.QRect(570, 40, 181, 41))
+        self.step_3_label.setGeometry(QtCore.QRect(620, 40, 181, 41))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(24)
         self.step_3_label.setFont(font)
         self.step_3_label.setObjectName("step_3_label")
         self.label_17 = QtWidgets.QLabel(parent=self.page_10)
-        self.label_17.setGeometry(QtCore.QRect(480, 49, 91, 31))
+        self.label_17.setGeometry(QtCore.QRect(530, 49, 91, 31))
         font = QtGui.QFont()
         font.setPointSize(26)
         self.label_17.setFont(font)
@@ -827,19 +849,19 @@ class Ui_MainWindow(object):
         self.manual_check_checkBox.setChecked(True)
         self.manual_check_checkBox.setObjectName("manual_check_checkBox")
         self.label_29 = QtWidgets.QLabel(parent=self.page_10)
-        self.label_29.setGeometry(QtCore.QRect(40, 40, 41, 41))
+        self.label_29.setGeometry(QtCore.QRect(90, 40, 41, 41))
         self.label_29.setText("")
         self.label_29.setPixmap(QtGui.QPixmap("pic/dataset.png"))
         self.label_29.setScaledContents(True)
         self.label_29.setObjectName("label_29")
         self.label_30 = QtWidgets.QLabel(parent=self.page_10)
-        self.label_30.setGeometry(QtCore.QRect(300, 40, 41, 41))
+        self.label_30.setGeometry(QtCore.QRect(350, 40, 41, 41))
         self.label_30.setText("")
         self.label_30.setPixmap(QtGui.QPixmap("pic/scheme.png"))
         self.label_30.setScaledContents(True)
         self.label_30.setObjectName("label_30")
         self.label_32 = QtWidgets.QLabel(parent=self.page_10)
-        self.label_32.setGeometry(QtCore.QRect(530, 40, 41, 41))
+        self.label_32.setGeometry(QtCore.QRect(580, 40, 41, 41))
         self.label_32.setText("")
         self.label_32.setPixmap(QtGui.QPixmap("pic/task.png"))
         self.label_32.setScaledContents(True)
@@ -939,11 +961,11 @@ class Ui_MainWindow(object):
         self.export_task_report_pushButton.setIcon(icon5)
         self.export_task_report_pushButton.setObjectName("export_task_report_pushButton")
         self.label_23 = QtWidgets.QLabel(parent=self.frame_6)
-        self.label_23.setGeometry(QtCore.QRect(510, 0, 71, 21))
+        self.label_23.setGeometry(QtCore.QRect(540, 0, 71, 21))
         self.label_23.setStyleSheet("background-color:transparent")
         self.label_23.setObjectName("label_23")
         self.display_AI_prompt_TextEdit = QtWidgets.QTextEdit(parent=self.frame_6)
-        self.display_AI_prompt_TextEdit.setGeometry(QtCore.QRect(460, 20, 201, 71))
+        self.display_AI_prompt_TextEdit.setGeometry(QtCore.QRect(480, 20, 201, 71))
         self.display_AI_prompt_TextEdit.setStyleSheet("QTextEdit#display_AI_prompt_TextEdit {\n"
 "    background-color: transparent;\n"
 "    border: 2px solid #cfcfcf; /* 调整为你希望的边框颜色 */\n"
@@ -961,7 +983,7 @@ class Ui_MainWindow(object):
         self.display_AI_prompt_TextEdit.setReadOnly(True)
         self.display_AI_prompt_TextEdit.setObjectName("display_AI_prompt_TextEdit")
         self.the_task_description_label = QtWidgets.QTextEdit(parent=self.frame_6)
-        self.the_task_description_label.setGeometry(QtCore.QRect(270, 20, 191, 71))
+        self.the_task_description_label.setGeometry(QtCore.QRect(270, 20, 201, 71))
         self.the_task_description_label.setStyleSheet("QTextEdit#the_task_description_label {\n"
 "    background-color: transparent;\n"
 "    border: 2px solid #cfcfcf; /* 调整为你希望的边框颜色 */\n"
@@ -1001,37 +1023,37 @@ class Ui_MainWindow(object):
         self.dialogue_scrollArea_2.setWidget(self.scrollAreaWidgetContents_3)
         self.dialogue_scrollArea.setWidget(self.scrollAreaWidgetContents_2)
         self.hit_rules_tableView = QtWidgets.QTableView(parent=self.page_12)
-        self.hit_rules_tableView.setGeometry(QtCore.QRect(480, 140, 371, 171))
+        self.hit_rules_tableView.setGeometry(QtCore.QRect(480, 130, 371, 171))
         self.hit_rules_tableView.setObjectName("hit_rules_tableView")
         self.back_to_task_detail_pushButton = QtWidgets.QPushButton(parent=self.page_12)
-        self.back_to_task_detail_pushButton.setGeometry(QtCore.QRect(0, 0, 31, 31))
+        self.back_to_task_detail_pushButton.setGeometry(QtCore.QRect(0, 5, 31, 25))
         self.back_to_task_detail_pushButton.setObjectName("back_to_task_detail_pushButton")
         self.ai_scrollArea = QtWidgets.QScrollArea(parent=self.page_12)
-        self.ai_scrollArea.setGeometry(QtCore.QRect(480, 340, 371, 221))
+        self.ai_scrollArea.setGeometry(QtCore.QRect(480, 330, 371, 231))
         self.ai_scrollArea.setWidgetResizable(True)
         self.ai_scrollArea.setObjectName("ai_scrollArea")
         self.scrollAreaWidgetContents_10 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_10.setGeometry(QtCore.QRect(0, 0, 369, 219))
+        self.scrollAreaWidgetContents_10.setGeometry(QtCore.QRect(0, 0, 369, 229))
         self.scrollAreaWidgetContents_10.setObjectName("scrollAreaWidgetContents_10")
         self.ai_scrollArea.setWidget(self.scrollAreaWidgetContents_10)
         self.label_119 = QtWidgets.QLabel(parent=self.page_12)
-        self.label_119.setGeometry(QtCore.QRect(480, 320, 51, 16))
+        self.label_119.setGeometry(QtCore.QRect(480, 310, 101, 16))
         self.label_119.setObjectName("label_119")
         self.label_120 = QtWidgets.QLabel(parent=self.page_12)
         self.label_120.setGeometry(QtCore.QRect(480, 110, 61, 16))
         self.label_120.setObjectName("label_120")
         self.manually_add_pushButton = QtWidgets.QPushButton(parent=self.page_12)
-        self.manually_add_pushButton.setGeometry(QtCore.QRect(640, 110, 101, 21))
+        self.manually_add_pushButton.setGeometry(QtCore.QRect(640, 105, 101, 21))
         self.manually_add_pushButton.setIcon(icon6)
         self.manually_add_pushButton.setObjectName("manually_add_pushButton")
         self.manually_remove_pushButton = QtWidgets.QPushButton(parent=self.page_12)
-        self.manually_remove_pushButton.setGeometry(QtCore.QRect(750, 110, 101, 21))
+        self.manually_remove_pushButton.setGeometry(QtCore.QRect(750, 105, 101, 21))
         icon12 = QtGui.QIcon()
         icon12.addPixmap(QtGui.QPixmap("pic/remove.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.manually_remove_pushButton.setIcon(icon12)
         self.manually_remove_pushButton.setObjectName("manually_remove_pushButton")
         self.frame_7 = QtWidgets.QFrame(parent=self.page_12)
-        self.frame_7.setGeometry(QtCore.QRect(20, 30, 821, 71))
+        self.frame_7.setGeometry(QtCore.QRect(20, 30, 831, 71))
         self.frame_7.setStyleSheet("QFrame#frame_7 {\n"
 "    \n"
 "\n"
@@ -1071,7 +1093,7 @@ class Ui_MainWindow(object):
         self.dialogue_id_label.setStyleSheet("background-color:transparent")
         self.dialogue_id_label.setObjectName("dialogue_id_label")
         self.dataset_name_label = QtWidgets.QLabel(parent=self.frame_7)
-        self.dataset_name_label.setGeometry(QtCore.QRect(180, 30, 61, 21))
+        self.dataset_name_label.setGeometry(QtCore.QRect(180, 30, 271, 21))
         self.dataset_name_label.setStyleSheet("background-color:transparent")
         self.dataset_name_label.setObjectName("dataset_name_label")
         self.label_20 = QtWidgets.QLabel(parent=self.frame_7)
@@ -1106,6 +1128,16 @@ class Ui_MainWindow(object):
         icon13.addPixmap(QtGui.QPixmap("pic/done.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.manually_check_done_pushButton.setIcon(icon13)
         self.manually_check_done_pushButton.setObjectName("manually_check_done_pushButton")
+        self.regenerate_AI_pushButton = QtWidgets.QPushButton(parent=self.page_12)
+        self.regenerate_AI_pushButton.setGeometry(QtCore.QRect(760, 305, 91, 24))
+        icon14 = QtGui.QIcon()
+        icon14.addPixmap(QtGui.QPixmap("pic/reset.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.regenerate_AI_pushButton.setIcon(icon14)
+        self.regenerate_AI_pushButton.setObjectName("regenerate_AI_pushButton")
+        self.save_new_comment_pushButton = QtWidgets.QPushButton(parent=self.page_12)
+        self.save_new_comment_pushButton.setGeometry(QtCore.QRect(640, 305, 111, 24))
+        self.save_new_comment_pushButton.setIcon(icon8)
+        self.save_new_comment_pushButton.setObjectName("save_new_comment_pushButton")
         self.stackedWidget.addWidget(self.page_12)
         self.close_button_label = QtWidgets.QLabel(parent=self.centralwidget)
         self.close_button_label.setGeometry(QtCore.QRect(984, 0, 31, 21))
@@ -1120,18 +1152,18 @@ class Ui_MainWindow(object):
         self.minimize_button_label.setFont(font)
         self.minimize_button_label.setObjectName("minimize_button_label")
         self.label_27 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_27.setGeometry(QtCore.QRect(0, 0, 21, 20))
+        self.label_27.setGeometry(QtCore.QRect(10, 5, 21, 20))
         self.label_27.setText("")
         self.label_27.setPixmap(QtGui.QPixmap("pic/smart.png"))
         self.label_27.setScaledContents(True)
         self.label_27.setObjectName("label_27")
         self.label_28 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_28.setGeometry(QtCore.QRect(25, 0, 91, 21))
+        self.label_28.setGeometry(QtCore.QRect(35, 5, 91, 21))
         self.label_28.setObjectName("label_28")
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.scrollArea_rule_edit, self.treeWidget_3)
         MainWindow.setTabOrder(self.treeWidget_3, self.RuleManagerTableView)
@@ -1204,10 +1236,12 @@ class Ui_MainWindow(object):
         self.new_dataset_pushButton.setText(_translate("MainWindow", "导入数据集"))
         self.label_7.setText(_translate("MainWindow", "待办任务-待人工审核"))
         self.label_8.setText(_translate("MainWindow", "系统管理"))
-        self.label_56.setText(_translate("MainWindow", "AI分析默认建议："))
+        self.label_56.setText(_translate("MainWindow", "默认AI分析建议："))
         self.setting_save_Pushbutton.setText(_translate("MainWindow", "保存"))
         self.label_57.setText(_translate("MainWindow", "用户名："))
         self.label_58.setText(_translate("MainWindow", "API-Key:"))
+        self.review_begin_inform_checkBox.setText(_translate("MainWindow", "人工复检开始提醒"))
+        self.review_complete_inform_checkBox.setText(_translate("MainWindow", "人工复检结束提醒"))
         self.label_9.setText(_translate("MainWindow", "规则编辑"))
         self.label_10.setText(_translate("MainWindow", "规则名称："))
         self.save_rule_pushButton.setText(_translate("MainWindow", "保存"))
@@ -1233,7 +1267,21 @@ class Ui_MainWindow(object):
         self.label_67.setText(_translate("MainWindow", "逻辑运算符："))
         self.logic_detect_label.setText(_translate("MainWindow", "提醒"))
         self.add_close_bracket.setText(_translate("MainWindow", "）"))
-        self.toolButton_2.setToolTip(_translate("MainWindow", "<html><head/><body><p>AI分析重点帮助您指导AI分析的侧重点、分析方式。</p><p>例如：&quot;请侧重于分析客服的营销意识。&quot;</p><p>或者：&quot;请分点陈述客服的问题&quot;</p></body></html>"))
+        self.toolButton_2.setToolTip(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"hr { height: 1px; border-width: 0; }\n"
+"li.unchecked::marker { content: \"\\2610\"; }\n"
+"li.checked::marker { content: \"\\2612\"; }\n"
+"</style></head><body style=\" font-family:\'Microsoft YaHei UI\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">逻辑表达式允许您灵活地定义规则条件之间的关系，以精确控制何时应触发特定的评估或操作。通过组合使用 <span style=\" font-family:\'Courier New\';\">AND</span>、<span style=\" font-family:\'Courier New\';\">OR</span> 和 <span style=\" font-family:\'Courier New\';\">NOT</span> 逻辑运算符，您可以创建复杂的条件组合，以精确匹配您的需求场景。</p>\n"
+"<ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\">\n"
+"<li style=\" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:700;\">AND</span>: 表示左右两端的条件必须同时满足。例如，<span style=\" font-family:\'Courier New\';\">1 AND 2</span> 表示条件1和条件2都必须为真时，整个表达式才为真。</li>\n"
+"<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:700;\">OR</span>: 表示只要连接的表达式中中有任意一个满足，整个表达式就为真。例如，<span style=\" font-family:\'Courier New\';\">1 OR 2</span> 表示条件1或条件2任意一个为真时，整个表达式就为真。</li>\n"
+"<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:700;\">NOT</span>: 表示对条件的结果取反。例如，<span style=\" font-family:\'Courier New\';\">NOT 1</span> 表示如果条件1不为真（即为假），整个表达式为真。</li>\n"
+"<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:700;\">数字：</span>表示对应条件序号的真值。例如：条件1用于判定客服是否使用了营销话术。若客服确实使用了，则1是真值为True的布尔值；否则，1是真值为False的布尔值。</li></ul>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">通过组合这些运算符，您可以构建出适用于各种场景的复杂逻辑判断。例如，<span style=\" font-family:\'Courier New\';\">(1 AND 2) OR (NOT 3)</span> 表示当条件1和条件2同时为真，或者条件3为假时，整个表达式为真。</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">请确保在填写逻辑表达式时，使用正确的条件编号，并且遵循逻辑运算的语法规则。这将是制定有效规则的关键。</p></body></html>"))
         self.label_11.setText(_translate("MainWindow", "方案编辑页面"))
         self.save_scheme_pushButton.setText(_translate("MainWindow", "保存方案"))
         self.delete_scheme_pushButton.setText(_translate("MainWindow", "删除方案"))
@@ -1282,7 +1330,7 @@ class Ui_MainWindow(object):
         self.label_23.setText(_translate("MainWindow", "AI分析策略"))
         self.label_19.setText(_translate("MainWindow", "对话详情"))
         self.back_to_task_detail_pushButton.setText(_translate("MainWindow", "←"))
-        self.label_119.setText(_translate("MainWindow", "AI分析"))
+        self.label_119.setText(_translate("MainWindow", "复检建议(AI分析)"))
         self.label_120.setText(_translate("MainWindow", "命中规则"))
         self.manually_add_pushButton.setText(_translate("MainWindow", "添加命中规则"))
         self.manually_remove_pushButton.setText(_translate("MainWindow", "移除命中规则"))
@@ -1300,6 +1348,8 @@ class Ui_MainWindow(object):
         self.score_label.setText(_translate("MainWindow", "100"))
         self.manually_check_pushButton.setText(_translate("MainWindow", "进行人工复检"))
         self.manually_check_done_pushButton.setText(_translate("MainWindow", "复检完成"))
+        self.regenerate_AI_pushButton.setText(_translate("MainWindow", "刷新AI建议"))
+        self.save_new_comment_pushButton.setText(_translate("MainWindow", "保存复检建议"))
         self.close_button_label.setText(_translate("MainWindow", "×"))
         self.minimize_button_label.setText(_translate("MainWindow", "-"))
         self.label_28.setText(_translate("MainWindow", "智能客服质检"))

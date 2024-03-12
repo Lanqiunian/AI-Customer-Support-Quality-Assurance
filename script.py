@@ -1,7 +1,7 @@
 import re
 import sqlite3
 
-from utils.global_utils import RULE_DB_PATH
+from utils.global_utils import RULE_DB_PATH, GLOBAL_DB_PATH, TASK_DB_PATH
 
 input_text = """
 客户ID,客服ID,消息内容,发送方,发送时间,对话ID
@@ -113,4 +113,14 @@ def replace_commas_in_message_content(text):
     return '\n'.join(processed_lines)  # Join the lines back together into a single string
 
 
-print(replace_commas_in_message_content(input_text))
+#
+# print(replace_commas_in_message_content(input_text))
+conn = sqlite3.connect(TASK_DB_PATH)
+cursor_task = conn.cursor()
+cursor_task.execute('''CREATE TABLE IF NOT EXISTS analysis (
+                        task_id INTEGER,
+                        dataset_name TEXT,
+                        dialogue_id TEXT,
+                        review_comment TEXT)''')
+conn.commit()
+conn.close()

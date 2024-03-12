@@ -113,6 +113,12 @@ def init_db():
                             impact TEXT,
                             FOREIGN KEY (dialogue_id) REFERENCES evaluation_results(dialogue_id),
                             FOREIGN KEY (task_id) REFERENCES tasks(id))''')  # 命中规则详情表
+    # 新建一个表，用于保存分析建议。
+    cursor_task.execute('''CREATE TABLE IF NOT EXISTS analysis (
+                            task_id INTEGER,
+                            dataset_name TEXT,
+                            dialogue_id TEXT,
+                            review_comment TEXT)''')
 
     conn_task.commit()
     conn_task.close()
@@ -122,15 +128,17 @@ def init_db():
     cursor_global.execute('''CREATE TABLE IF NOT EXISTS global (
                                 user_name TEXT,
                                 default_ai_prompt TEXT,
-                                API_KEY TEXT)''')
+                                API_KEY TEXT,
+                                review_begin_inform INTEGER,
+                                review_complete_inform INTEGER)''')
 
     cursor_global.execute('SELECT COUNT(*) FROM global')
     data_exists = cursor_global.fetchone()[0] > 0
 
     # 如果表是新创建的且没有数据，插入初始值
     if not data_exists:
-        cursor_global.execute('''INSERT INTO global (user_name, default_ai_prompt,API_KEY) VALUES ('admin', 
-        '作为一位客服对话分析专家，你的任务是:1.识别客服在对话中的表现问题，2.给出改善建议。','sk-1234567890')''')
+        cursor_global.execute('''INSERT INTO global (user_name, default_ai_prompt,API_KEY,review_begin_inform,review_complete_inform) VALUES ('admin', 
+        '作为一位客服对话分析专家，你的任务是:1.识别客服在对话中的表现问题，2.给出改善建议。','sk-1234567890',1,1)''')
 
     conn_global.commit()
     conn_global.close()
@@ -336,7 +344,7 @@ def delete_rule(rule_name):
 def query_rule(rule_name):
     conn = sqlite3.connect(RULE_DB_PATH)
     cursor = conn.cursor()
-    
+
     # 查询脚本规则，并根据condition_id分组
     cursor.execute('SELECT condition_id, scripts, similarity_threshold FROM script_rules WHERE rule_name = ?',
                    (rule_name,))
