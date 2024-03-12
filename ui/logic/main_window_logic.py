@@ -1,9 +1,9 @@
 # 导入PyQt和自动生成的UI类
 
 from PyQt6 import QtWidgets, QtCore, uic
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal, QPropertyAnimation
 from PyQt6.QtGui import QStandardItemModel
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextEdit, QLabel
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextEdit, QLabel, QGraphicsOpacityEffect
 
 from ui.logic.dataset_logic import DataSetManager
 from ui.logic.global_setting_logic import GlobalSettingPageLogic
@@ -156,17 +156,26 @@ class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # 假设“系统管理”对应 page_7
         self.treeWidget_3.topLevelItem(4).setData(0, QtCore.Qt.ItemDataRole.UserRole, 6)
 
-    def onTreeItemClicked(self, item, column):
-        # 检查项是否设置了数据
-        if item.data(0, QtCore.Qt.ItemDataRole.UserRole) is not None:
-            # 根据点击的项获取对应的页面索引
-            index = item.data(0, QtCore.Qt.ItemDataRole.UserRole)
-            if item.data(0, QtCore.Qt.ItemDataRole.UserRole) == 1:
-                # 每次回到质检规则配置页面都要重新设置一次，重新建立一次表格视图，因为重新保存后id会变
-                self.rule_manager.setupRuleManagerTableView()
+    def fadeWidgetIn(self, targetWidget):
+        # 创建一个遮罩widget覆盖目标widget
+        self.fadeEffect = QGraphicsOpacityEffect(targetWidget)
+        targetWidget.setGraphicsEffect(self.fadeEffect)
 
-                # 切换到相应的StackedWidget页面
+        self.fadeAnimation = QPropertyAnimation(self.fadeEffect, b"opacity")
+        self.fadeAnimation.setDuration(500)
+        self.fadeAnimation.setStartValue(0)
+        self.fadeAnimation.setEndValue(1)
+        self.fadeAnimation.start(QPropertyAnimation.DeletionPolicy.DeleteWhenStopped)
+
+    def onTreeItemClicked(self, item, column):
+        index = item.data(0, Qt.ItemDataRole.UserRole)
+        if index is not None:
+            # 设置新页面为当前页面
             self.stackedWidget.setCurrentIndex(index)
+
+            # 获取当前页面并应用淡入动画
+            currentPage = self.stackedWidget.currentWidget()
+            self.fadeWidgetIn(currentPage)
 
 
 class ClickableLabel(QLabel):

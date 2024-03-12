@@ -259,7 +259,7 @@ class Ui_MainWindow(object):
         self.go_check_commandLinkButton.setStyleSheet("")
         self.go_check_commandLinkButton.setObjectName("go_check_commandLinkButton")
         self.frame_4 = QtWidgets.QFrame(parent=self.page)
-        self.frame_4.setGeometry(QtCore.QRect(510, 20, 341, 391))
+        self.frame_4.setGeometry(QtCore.QRect(510, 20, 341, 401))
         self.frame_4.setStyleSheet("QFrame#frame_4 {\n"
 "    background-color: rgb(236, 236, 236); \n"
 "    padding: 5px; /* 内边距 */\n"
@@ -568,7 +568,7 @@ class Ui_MainWindow(object):
         self.scrollArea_rule_edit.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.scrollArea_rule_edit.setObjectName("scrollArea_rule_edit")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 829, 16))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 98, 16))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -1163,7 +1163,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.scrollArea_rule_edit, self.treeWidget_3)
         MainWindow.setTabOrder(self.treeWidget_3, self.RuleManagerTableView)

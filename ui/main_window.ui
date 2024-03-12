@@ -161,7 +161,7 @@ QTreeView::header {
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="page">
      <widget class="QLabel" name="label">
@@ -655,7 +655,7 @@ font: 12pt &quot;微软雅黑&quot;;</string>
         <x>510</x>
         <y>20</y>
         <width>341</width>
-        <height>391</height>
+        <height>401</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -1562,7 +1562,7 @@ color:rgb(120, 120, 120)</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>829</width>
+         <width>98</width>
          <height>16</height>
         </rect>
        </property>
