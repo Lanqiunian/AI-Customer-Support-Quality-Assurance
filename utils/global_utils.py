@@ -1,6 +1,29 @@
 import os
 import sqlite3
+import os
 import sys
+from pathlib import Path
+
+
+def get_database_path(db_name):
+    # 获取用户的AppData目录
+    app_data_path = Path(os.getenv('APPDATA'))
+    # 指定你的应用程序特定的子目录
+    app_dir = app_data_path / 'AI Customer Support Quality Assurance'
+    print(f"app_dir", app_dir)
+    # 如果目录不存在，则创建它
+    app_dir.mkdir(parents=True, exist_ok=True)
+    # 返回数据库文件的完整路径
+    return app_dir / db_name
+
+
+# 使用新的方法获取数据库路径
+RULE_DB_PATH = get_database_path('rules.db')
+DIALOGUE_DB_PATH = get_database_path('dialogue.db')
+SCHEME_DB_PATH = get_database_path('scheme.db')
+DIMENSION_DB_PATH = get_database_path('dimension.db')
+TASK_DB_PATH = get_database_path('task.db')
+GLOBAL_DB_PATH = get_database_path('global.db')
 
 
 def resource_path(relative_path):
@@ -14,14 +37,6 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-# 直接使用 resource_path 构建资源文件的路径
-RULE_DB_PATH = resource_path('repositories/rules.db')
-REPOSITORY_PATH = resource_path('repositories')
-DIALOGUE_DB_PATH = resource_path('repositories/dialogue.db')
-SCHEME_DB_PATH = resource_path('repositories/scheme.db')
-DIMENSION_DB_PATH = resource_path('repositories/dimension.db')
-TASK_DB_PATH = resource_path('repositories/task.db')
-GLOBAL_DB_PATH = resource_path('repositories/global.db')
 UI_PATH = resource_path('ui/main_window.ui')
 
 
