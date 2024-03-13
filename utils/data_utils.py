@@ -17,33 +17,6 @@ def load_stopwords(file_path):
     return stopwords
 
 
-def chinese_tokenization(dataframe, column_name='消息内容', stopwords_path='stopwords.txt'):
-    """
-    对指定Df中的消息内容，进行分词以及滤除停用词
-
-    后期可能得改一下，直接传消息内容
-    :param dataframe: 指定df
-    :param column_name: 选取消息内容这一列
-    :param stopwords_path: 停用词列表
-    :return:
-    """
-    # 加载停用词表
-    stopwords = load_stopwords(stopwords_path)
-
-    # 定义一个用于匹配非中文字符的正则表达式
-    pattern = re.compile(r'[^\u4e00-\u9fff]')
-
-    # 筛选出发送方为0（客服）的行
-    service_messages = dataframe[dataframe['发送方'] == 0]
-
-    # 对每条消息进行中文分词、滤除停用词和非中文字符
-    tokenized_messages = service_messages[column_name].apply(
-        lambda x: ' '.join([word for word in jieba.cut(x) if word not in stopwords and not pattern.search(word)])
-    )
-
-    return tokenized_messages
-
-
 def generate_html(dialogue_df):
     dialogue_html = []
     for index, row in dialogue_df.iterrows():

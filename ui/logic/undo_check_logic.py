@@ -158,8 +158,7 @@ class UndoCheckManager:
                 except Exception:
                     pass
                 self.main_window.regenerate_AI_pushButton.clicked.connect(lambda:
-                                                                          self.main_window.task_manager.
-                                                                          on_click_regenerate_AI_pushButton(
+                                                                          self.on_click_regenerate_AI_comment(
                                                                               dialogue_data, AI_prompt))
                 self.main_window.save_new_comment_pushButton.clicked.connect(lambda:
                                                                              self.
@@ -240,6 +239,19 @@ class UndoCheckManager:
 
         except Exception as e:
             print(f"从待办任务点击对话详情时发生错误：{e}")
+
+    def on_click_regenerate_AI_comment(self, dialogue_data, AI_prompt):
+        """
+        重新生成AI分析结果
+        :param dialogue_data: 对话数据
+        :param AI_prompt: AI提示
+        :return: None
+        """
+        print("审核界面：重新生成AI分析结果")
+        try:
+            self.main_window.Task_Manager.display_ai_response(dialogue_data, AI_prompt)
+        except Exception as e:
+            print(f"重新生成AI分析结果时发生错误：{e}")
 
     def on_clicked_back_to_undo(self):
         """

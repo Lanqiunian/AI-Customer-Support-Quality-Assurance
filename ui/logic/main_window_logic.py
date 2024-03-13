@@ -14,6 +14,7 @@ from ui.logic.summary_logic import SummaryManager
 from ui.logic.task_logic import TaskManager
 from ui.logic.undo_check_logic import UndoCheckManager
 from utils.data_utils import generate_html
+from utils.global_utils import UI_PATH
 
 
 class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -24,7 +25,7 @@ class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self._drag_pos = None
 
         # 将close_button_label转换为可点击的
-        uic.loadUi("ui/main_window.ui", self)
+        uic.loadUi(UI_PATH, self)
         # 获取当前窗口的初始尺寸
         initialSize = self.size()
 

@@ -1,22 +1,32 @@
 import os
 import sqlite3
 
-# 获取当前正在执行的脚本的绝对路径
-current_script_path = os.path.abspath(__file__)
-# 获取当前脚本所在的目录
-current_directory = os.path.dirname(current_script_path)
-# 回溯到项目根目录（假设 utils 目录在项目根目录下）
-root_directory = os.path.dirname(current_directory)
+import sys
 
-# 构建数据库文件的绝对路径
-RULE_DB_PATH = os.path.join(root_directory, 'repositories', 'rules.db')
-REPOSITORY_PATH = os.path.join(root_directory, 'repositories')
-DIALOGUE_DATA_PATH = os.path.join(root_directory, 'repositories', '中国电信数据集.csv')
-DIALOGUE_DB_PATH = os.path.join(root_directory, 'repositories', 'dialogue.db')
-SCHEME_DB_PATH = os.path.join(root_directory, 'repositories', 'scheme.db')
-DIMENSION_DB_PATH = os.path.join(root_directory, 'repositories', 'dimension.db')
-TASK_DB_PATH = os.path.join(root_directory, 'repositories', 'task.db')
-GLOBAL_DB_PATH = os.path.join(root_directory, 'repositories', 'global.db')
+import os
+import sys
+
+
+def resource_path(relative_path):
+    """ 获取资源的绝对路径。用于访问打包环境中的资源文件。"""
+    try:
+        # PyInstaller创建的临时文件夹中的路径
+        base_path = sys._MEIPASS
+    except Exception:
+        # 如果没有打包，使用当前文件的相对路径
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+
+# 直接使用 resource_path 构建资源文件的路径
+RULE_DB_PATH = resource_path('repositories/rules.db')
+REPOSITORY_PATH = resource_path('repositories')
+DIALOGUE_DB_PATH = resource_path('repositories/dialogue.db')
+SCHEME_DB_PATH = resource_path('repositories/scheme.db')
+DIMENSION_DB_PATH = resource_path('repositories/dimension.db')
+TASK_DB_PATH = resource_path('repositories/task.db')
+GLOBAL_DB_PATH = resource_path('repositories/global.db')
+UI_PATH = resource_path('ui/main_window.ui')
 
 
 # 获取GLOBAL_DB_PATH中的参数

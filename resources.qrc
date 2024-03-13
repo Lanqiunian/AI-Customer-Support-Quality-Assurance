@@ -1,0 +1,28 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/images">
+        <file alias="ai">ui/pic/AI.png</file>
+        <file alias="append">ui/pic/append.png</file>
+        <file alias="arrow">ui/pic/arrow.png</file>
+        <file alias="create_rule">ui/pic/create_rule.png</file>
+        <file alias="create_scheme">ui/pic/create_scheme.png</file>
+        <file alias="dataset">ui/pic/dataset.png</file>
+        <file alias="delete">ui/pic/delete.png</file>
+        <file alias="done">ui/pic/done.png</file>
+        <file alias="export">ui/pic/export.png</file>
+        <file alias="generate">ui/pic/generate.png</file>
+        <file alias="help">ui/pic/help.png</file>
+        <file alias="import">ui/pic/import.png</file>
+        <file alias="logic">ui/pic/logic.png</file>
+        <file alias="manually_check">ui/pic/manually_check.png</file>
+        <file alias="next">ui/pic/next.png</file>
+        <file alias="previous">ui/pic/previous.png</file>
+        <file alias="process_task">ui/pic/process_task.png</file>
+        <file alias="remove">ui/pic/remove.png</file>
+        <file alias="reset">ui/pic/reset.png</file>
+        <file alias="save">ui/pic/save.png</file>
+        <file alias="scheme">ui/pic/scheme.png</file>
+        <file alias="smart">ui/pic/smart.png</file>
+        <file alias="task">ui/pic/task.png</file>
+    </qresource>
+</RCC>

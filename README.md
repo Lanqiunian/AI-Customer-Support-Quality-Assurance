@@ -28,7 +28,7 @@
    git clone https://github.com/Lanqiunian/AI-Customer-Support-Quality-Assurance/tree/master
 2. 安装依赖：
 
-   进入项目目录，并使用pip安装所需依赖（requirements.txt暂未发布）。
+   进入项目目录，并使用pip安装所需依赖。
 
     ```bash
     cd AI-Customer-Support-Quality-Assurance
@@ -37,6 +37,19 @@
 
     ```bash
     python main.py
+    ```
+
+## 打包成可执行文件
+
+1. 安装PyInstaller
+
+    ```bash
+    pip install pyinstaller
+    ```
+2. 打包
+
+    ```bash
+   pyinstaller --noconfirm --onedir --windowed --name 智能客服质检 --ico=repositories/icon.ico --add-data "repositories/global.db;repositories" --add-data "ui/main_window.ui;ui" main.py
     ```
 
 ## 使用说明

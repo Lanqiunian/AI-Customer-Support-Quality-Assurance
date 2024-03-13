@@ -311,7 +311,7 @@ class RuleManager:
         # 将代理模型设置到 RuleManagerTableView
         self.main_window.RuleManagerTableView.setModel(self.proxyModel)
         self.main_window.RuleManagerTableView.verticalHeader().setVisible(False)
-        autoResizeColumnsWithStretch(self.main_window.RuleManagerTableView)
+        # autoResizeColumnsWithStretch(self.main_window.RuleManagerTableView)
 
         # 连接信号和槽
         self.main_window.AddRuleButton.clicked.connect(self.AddRule)
@@ -329,6 +329,15 @@ class RuleManager:
 
         # 在这里添加实例数据
         self.loadRuleFromDB()
+        for column in range(3):
+            # 根据内容自动调整列宽
+            self.main_window.RuleManagerTableView.resizeColumnToContents(column)
+
+            # 获取当前列宽
+            currentWidth = self.main_window.RuleManagerTableView.columnWidth(column)
+
+            # 给当前列宽加上额外的宽度
+            self.main_window.RuleManagerTableView.setColumnWidth(column, currentWidth + 20)
 
     def AddRule(self):
         self.rule_editing_clear()
@@ -406,6 +415,8 @@ class RuleManager:
             # 创建规则 ID 项
             id_item = QStandardItem(str(rule_id))
             id_item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)  # 设置为不可编辑但可选
+            # 设置居中
+            id_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
             # 创建规则名称项
             name_item = QStandardItem(rule_name)

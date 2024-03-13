@@ -18,7 +18,9 @@ def autoResizeColumnsWithStretch(tableViewWidget):
     tableViewWidget.resizeColumnsToContents()  # 首先进行自适应宽度调整
     # 隐藏垂直表头
     tableViewWidget.verticalHeader().hide()
-    extraSpace = 25  # 额外增加的宽度，可根据实际情况调整
+    extraSpace = 35  # 额外增加的宽度，可根据实际情况调整
+    # 设置表头文字居中
+    tableViewWidget.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignCenter)
 
     # 遍历每一列（除了最后一列），在自适应宽度的基础上增加额外宽度
     for column in range(tableViewWidget.model().columnCount() - 1):

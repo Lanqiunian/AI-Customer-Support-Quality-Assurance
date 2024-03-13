@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1019</width>
-    <height>596</height>
+    <width>1027</width>
+    <height>598</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,8 +26,8 @@
    <string>智能客服质检</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>pic/smart.png</normaloff>pic/smart.png</iconset>
+   <iconset resource="../resources.qrc">
+    <normaloff>:/images/smart</normaloff>:/images/smart</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -136,7 +136,7 @@ QTreeView::header {
    <widget class="QStackedWidget" name="stackedWidget">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>170</x>
       <y>30</y>
       <width>861</width>
       <height>591</height>
@@ -753,8 +753,8 @@ font: 12pt &quot;微软雅黑&quot;;</string>
         <string>编辑规则</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>pic/create_rule.png</normaloff>pic/create_rule.png</iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/images/create_rule</normaloff>:/images/create_rule</iconset>
        </property>
       </widget>
       <widget class="QPushButton" name="go_scheme_pushButton">
@@ -773,8 +773,8 @@ font: 12pt &quot;微软雅黑&quot;;</string>
         <string>创建方案</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>pic/create_scheme.png</normaloff>pic/create_scheme.png</iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/images/create_scheme</normaloff>:/images/create_scheme</iconset>
        </property>
       </widget>
       <widget class="QPushButton" name="go_task_pushButton">
@@ -793,8 +793,8 @@ font: 12pt &quot;微软雅黑&quot;;</string>
         <string>创建任务</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>pic/process_task.png</normaloff>pic/process_task.png</iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/images/process_task</normaloff>:/images/process_task</iconset>
        </property>
       </widget>
       <widget class="QPushButton" name="go_check_pushButton">
@@ -813,8 +813,8 @@ font: 12pt &quot;微软雅黑&quot;;</string>
         <string>人工复检</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>pic/manually_check.png</normaloff>pic/manually_check.png</iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/images/manually_check</normaloff>:/images/manually_check</iconset>
        </property>
       </widget>
       <widget class="QPushButton" name="go_export_pushButton">
@@ -833,8 +833,8 @@ font: 12pt &quot;微软雅黑&quot;;</string>
         <string>导出报告</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>pic/export.png</normaloff>pic/export.png</iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/images/export</normaloff>:/images/export</iconset>
        </property>
       </widget>
       <widget class="QLabel" name="label_36">
@@ -965,7 +965,7 @@ color:rgb(120, 120, 120)</string>
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap>pic/arrow.png</pixmap>
+        <pixmap resource="../resources.qrc">:/images/arrow</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -987,7 +987,7 @@ color:rgb(120, 120, 120)</string>
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap>pic/arrow.png</pixmap>
+        <pixmap resource="../resources.qrc">:/images/arrow</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -1009,7 +1009,7 @@ color:rgb(120, 120, 120)</string>
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap>pic/arrow.png</pixmap>
+        <pixmap resource="../resources.qrc">:/images/arrow</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -1032,7 +1032,7 @@ color:rgb(120, 120, 120)</string>
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap>pic/arrow.png</pixmap>
+        <pixmap resource="../resources.qrc">:/images/arrow</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -1110,8 +1110,14 @@ color:rgb(120, 120, 120)</string>
        <string>新建规则</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/append.png</normaloff>pic/append.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/append</normaloff>:/images/append</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>12</width>
+        <height>12</height>
+       </size>
       </property>
      </widget>
      <widget class="QPushButton" name="import_rules_pushButton">
@@ -1127,8 +1133,8 @@ color:rgb(120, 120, 120)</string>
        <string>导入规则</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/import.png</normaloff>pic/import.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/import</normaloff>:/images/import</iconset>
       </property>
      </widget>
      <widget class="QPushButton" name="export_rules_pushButton">
@@ -1144,8 +1150,8 @@ color:rgb(120, 120, 120)</string>
        <string>导出规则</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/export.png</normaloff>pic/export.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/export</normaloff>:/images/export</iconset>
       </property>
      </widget>
     </widget>
@@ -1186,8 +1192,14 @@ color:rgb(120, 120, 120)</string>
        <string>新建方案</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/append.png</normaloff>pic/append.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/append</normaloff>:/images/append</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>12</width>
+        <height>12</height>
+       </size>
       </property>
      </widget>
     </widget>
@@ -1228,8 +1240,14 @@ color:rgb(120, 120, 120)</string>
        <string>新质检任务</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/append.png</normaloff>pic/append.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/append</normaloff>:/images/append</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>12</width>
+        <height>12</height>
+       </size>
       </property>
      </widget>
     </widget>
@@ -1303,8 +1321,14 @@ color:rgb(120, 120, 120)</string>
        <string>导入数据集</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/append.png</normaloff>pic/append.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/append</normaloff>:/images/append</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>12</width>
+        <height>12</height>
+       </size>
       </property>
      </widget>
     </widget>
@@ -1562,7 +1586,7 @@ color:rgb(120, 120, 120)</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>98</width>
+         <width>829</width>
          <height>16</height>
         </rect>
        </property>
@@ -1613,8 +1637,8 @@ color:rgb(120, 120, 120)</string>
        <string>保存</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/save.png</normaloff>pic/save.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/save</normaloff>:/images/save</iconset>
       </property>
      </widget>
      <widget class="QPushButton" name="new_condition_Pushbutton">
@@ -1630,8 +1654,14 @@ color:rgb(120, 120, 120)</string>
        <string>新条件</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/append.png</normaloff>pic/append.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/append</normaloff>:/images/append</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>12</width>
+        <height>12</height>
+       </size>
       </property>
      </widget>
      <widget class="QPushButton" name="delete_rule_pushButton">
@@ -1647,8 +1677,8 @@ color:rgb(120, 120, 120)</string>
        <string>删除</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/delete.png</normaloff>pic/delete.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/delete</normaloff>:/images/delete</iconset>
       </property>
      </widget>
      <widget class="QComboBox" name="score_type_comboBox">
@@ -1758,7 +1788,7 @@ color:rgb(120, 120, 120)</string>
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap>pic/AI.png</pixmap>
+        <pixmap resource="../resources.qrc">:/images/ai</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -1825,8 +1855,8 @@ color:rgb(120, 120, 120)</string>
         <string>获取AI建议</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>pic/generate.png</normaloff>pic/generate.png</iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/images/generate</normaloff>:/images/generate</iconset>
        </property>
       </widget>
      </widget>
@@ -1868,7 +1898,7 @@ color:rgb(120, 120, 120)</string>
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap>pic/logic.png</pixmap>
+        <pixmap resource="../resources.qrc">:/images/logic</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -2098,8 +2128,8 @@ background-color:transparent</string>
         <string/>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>pic/help.png</normaloff>pic/help.png</iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/images/help</normaloff>:/images/help</iconset>
        </property>
       </widget>
      </widget>
@@ -2131,8 +2161,8 @@ background-color:transparent</string>
        <string>保存方案</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/save.png</normaloff>pic/save.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/save</normaloff>:/images/save</iconset>
       </property>
      </widget>
      <widget class="QPushButton" name="delete_scheme_pushButton">
@@ -2148,8 +2178,8 @@ background-color:transparent</string>
        <string>删除方案</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/delete.png</normaloff>pic/delete.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/delete</normaloff>:/images/delete</iconset>
       </property>
      </widget>
      <widget class="QLabel" name="label_12">
@@ -2194,7 +2224,7 @@ background-color:transparent</string>
         <x>20</x>
         <y>170</y>
         <width>821</width>
-        <height>201</height>
+        <height>391</height>
        </rect>
       </property>
      </widget>
@@ -2554,7 +2584,7 @@ background-color:transparent</string>
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>pic/dataset.png</pixmap>
+       <pixmap resource="../resources.qrc">:/images/dataset</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -2573,7 +2603,7 @@ background-color:transparent</string>
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>pic/scheme.png</pixmap>
+       <pixmap resource="../resources.qrc">:/images/scheme</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -2592,7 +2622,7 @@ background-color:transparent</string>
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>pic/task.png</pixmap>
+       <pixmap resource="../resources.qrc">:/images/task</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -2874,8 +2904,8 @@ background-color:transparent</string>
         <string>删除任务</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>pic/delete.png</normaloff>pic/delete.png</iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/images/delete</normaloff>:/images/delete</iconset>
        </property>
       </widget>
       <widget class="QPushButton" name="export_task_report_pushButton">
@@ -2891,8 +2921,8 @@ background-color:transparent</string>
         <string>导出报告</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>pic/export.png</normaloff>pic/export.png</iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/images/export</normaloff>:/images/export</iconset>
        </property>
       </widget>
       <widget class="QLabel" name="label_23">
@@ -3116,8 +3146,8 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <string>添加命中规则</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/append.png</normaloff>pic/append.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/append</normaloff>:/images/append</iconset>
       </property>
      </widget>
      <widget class="QPushButton" name="manually_remove_pushButton">
@@ -3133,8 +3163,8 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <string>移除命中规则</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/remove.png</normaloff>pic/remove.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/remove</normaloff>:/images/remove</iconset>
       </property>
      </widget>
      <widget class="QFrame" name="frame_7">
@@ -3393,8 +3423,8 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
         <string>复检完成</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>pic/done.png</normaloff>pic/done.png</iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/images/done</normaloff>:/images/done</iconset>
        </property>
       </widget>
      </widget>
@@ -3411,8 +3441,8 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <string>刷新AI建议</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/reset.png</normaloff>pic/reset.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/reset</normaloff>:/images/reset</iconset>
       </property>
      </widget>
      <widget class="QPushButton" name="save_new_comment_pushButton">
@@ -3428,8 +3458,8 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <string>保存复检建议</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>pic/save.png</normaloff>pic/save.png</iconset>
+       <iconset resource="../resources.qrc">
+        <normaloff>:/images/save</normaloff>:/images/save</iconset>
       </property>
      </widget>
     </widget>
@@ -3473,17 +3503,21 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
    <widget class="QLabel" name="label_27">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>5</y>
-      <width>21</width>
-      <height>20</height>
+      <x>0</x>
+      <y>0</y>
+      <width>31</width>
+      <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:transparent
+</string>
     </property>
     <property name="text">
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap>pic/smart.png</pixmap>
+     <pixmap resource="../resources.qrc">:/images/smart</pixmap>
     </property>
     <property name="scaledContents">
      <bool>true</bool>
@@ -3514,6 +3548,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
  </tabstops>
  <resources>
   <include location="../../../Modern_GUI_PyDracula_PySide6_or_PyQt6-master/resources.qrc"/>
+  <include location="../resources.qrc"/>
  </resources>
  <connections/>
 </ui>

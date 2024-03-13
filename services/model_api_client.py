@@ -4,7 +4,7 @@ import httpx
 import openai
 from PyQt6.QtCore import pyqtSignal, QObject, QThread
 from bs4 import BeautifulSoup
-from gradio_client import Client
+# from gradio_client import Client
 from utils.global_utils import AI_PROMPT_RULES, AI_PROMPT_RULES_JSON_EXAMPLE, get_global_setting
 
 
@@ -50,29 +50,29 @@ def extract_relevant_feedback(html_content):
     return feedback_text
 
 
-def get_ai_analysis_chatglm6b(df):
-    """
-    分析客服与客户之间的 DataFrame 形式对话并提供反馈。
-
-    参数:
-    df (pd.DataFrame): 客服与客户之间的对话 DataFrame
-
-    返回:
-    str: 对话分析的反馈
-    """
-    dialog = convert_dataframe_to_single_string_dialog(df)
-    message = "请具体分析以下对话中客服存在的问题并给出改进措施，不存在的问题，请不要无中生有；其中“0”代表客服，“1”代表客户：" + dialog
-    client = Client("https://656041d841c1853a09.gradio.live/")
-    result = client.predict(
-        message,
-        4096,  # Maximum length
-        0.7,  # Top P
-        0.9,  # Temperature
-        fn_index=0
-    )
-
-    feedback = extract_relevant_feedback(str(result))
-    return feedback
+# def get_ai_analysis_chatglm6b(df):
+#     """
+#     分析客服与客户之间的 DataFrame 形式对话并提供反馈。
+#
+#     参数:
+#     df (pd.DataFrame): 客服与客户之间的对话 DataFrame
+#
+#     返回:
+#     str: 对话分析的反馈
+#     """
+#     dialog = convert_dataframe_to_single_string_dialog(df)
+#     message = "请具体分析以下对话中客服存在的问题并给出改进措施，不存在的问题，请不要无中生有；其中“0”代表客服，“1”代表客户：" + dialog
+#     client = Client("https://656041d841c1853a09.gradio.live/")
+#     result = client.predict(
+#         message,
+#         4096,  # Maximum length
+#         0.7,  # Top P
+#         0.9,  # Temperature
+#         fn_index=0
+#     )
+#
+#     feedback = extract_relevant_feedback(str(result))
+#     return feedback
 
 
 async def call_openai_api_async(dialogue, AI_prompt):

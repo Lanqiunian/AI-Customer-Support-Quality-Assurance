@@ -103,6 +103,9 @@ class SummaryManager:
         # 设置模型以填充到表格视图
         model = QStandardItemModel(0, 2)  # 0行开始，2列（规则名称和命中次数）
         model.setHorizontalHeaderLabels(['规则名称', '命中次数'])
+        # 设置表头居中
+        model.setHeaderData(0, Qt.Orientation.Horizontal, Qt.ItemDataRole.TextAlignmentRole,
+                            Qt.AlignmentFlag.AlignCenter)
 
         for row_index, (rule_name, hit_count) in enumerate(top5_rules):
             # 将规则名称和命中次数转化为标准项并添加到模型中
@@ -123,6 +126,9 @@ class SummaryManager:
         # 初始化表格模型
         self.model_summary_service = QStandardItemModel()
         self.model_summary_service.setHorizontalHeaderLabels(['客服ID', '平均得分', '平均响应时间(分钟)'])
+        # 设置表头居中
+        self.model_summary_service.setHeaderData(0, Qt.Orientation.Horizontal, Qt.ItemDataRole.TextAlignmentRole,
+                                                 Qt.AlignmentFlag.AlignCenter)
 
         for service_id, avg_score in service_avg_scores.items():
             # 获取客服的平均响应时间
