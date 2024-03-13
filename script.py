@@ -115,12 +115,34 @@ def replace_commas_in_message_content(text):
 
 #
 # print(replace_commas_in_message_content(input_text))
-conn = sqlite3.connect(TASK_DB_PATH)
-cursor_task = conn.cursor()
-cursor_task.execute('''CREATE TABLE IF NOT EXISTS analysis (
-                        task_id INTEGER,
-                        dataset_name TEXT,
-                        dialogue_id TEXT,
-                        review_comment TEXT)''')
-conn.commit()
-conn.close()
+
+import difflib
+
+
+def string_similar(s1, s2):
+    """
+    对比话术相似度。尝试在长句中匹配到短句。
+
+    :param s1: 第一个字符串（较短的字符串）
+    :param s2: 第二个字符串（较长的字符串）
+    :return: 二者相似度
+    """
+    # 确保 s1 是较短的字符串
+    if len(s1) > len(s2):
+        s1, s2 = s2, s1
+
+    max_ratio = 0
+    # 遍历长句，提取与短句长度相同的子句，比较相似度
+    for i in range(len(s2) - len(s1) + 1):
+        part = s2[i:i + len(s1)]
+        ratio = difflib.SequenceMatcher(None, s1, part).quick_ratio()
+        max_ratio = max(max_ratio, ratio)
+
+    formatted_similarity = f"{max_ratio * 100:.1f}%"
+    return formatted_similarity
+
+
+# 测试
+s1 = "是否可以无条件退换"
+s2 = "那好吧，不过我还是有点担心。你能保证如果我购买后出现问题，可以无条件退换吗?"
+print(string_similar(s1, s2))
