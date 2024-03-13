@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import QFileDialog, QDialog, QMessageBox
 
 from services.db.db_dialogue_data import import_dialogue_data, delete_dataset_by_name
 from ui.dialog_new_dataset import Ui_Dialog_new_dataset
-from utils.ui_utils import autoResizeColumnsWithStretch
+
 from utils.global_utils import DIALOGUE_DB_PATH
 
 

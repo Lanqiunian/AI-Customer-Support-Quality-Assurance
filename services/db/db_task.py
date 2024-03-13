@@ -2,7 +2,7 @@ import sqlite3
 
 from services.db.db_dialogue_data import load_data_from_db
 from services.db.db_scheme import query_scheme, update_score_by_HitRulesList
-from utils.data_utils import extract_service_messages
+
 from utils.global_utils import TASK_DB_PATH
 
 

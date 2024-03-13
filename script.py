@@ -1,5 +1,4 @@
 import re
-import sqlite3
 
 from utils.global_utils import RULE_DB_PATH, GLOBAL_DB_PATH, TASK_DB_PATH
 

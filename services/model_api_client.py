@@ -1,7 +1,6 @@
 import asyncio
 
 import httpx
-import openai
 from PyQt6.QtCore import pyqtSignal, QObject, QThread
 from bs4 import BeautifulSoup
 # from gradio_client import Client

@@ -1,10 +1,8 @@
 import pandas as pd
 
-from services.db.db_rule import query_rule, add_rule
-from services.db.db_scheme import update_score_by_HitRulesList
+from services.db.db_rule import add_rule
 from services.rule_manager import Rule
-from utils.data_utils import Dialogue, extract_service_messages
-from utils.global_utils import DIALOGUE_DATA_PATH
+from utils.data_utils import extract_service_messages
 
 
 def function_test():

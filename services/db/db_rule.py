@@ -1,8 +1,6 @@
 import json
 import sqlite3
-from collections import defaultdict
 
-from services.exceptions import RuleNameExistsException
 from services.rule_manager import Rule
 from utils.global_utils import RULE_DB_PATH, DIALOGUE_DB_PATH, SCHEME_DB_PATH, TASK_DB_PATH, GLOBAL_DB_PATH
 

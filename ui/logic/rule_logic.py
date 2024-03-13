@@ -14,9 +14,9 @@ from services.db.db_scheme import get_scheme_by_rule_name
 from services.model_api_client import AISuggestionThread
 from services.rule_manager import Rule
 from ui.logic.task_logic import WaitingDialog
-from utils.ui_utils import autoResizeColumnsWithStretch, NumericSortProxyModel
 from utils.data_utils import list_to_text, format_score, is_valid_logic_expression
 from utils.global_utils import RULE_DB_PATH
+from utils.ui_utils import NumericSortProxyModel
 
 
 class RuleManager:
@@ -747,6 +747,7 @@ class RuleManager:
         self.waitingDialog.setModal(True)
         self.waitingDialog.setWindowTitle("请稍候")
         self.waitingDialog.show()
+        self.conditionsCounter_for_check_logic_expression = 0
 
         # 创建并启动AI线程
         self.ai_thread = AISuggestionThread(direction)

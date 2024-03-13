@@ -1,9 +1,5 @@
 import os
 import sqlite3
-
-import sys
-
-import os
 import sys
 
 
@@ -82,6 +78,7 @@ AI_PROMPT_RULES_JSON_EXAMPLE = """
 logic_expression描述了各组条件之间的关系，式子中必须包含全部的条件ID，例如condition_id最大值是4，那么必须包含1 2 3 4;满足这一logic_expression，说明命中了这一规则，请你根据需要设计这一逻辑关系。
 "condition_id"是从"1"开始严格递增的。
 "target_role"如果为1，代表对用户发言检测，0代表对客服发言检测。请你根据客服交流的情景需要设计这一逻辑关系。
+"score_type"为1，代表加减总得分，值为score_value。为0，代表命中直接给分为score_value。
 你禁止返回任何除了json之外的内容，也不要有任何注释，下面是一组返回格式的例子，你不需要返回一组，你必须只能返回一条：
         {
             "rule_name": "回应用户感谢",

@@ -1,4 +1,3 @@
-import csv
 import html
 import re
 from datetime import datetime

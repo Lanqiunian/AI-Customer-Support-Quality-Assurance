@@ -16,8 +16,7 @@ from services.model_api_client import AIAnalysisWorker
 from ui.dialog_pick_a_rule import Ui_add_rule_to_scheme_Dialog
 from utils.ui_utils import autoResizeColumnsWithStretch, export_model_to_csv
 from utils.data_utils import text_to_list, get_score_info_by_name
-from utils.global_utils import TASK_DB_PATH, DIALOGUE_DB_PATH, SCHEME_DB_PATH, RULE_DB_PATH, app_config, \
-    get_global_setting
+from utils.global_utils import TASK_DB_PATH, DIALOGUE_DB_PATH, SCHEME_DB_PATH, RULE_DB_PATH, get_global_setting
 
 
 class TaskManager:
