@@ -102,7 +102,6 @@ class TaskManager:
 
         self.main_window.task_tableView.setModel(self.model_setup_task_table_view)
         self.main_window.task_tableView.verticalHeader().setVisible(False)
-        autoResizeColumnsWithStretch(self.main_window.task_tableView)
 
         # # 断开之前的连接
         # try:
@@ -855,6 +854,7 @@ class TaskManager:
     def taskCompleted(self):
         print("执行任务完成")
         self.setup_task_table_view()
+
         self.main_window.undo_check_manager.setup_undo_check_tableView()
         self.step_of_create_task = 1
         self.main_window.summary_manager.reset_summary()

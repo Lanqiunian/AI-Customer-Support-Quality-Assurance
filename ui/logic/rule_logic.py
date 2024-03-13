@@ -311,7 +311,6 @@ class RuleManager:
         # 将代理模型设置到 RuleManagerTableView
         self.main_window.RuleManagerTableView.setModel(self.proxyModel)
         self.main_window.RuleManagerTableView.verticalHeader().setVisible(False)
-        # autoResizeColumnsWithStretch(self.main_window.RuleManagerTableView)
 
         # 连接信号和槽
         self.main_window.AddRuleButton.clicked.connect(self.AddRule)

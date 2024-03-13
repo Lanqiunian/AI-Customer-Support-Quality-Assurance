@@ -15,6 +15,7 @@ from ui.logic.task_logic import TaskManager
 from ui.logic.undo_check_logic import UndoCheckManager
 from utils.data_utils import generate_html
 from utils.global_utils import UI_PATH
+from utils.ui_utils import autoResizeColumnsWithStretch
 
 
 class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -48,6 +49,9 @@ class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # 初始化 UndoCheckManager
         self.undo_check_manager = UndoCheckManager(self)
         self.undo_check_manager.setup_undo_check_tableView()
+        # 配置视图（自适应列宽、隐藏垂直表头等）
+        autoResizeColumnsWithStretch(self.undo_check_tableView)
+        autoResizeColumnsWithStretch(self.undo_check_tableView_fixed)
         # 初始化SummaryManager
         self.summary_manager = SummaryManager(self)
         self.summary_manager.reset_summary()
@@ -65,15 +69,18 @@ class CustomMainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.DataSet_Manager = DataSetManager(self)
 
         self.DataSet_Manager.setup_dataset_table_view()
+        autoResizeColumnsWithStretch(self.DataSetManagerTableView)
 
         # 初始化 SchemeManager方案管理
         self.Scheme_Manager = SchemeManager(self, self.rule_manager)
         self.Scheme_Manager.setup_scheme_table_view()
+        autoResizeColumnsWithStretch(self.scheme_tableView)
 
         # 初始化 TaskManager任务管理
         self.Task_Manager = TaskManager(self, self.rule_manager)
         self.Task_Manager.setup_task_table_view()
         self.back_to_dialogue_detail_pushButton.hide()
+        autoResizeColumnsWithStretch(self.task_tableView)
 
         # 初始化设置
         self.GlobalSettingPage_manager = GlobalSettingPageLogic(self)

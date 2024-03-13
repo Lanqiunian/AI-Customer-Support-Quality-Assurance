@@ -73,7 +73,7 @@ class SchemeManager:
 
         self.main_window.scheme_tableView.setModel(self.model_setup_scheme_table_view)
         self.main_window.scheme_tableView.verticalHeader().setVisible(False)
-        autoResizeColumnsWithStretch(self.main_window.scheme_tableView)
+
         # 连接表格的clicked信号到槽函数
         # 断开之前的连接
         try:
@@ -151,6 +151,16 @@ class SchemeManager:
         # 在这里添加实例数据
         self.loadRuleFromDB(rules_list)
 
+        for column in range(3):
+            # 根据内容自动调整列宽
+            self.main_window.existing_rules_in_scheme_tableView.resizeColumnToContents(column)
+
+            # 获取当前列宽
+            currentWidth = self.main_window.existing_rules_in_scheme_tableView.columnWidth(column)
+
+            # 给当前列宽加上额外的宽度
+            self.main_window.existing_rules_in_scheme_tableView.setColumnWidth(column, currentWidth + 20)
+
         print("setup_existing_rule_TableView加载规则完成")
 
     def loadRuleFromDB(self, rules_list):
@@ -200,6 +210,8 @@ class SchemeManager:
 
             # 将行添加到模型
             self.model_existing_rule_TableView.appendRow([id_item, name_item, score_item])
+            # ID列设置文本居中
+            self.model_existing_rule_TableView.item(0).setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # 关闭数据库连接
         conn.close()

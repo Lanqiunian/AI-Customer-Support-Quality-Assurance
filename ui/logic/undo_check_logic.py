@@ -96,10 +96,6 @@ class UndoCheckManager:
                 self.main_window.undo_check_tableView.verticalScrollBar().setValue
             )
 
-            # 配置视图（自适应列宽、隐藏垂直表头等）
-            autoResizeColumnsWithStretch(self.main_window.undo_check_tableView)
-            autoResizeColumnsWithStretch(self.main_window.undo_check_tableView_fixed)
-
             try:
                 self.main_window.undo_check_tableView.clicked.disconnect()
             except Exception:

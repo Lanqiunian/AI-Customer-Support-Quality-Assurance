@@ -79,7 +79,7 @@ class DataSetManager:
 
         self.main_window.DataSetManagerTableView.setModel(self.model)
         self.main_window.DataSetManagerTableView.verticalHeader().setVisible(False)
-        autoResizeColumnsWithStretch(self.main_window.DataSetManagerTableView)
+
         # 连接表格的clicked信号到槽函数
         # 断开之前的连接
         try:

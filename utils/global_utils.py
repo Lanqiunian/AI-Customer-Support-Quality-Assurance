@@ -41,11 +41,34 @@ class AppConfig:
 
 
 def get_global_setting():
-    conn = sqlite3.connect(GLOBAL_DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM global")
-    global_setting = cursor.fetchone()  # 假设只有一条记录
-    conn.close()
+    conn_global = sqlite3.connect(GLOBAL_DB_PATH)
+    cursor_global = conn_global.cursor()
+    cursor_global.execute('''CREATE TABLE IF NOT EXISTS global (
+                                   user_name TEXT,
+                                   default_ai_prompt TEXT,
+                                   API_KEY TEXT,
+                                   review_begin_inform INTEGER,
+                                   review_complete_inform INTEGER)''')
+
+    cursor_global.execute('SELECT COUNT(*) FROM global')
+    data_exists = cursor_global.fetchone()[0] > 0
+
+    # 如果表是新创建的且没有数据，插入初始值
+    if not data_exists:
+        cursor_global.execute('''INSERT INTO global (user_name, default_ai_prompt,API_KEY,review_begin_inform,
+        review_complete_inform) VALUES ('admin', '作为一位客服对话分析专家，你的任务是:1.识别客服在对话中的表现问题，2.给出改善建议。','sk-1234567890',1,1)''')
+
+        global_setting = (
+            'admin', '作为一位客服对话分析专家，你的任务是:1.识别客服在对话中的表现问题，2.给出改善建议。',
+            'sk-1234567890', 1,
+            1)
+        conn_global.commit()
+        conn_global.close()
+    else:
+        cursor_global.execute("SELECT * FROM global")
+        global_setting = cursor_global.fetchone()
+        print(f"global_setting", global_setting)  # 假设只有一条记录
+        conn_global.close()
 
     return AppConfig(*global_setting)
 
