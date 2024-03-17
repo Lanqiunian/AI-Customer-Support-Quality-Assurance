@@ -365,6 +365,7 @@ class TaskManager:
                 if check_review_exist(get_task_id_by_task_name(task_name), dialogue_id):
                     self.update_ai_scroll_area(check_review_exist(get_task_id_by_task_name(task_name), dialogue_id))
                     self.main_window.save_new_comment_pushButton.show()
+                    self.main_window.regenerate_AI_pushButton.show()
                 else:
                     self.display_ai_response(dialogue_data, AI_prompt)
 
