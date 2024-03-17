@@ -12,14 +12,14 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_add_rule_to_scheme_Dialog(object):
     def setupUi(self, add_rule_to_scheme_Dialog):
         add_rule_to_scheme_Dialog.setObjectName("add_rule_to_scheme_Dialog")
-        add_rule_to_scheme_Dialog.resize(216, 75)
+        add_rule_to_scheme_Dialog.resize(286, 87)
         self.pick_a_rule_buttonBox = QtWidgets.QDialogButtonBox(parent=add_rule_to_scheme_Dialog)
-        self.pick_a_rule_buttonBox.setGeometry(QtCore.QRect(20, 40, 161, 32))
+        self.pick_a_rule_buttonBox.setGeometry(QtCore.QRect(60, 50, 161, 32))
         self.pick_a_rule_buttonBox.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.pick_a_rule_buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.StandardButton.Cancel|QtWidgets.QDialogButtonBox.StandardButton.Ok)
         self.pick_a_rule_buttonBox.setObjectName("pick_a_rule_buttonBox")
         self.pick_a_rule_comboBox = QtWidgets.QComboBox(parent=add_rule_to_scheme_Dialog)
-        self.pick_a_rule_comboBox.setGeometry(QtCore.QRect(20, 10, 171, 22))
+        self.pick_a_rule_comboBox.setGeometry(QtCore.QRect(10, 10, 261, 22))
         self.pick_a_rule_comboBox.setObjectName("pick_a_rule_comboBox")
 
         self.retranslateUi(add_rule_to_scheme_Dialog)
@@ -30,3 +30,4 @@ class Ui_add_rule_to_scheme_Dialog(object):
     def retranslateUi(self, add_rule_to_scheme_Dialog):
         _translate = QtCore.QCoreApplication.translate
         add_rule_to_scheme_Dialog.setWindowTitle(_translate("add_rule_to_scheme_Dialog", "选择规则"))
+        self.pick_a_rule_comboBox.setPlaceholderText(_translate("add_rule_to_scheme_Dialog", "请选择一条规则"))

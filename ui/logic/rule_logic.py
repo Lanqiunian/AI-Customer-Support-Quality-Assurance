@@ -46,6 +46,7 @@ class RuleManager:
     def on_new_condition_button_clicked(self):
         self.add_condition_layout()
         self.conditionsCounter_for_check_logic_expression += 1
+        self.check_logic_expression()
 
     def add_condition_layout(self, condition_type=None, target_role=None, condition_value=None, additional_info=None):
 
@@ -339,6 +340,9 @@ class RuleManager:
             self.main_window.RuleManagerTableView.setColumnWidth(column, currentWidth + 20)
 
     def AddRule(self):
+        """
+        添加规则
+        """
         self.rule_editing_clear()
         self.conditionsCounter_for_check_logic_expression = 0
         self.main_window.RuleNameEditText.setReadOnly(False)
