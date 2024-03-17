@@ -49,7 +49,7 @@
 2. 打包
 
     ```bash
-   pyinstaller --noconfirm --onedir --windowed --name 智能客服质检 --ico=repositories/icon.ico --add-data "repositories/global.db;repositories" --add-data "ui/main_window.ui;ui" main.py
+   pyinstaller --noconfirm --onedir --onefile --windowed --name 智能客服质检 --ico=repositories/icon.ico --add-data "repositories/global.db;repositories" --add-data "ui/main_window.ui;ui" main.py
     ```
 
 ## 使用说明
@@ -62,6 +62,10 @@
 规则设置可以随意以json形式导入导出，极具灵活性。
 
 #### 没有灵感，不知如何设置规则？可以使用AI建议，用大白话说明你的想法，一键生成！
+
+### 创建质检方案
+
+质检方案是一组规则的集合，上一步中，你创建了质检规则的条目。这一步，你根据不同的质检场景，将规则条目组合，创建一个质检方案。
 
 ### 导入对话记录
 
