@@ -244,6 +244,8 @@ def get_score_info_by_name(rule_name):
     cursor = conn.cursor()
     cursor.execute('SELECT score_type, score_value FROM score_rules WHERE rule_name=?', (rule_name,))
     scores_info = cursor.fetchall()
+    if not scores_info:
+        return None
     return format_score(scores_info[0])
 
 

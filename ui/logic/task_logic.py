@@ -625,13 +625,13 @@ class TaskManager:
                 rule_item.setFont(font)  # 应用字体
                 rule_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 hit_rule_model.setItem(row_index, 0, rule_item)
-
                 # 假设 get_score_info_by_name 函数返回评分效果的文本描述
                 if get_score_info_by_name(rule) is not None:
                     score_effect = get_score_info_by_name(rule)
 
                 else:
                     score_effect = "规则已被删除"
+
                 score_effect_item = QStandardItem(score_effect)
                 score_effect_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 hit_rule_model.setItem(row_index, 1, score_effect_item)
