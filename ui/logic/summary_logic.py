@@ -15,6 +15,7 @@ class SummaryManager:
 
         self.main_window = main_window
         self.summary = None
+        self.columnsAdjusted = False
 
     def setup_summary_basic_info(self):
         # 绑定按键点击事件
@@ -44,7 +45,12 @@ class SummaryManager:
         uncompleted_review_count = str(self.main_window.undo_check_manager.model_undo_check_table_view.rowCount())
         print(get_global_setting().user_name)
         user_name = get_global_setting().user_name
-        welcome = '欢迎回来！' + user_name + '，当前有' + uncompleted_review_count + '个待办任务😘'
+        if uncompleted_review_count == '0':
+            welcome = '欢迎回来！' + user_name + '，当前没有待办任务😘'
+            self.main_window.go_check_commandLinkButton.hide()
+        else:
+            welcome = '欢迎回来！' + user_name + '，当前有' + uncompleted_review_count + '个待办任务🤣'
+            self.main_window.go_check_commandLinkButton.show()
         self.main_window.welcome_label.setText(welcome)
 
     def setup_button_click_event(self):
@@ -65,6 +71,7 @@ class SummaryManager:
             self.main_window.go_task_pushButton.clicked.disconnect()
             self.main_window.go_check_pushButton.clicked.disconnect()
             self.main_window.go_export_pushButton.clicked.disconnect()
+            self.main_window.reset_pushButton.clicked.disconnect()
         except TypeError:
             pass
 
@@ -82,6 +89,7 @@ class SummaryManager:
             lambda: QMessageBox.information(self.main_window, '提示',
                                             '导出报告，步骤为：\n质检任务→任务管理→查看→导出报告',
                                             QMessageBox.StandardButton.Ok))
+        self.main_window.reset_pushButton.clicked.connect(self.reset_summary)
 
     def setup_tableview_top5_hit_rules(self):
         # 连接到数据库
@@ -116,7 +124,11 @@ class SummaryManager:
             model.item(row_index, 1).setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.main_window.top_5_hit_tableView.setModel(model)
-        autoResizeColumnsWithStretch(self.main_window.top_5_hit_tableView)
+        self.main_window.top_5_hit_tableView.verticalHeader().setVisible(False)
+        if not self.columnsAdjusted:
+            autoResizeColumnsWithStretch(self.main_window.top_5_hit_tableView)
+        else:
+            pass
         immersingTableView(self.main_window.top_5_hit_tableView)
 
     def setup_tableview_summary_service(self):
@@ -151,7 +163,12 @@ class SummaryManager:
         self.main_window.summary_service_tableView.setModel(self.model_summary_service)
 
         # 配置视图样式和行为
-        autoResizeColumnsWithStretch(self.main_window.summary_service_tableView)
+        if not self.columnsAdjusted:
+            autoResizeColumnsWithStretch(self.main_window.summary_service_tableView)
+            self.columnsAdjusted = True
+        else:
+            pass
+
         self.main_window.summary_service_tableView.verticalHeader().setVisible(False)
         immersingTableView(self.main_window.summary_service_tableView)
 

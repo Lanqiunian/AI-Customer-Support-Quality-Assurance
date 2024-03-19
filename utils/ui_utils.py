@@ -13,7 +13,9 @@ def autoResizeColumnsWithStretch(tableViewWidget):
     """
     使表格的列宽自适应内容，并为每列增加额外宽度，避免文字被遮挡。
     :param tableViewWidget: QTableView对象
+
     """
+
     tableViewWidget.resizeColumnsToContents()  # 首先进行自适应宽度调整
     # 隐藏垂直表头
     tableViewWidget.verticalHeader().hide()
