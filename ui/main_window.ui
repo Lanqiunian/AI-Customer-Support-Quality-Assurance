@@ -1062,10 +1062,15 @@ color:rgb(120, 120, 120)</string>
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>0</y>
-        <width>81</width>
-        <height>16</height>
+        <y>5</y>
+        <width>141</width>
+        <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>16</pointsize>
+       </font>
       </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
@@ -1177,10 +1182,15 @@ color:rgb(120, 120, 120)</string>
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>0</y>
-        <width>151</width>
-        <height>16</height>
+        <y>5</y>
+        <width>131</width>
+        <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>16</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>质检方案管理</string>
@@ -1225,10 +1235,15 @@ color:rgb(120, 120, 120)</string>
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>0</y>
-        <width>61</width>
-        <height>16</height>
+        <y>5</y>
+        <width>101</width>
+        <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>16</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>任务管理</string>
@@ -1273,10 +1288,15 @@ color:rgb(120, 120, 120)</string>
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>0</y>
-        <width>71</width>
-        <height>16</height>
+        <y>5</y>
+        <width>111</width>
+        <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>16</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>数据集管理</string>
@@ -1354,10 +1374,15 @@ color:rgb(120, 120, 120)</string>
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>0</y>
-        <width>141</width>
-        <height>16</height>
+        <y>5</y>
+        <width>201</width>
+        <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>16</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>待办任务-待人工审核</string>
@@ -1367,9 +1392,9 @@ color:rgb(120, 120, 120)</string>
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>30</y>
+        <y>40</y>
         <width>661</width>
-        <height>521</height>
+        <height>511</height>
        </rect>
       </property>
      </widget>
@@ -1377,9 +1402,9 @@ color:rgb(120, 120, 120)</string>
       <property name="geometry">
        <rect>
         <x>660</x>
-        <y>30</y>
+        <y>40</y>
         <width>181</width>
-        <height>511</height>
+        <height>501</height>
        </rect>
       </property>
      </widget>
@@ -1388,11 +1413,16 @@ color:rgb(120, 120, 120)</string>
      <widget class="QLabel" name="label_8">
       <property name="geometry">
        <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>54</width>
-        <height>16</height>
+        <x>10</x>
+        <y>5</y>
+        <width>101</width>
+        <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>16</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>系统管理</string>
@@ -1402,9 +1432,9 @@ color:rgb(120, 120, 120)</string>
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>30</y>
+        <y>50</y>
         <width>851</width>
-        <height>531</height>
+        <height>511</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -2156,13 +2186,18 @@ background-color:transparent</string>
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>10</y>
+        <y>5</y>
         <width>91</width>
-        <height>16</height>
+        <height>31</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>16</pointsize>
+       </font>
+      </property>
       <property name="text">
-       <string>方案编辑页面</string>
+       <string>编辑方案</string>
       </property>
      </widget>
      <widget class="QPushButton" name="save_scheme_pushButton">
@@ -2300,10 +2335,15 @@ background-color:transparent</string>
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>0</y>
-        <width>81</width>
-        <height>16</height>
+        <y>5</y>
+        <width>141</width>
+        <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>16</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>新建质检任务</string>
@@ -2326,7 +2366,7 @@ background-color:transparent</string>
       <property name="geometry">
        <rect>
         <x>130</x>
-        <y>40</y>
+        <y>50</y>
         <width>181</width>
         <height>41</height>
        </rect>
@@ -2351,7 +2391,7 @@ background-color:transparent</string>
       <property name="geometry">
        <rect>
         <x>300</x>
-        <y>49</y>
+        <y>59</y>
         <width>61</width>
         <height>31</height>
        </rect>
@@ -2369,7 +2409,7 @@ background-color:transparent</string>
       <property name="geometry">
        <rect>
         <x>390</x>
-        <y>40</y>
+        <y>50</y>
         <width>161</width>
         <height>41</height>
        </rect>
@@ -2388,7 +2428,7 @@ background-color:transparent</string>
       <property name="geometry">
        <rect>
         <x>620</x>
-        <y>40</y>
+        <y>50</y>
         <width>181</width>
         <height>41</height>
        </rect>
@@ -2407,7 +2447,7 @@ background-color:transparent</string>
       <property name="geometry">
        <rect>
         <x>530</x>
-        <y>49</y>
+        <y>59</y>
         <width>91</width>
         <height>31</height>
        </rect>
@@ -2613,7 +2653,7 @@ background-color:transparent</string>
       <property name="geometry">
        <rect>
         <x>90</x>
-        <y>40</y>
+        <y>50</y>
         <width>41</width>
         <height>41</height>
        </rect>
@@ -2632,7 +2672,7 @@ background-color:transparent</string>
       <property name="geometry">
        <rect>
         <x>350</x>
-        <y>40</y>
+        <y>50</y>
         <width>41</width>
         <height>41</height>
        </rect>
@@ -2651,7 +2691,7 @@ background-color:transparent</string>
       <property name="geometry">
        <rect>
         <x>580</x>
-        <y>40</y>
+        <y>50</y>
         <width>41</width>
         <height>41</height>
        </rect>
@@ -3043,11 +3083,16 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
      <widget class="QLabel" name="label_19">
       <property name="geometry">
        <rect>
-        <x>60</x>
-        <y>5</y>
-        <width>54</width>
-        <height>21</height>
+        <x>50</x>
+        <y>0</y>
+        <width>91</width>
+        <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>16</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>对话详情</string>
@@ -3113,7 +3158,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>-1</y>
+        <y>0</y>
         <width>31</width>
         <height>31</height>
        </rect>
@@ -3209,9 +3254,9 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>30</y>
+        <y>40</y>
         <width>841</width>
-        <height>71</height>
+        <height>61</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -3233,7 +3278,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <property name="geometry">
         <rect>
          <x>50</x>
-         <y>50</y>
+         <y>40</y>
          <width>411</width>
          <height>21</height>
         </rect>
@@ -3249,7 +3294,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <property name="geometry">
         <rect>
          <x>240</x>
-         <y>10</y>
+         <y>0</y>
          <width>21</width>
          <height>21</height>
         </rect>
@@ -3265,7 +3310,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>30</y>
+         <y>20</y>
          <width>54</width>
          <height>21</height>
         </rect>
@@ -3281,7 +3326,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>10</y>
+         <y>0</y>
          <width>61</width>
          <height>21</height>
         </rect>
@@ -3297,7 +3342,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <property name="geometry">
         <rect>
          <x>50</x>
-         <y>30</y>
+         <y>20</y>
          <width>411</width>
          <height>21</height>
         </rect>
@@ -3313,7 +3358,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>50</y>
+         <y>40</y>
          <width>54</width>
          <height>21</height>
         </rect>
@@ -3329,7 +3374,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <property name="geometry">
         <rect>
          <x>70</x>
-         <y>10</y>
+         <y>0</y>
          <width>54</width>
          <height>21</height>
         </rect>
@@ -3345,7 +3390,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <property name="geometry">
         <rect>
          <x>180</x>
-         <y>30</y>
+         <y>20</y>
          <width>271</width>
          <height>21</height>
         </rect>
@@ -3361,7 +3406,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <property name="geometry">
         <rect>
          <x>130</x>
-         <y>10</y>
+         <y>0</y>
          <width>111</width>
          <height>21</height>
         </rect>
@@ -3377,7 +3422,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <property name="geometry">
         <rect>
          <x>133</x>
-         <y>31</y>
+         <y>21</y>
          <width>51</width>
          <height>20</height>
         </rect>
@@ -3435,7 +3480,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <property name="geometry">
         <rect>
          <x>700</x>
-         <y>20</y>
+         <y>15</y>
          <width>111</width>
          <height>31</height>
         </rect>
@@ -3452,7 +3497,7 @@ QTextEdit#the_task_description_label QScrollBar:horizontal {
        <property name="geometry">
         <rect>
          <x>700</x>
-         <y>20</y>
+         <y>15</y>
          <width>111</width>
          <height>31</height>
         </rect>
